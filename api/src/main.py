@@ -15,7 +15,12 @@ async def root():
 
 
 if __name__ == "__main__":
-    if os.environ["ENV"] == "dev":
-        uvicorn.run("main:app", port=5000, log_level="info", reload=True)
-    else:
-        uvicorn.run("main:app", port=5000, log_level="warning")
+    HOST = os.environ.get("SERVER_HOST", "127.0.0.1")
+    PORT = int(os.environ.get("SERVER_PORT", "5000"))
+    RELOAD = os.environ.get("ENV") == "dev"
+
+    uvicorn.run("main:app",
+                host=HOST,
+                port=PORT,
+                reload=RELOAD,
+                log_level="info")
