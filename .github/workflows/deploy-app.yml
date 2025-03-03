@@ -7,9 +7,10 @@
 # You can also reference a tag or branch, but the action may change without warning.
 name: Build and Deploy App
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: [Test App]
+    types: [completed]
+    branches: [main]
 # on: push
 jobs:
   build:
