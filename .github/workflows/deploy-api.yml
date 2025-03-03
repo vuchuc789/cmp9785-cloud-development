@@ -7,14 +7,16 @@
 # You can also reference a tag or branch, but the action may change without warning.
 name: Build and Deploy Api
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+    branches: [main]
 # on: push
 jobs:
   build:
     name: Build and Push image to Docker Hub
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       packages: write
       contents: read
@@ -53,6 +55,7 @@ jobs:
   deploy:
     name: Deploy to Azure Functions
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     needs: build
     steps:
       - name: Check out the repo

@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import Annotated
 from sqlmodel import select
 
-from database import SessionDep
-from models import Hero
+from app.database import SessionDep
+from app.models import Hero
 
 router = APIRouter()
 

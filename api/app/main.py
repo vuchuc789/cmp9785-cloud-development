@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
-from database import run_migrations
+from .database import run_migrations
 
-from routers import heroes
+from .routers import heroes
 
 load_dotenv()
 
@@ -30,10 +30,10 @@ async def root():
 
 if __name__ == "__main__":
     HOST = os.environ.get("SERVER_HOST", "127.0.0.1")
-    PORT = int(os.environ.get("SERVER_PORT", "5000"))
+    PORT = int(os.environ.get("SERVER_PORT", "3001"))
     RELOAD = os.environ.get("ENV") == "dev"
 
-    uvicorn.run("main:app",
+    uvicorn.run("app.main:app",
                 host=HOST,
                 port=PORT,
                 reload=RELOAD,

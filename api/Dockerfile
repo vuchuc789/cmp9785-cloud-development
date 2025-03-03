@@ -18,4 +18,4 @@ ENV ENV=prod
 ENV SERVER_HOST=0.0.0.0
 ENV SERVER_PORT=80
 
-CMD ["python", "app/main.py"]
+CMD ["python", "-m", "app.main"]
