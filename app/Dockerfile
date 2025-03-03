@@ -2,6 +2,7 @@
 
 # FROM node:22-alpine AS base
 FROM mcr.microsoft.com/azure-functions/node:4-node22 AS base
+# FROM mcr.microsoft.com/azure-functions/node:4-node22-appservice AS base
 
 # Install dependencies only when needed
 FROM base AS deps

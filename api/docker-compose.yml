@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16.8
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: cmp9134
+      POSTGRES_PASSWORD: abcd1234
+    ports:
+      - 5432:5432
+  # api:
+  #   build: .
+  #   environment:
+  #     AZURE_POSTGRESQL_HOST: db
+  #     AZURE_POSTGRESQL_PORT: 5432
+  #     AZURE_POSTGRESQL_DATABASE: postgres
+  #     AZURE_POSTGRESQL_USERNAME: cmp9134
+  #     AZURE_POSTGRESQL_PASSWORD: abcd1234
+  #   ports:
+  #     - "4000:80"

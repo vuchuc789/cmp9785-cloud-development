@@ -3,10 +3,24 @@ import uvicorn
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from database import run_migrations
+
+from routers import heroes
 
 load_dotenv()
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    run_migrations()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
+
+app.include_router(heroes.router)
 
 
 @app.get("/")
