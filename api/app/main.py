@@ -1,40 +1,36 @@
-import os
-import uvicorn
-
-from dotenv import load_dotenv
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
-from .database import run_migrations
+import uvicorn
+from fastapi import FastAPI
 
-from .routers import heroes
-
-load_dotenv()
+from app.api.routes import users
+from app.core.config import get_settings
+from app.core.database import run_migrations
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    run_migrations()
-    yield
+    yield run_migrations()
 
 
-app = FastAPI(lifespan=lifespan)
-
-app.include_router(heroes.router)
+app = FastAPI(root_path='/api/v1', lifespan=lifespan)
 
 
-@app.get("/")
+@app.get('/')
 async def root():
-    return {"message": "Hello World"}
+    return {'message': 'Hello World'}
 
 
-if __name__ == "__main__":
-    HOST = os.environ.get("SERVER_HOST", "127.0.0.1")
-    PORT = int(os.environ.get("SERVER_PORT", "3001"))
-    RELOAD = os.environ.get("ENV") == "dev"
+app.include_router(users.router, prefix='/users', tags=['users'])
 
-    uvicorn.run("app.main:app",
-                host=HOST,
-                port=PORT,
-                reload=RELOAD,
-                log_level="info")
+if __name__ == '__main__':
+    settings = get_settings()
+    reload = settings.env == 'dev'
+
+    uvicorn.run(
+        'app.main:app',
+        host=settings.server_host,
+        port=settings.server_port,
+        log_level=settings.log_level,
+        reload=reload,
+    )
