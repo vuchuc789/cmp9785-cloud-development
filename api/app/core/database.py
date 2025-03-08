@@ -11,7 +11,13 @@ settings = get_settings()
 
 db_url = f'postgresql://{settings.db_username}:{settings.db_password}@{settings.db_host}:{settings.db_port}/{settings.db_database}'
 # Create the engine
-engine = create_engine(db_url)
+print_queries = settings.env == 'dev'
+engine = create_engine(
+    db_url,
+    pool_size=settings.db_pool_size,
+    max_overflow=settings.db_max_overflow,
+    echo=print_queries,
+)
 
 
 def get_session():

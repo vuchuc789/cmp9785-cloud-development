@@ -21,10 +21,12 @@ class Settings(BaseSettings):
     db_password: str = Field(
         validation_alias=AliasChoices('db_password', 'azure_postgresql_password')
     )
+    db_pool_size: int = 10
+    db_max_overflow: int = 20
 
     auth_token_secret_key: str  # openssl rand -hex 32
-    auth_token_algorithm: str
-    access_token_expire_minutes: int
+    auth_token_algorithm: str = 'HS256'
+    access_token_expire_minutes: int = 30
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
