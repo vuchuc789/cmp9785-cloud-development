@@ -71,9 +71,9 @@ jobs:
           app-name: cmp9134-app
           image: vuchuc781999/cmp9134-app:m-${{ env.COMMIT_SHORT_SHA }}
       # If you want to display or use the functionapp url, then uncomment the task below
-      - name: Published functionapp url
-        run: |
-          echo "${{ steps.fa.outputs.app-url }}"
+      # - name: Published functionapp url
+      #   run: |
+      #     echo "${{ steps.fa.outputs.app-url }}"
       - name: Azure logout
         run: |
           az logout

@@ -6,10 +6,16 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.dependencies import CurrentUserDep, SessionDep, SettingsDep
 from app.core.security import Token, create_access_token
-from app.schemas.user import CreateUserForm, UserResponse
+from app.schemas.user import CreateUserForm, UpdateUserForm, UserResponse
 from app.services.user_service import user_service
 
 router = APIRouter()
+
+
+@router.post('/register', response_model=UserResponse)
+async def register_new_user(user: Annotated[CreateUserForm, Form()], session: SessionDep):
+    response_user = user_service.create_user(session, user=user)
+    return response_user
 
 
 @router.post('/login')
@@ -29,6 +35,8 @@ async def login_for_access_token(
     access_token = create_access_token(
         data={'sub': user.username},
         expires_delta=access_token_expires,
+        secret_key=settings.auth_token_secret_key,
+        algorithm=settings.auth_token_algorithm,
     )
     return Token(access_token=access_token, token_type='bearer')
 
@@ -38,7 +46,15 @@ async def get_current_user_info(current_user: CurrentUserDep):
     return current_user
 
 
-@router.post('/register', response_model=UserResponse)
-async def register_new_user(user: Annotated[CreateUserForm, Form()], session: SessionDep):
-    user_service.create_user(session, user=user)
-    return user
+@router.patch('/update', response_model=UserResponse)
+async def update_user_info(
+    user: Annotated[UpdateUserForm, Form()], current_user: CurrentUserDep, session: SessionDep
+):
+    if user.username != current_user.username:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Username and token do not match',
+        )
+
+    user_service.update_user(session, user=user, current_user=current_user)
+    return current_user

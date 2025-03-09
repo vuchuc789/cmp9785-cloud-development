@@ -44,9 +44,6 @@ async def get_current_user(
     except InvalidTokenError as err:
         raise credentials_exception from err
 
-    if token_data.username is None:
-        raise credentials_exception
-
     user = user_service.get_user(session, username=token_data.username)
     if user is None:
         raise credentials_exception

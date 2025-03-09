@@ -5,8 +5,6 @@ import jwt
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 
-from app.core.config import get_settings
-
 
 class Token(BaseModel):
     access_token: str
@@ -14,7 +12,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: str | None = None
+    username: str
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='users/login')
@@ -37,12 +35,9 @@ def verify_password(plain_password: str, hashed_password: str):
     )
 
 
-def create_access_token(data: dict, expires_delta: timedelta):
+def create_access_token(data: dict, expires_delta: timedelta, secret_key: str, algorithm: str):
     to_encode = data.copy()
     expire = datetime.now(UTC) + expires_delta
     to_encode.update({'exp': expire})
-    settings = get_settings()
-    encoded_jwt = jwt.encode(
-        to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
-    )
+    encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algorithm)
     return encoded_jwt
