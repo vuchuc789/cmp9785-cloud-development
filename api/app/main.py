@@ -2,10 +2,13 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import users
 from app.core.config import get_settings
 from app.core.database import run_migrations
+
+settings = get_settings()
 
 
 @asynccontextmanager
@@ -14,6 +17,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(root_path='/api/v1', lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
 
 
 @app.get('/')
@@ -24,7 +35,6 @@ async def root():
 app.include_router(users.router, prefix='/users', tags=['users'])
 
 if __name__ == '__main__':
-    settings = get_settings()
     reload = settings.env == 'dev'
 
     uvicorn.run(
