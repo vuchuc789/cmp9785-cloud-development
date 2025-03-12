@@ -36,6 +36,10 @@ jobs:
           images: vuchuc781999/cmp9134-app
           tags: |
             type=sha,prefix=m-
+      - name: Extract environment variables to a file
+        run: |
+          env > ./app/.env.local
+          cat ./app/.env.local
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671

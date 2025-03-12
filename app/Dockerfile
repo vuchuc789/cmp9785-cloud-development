@@ -33,7 +33,7 @@ FROM base AS runner
 WORKDIR /home/site/wwwroot
 
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
-  AzureFunctionsJobHost__Logging__Console__IsEnabled=true
+    AzureFunctionsJobHost__Logging__Console__IsEnabled=true
 
 ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
