@@ -42,7 +42,7 @@ jobs:
         with:
           context: ./app
           file: ./app/Dockerfile
-          args: |
+          build-args: |
             NEXT_PUBLIC_API_URL=${{ env.NEXT_PUBLIC_API_URL }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
