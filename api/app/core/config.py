@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, EmailStr, Field, HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     env: str
     server_host: str
     server_port: int
-    log_level: str
+    log_level: str = 'info'
 
     db_host: str = Field(validation_alias=AliasChoices('db_host', 'azure_postgresql_host'))
     db_port: int = Field(validation_alias=AliasChoices('db_port', 'azure_postgresql_port'))
@@ -28,7 +28,11 @@ class Settings(BaseSettings):
     auth_token_algorithm: str = 'HS256'
     access_token_expire_minutes: int = 30
 
-    cors_origins: list[str]
+    cors_origins: list[str] = ['*']
+
+    sendgrid_api_key: str
+    source_email: EmailStr
+    frontend_url: HttpUrl
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 

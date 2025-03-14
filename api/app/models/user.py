@@ -1,5 +1,13 @@
+from enum import Enum
+
 from sqlalchemy import UniqueConstraint
 from sqlmodel import Field, SQLModel
+
+
+class EmailVerificationStatus(str, Enum):
+    verified = 'verified'
+    verifying = 'verifying'
+    none = 'none'
 
 
 class User(SQLModel, table=True):
@@ -15,3 +23,5 @@ class User(SQLModel, table=True):
     email: str | None = None
     full_name: str | None = None
     hashed_password: str
+    email_verification_status: EmailVerificationStatus = EmailVerificationStatus.none
+    email_verification_token: str | None = None

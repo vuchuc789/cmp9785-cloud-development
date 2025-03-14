@@ -17,6 +17,14 @@ export type CreateUserForm = {
   password_repeat: string;
 };
 
+export type EmailVerificationStatus = 'verified' | 'verifying' | 'none';
+
+export const EmailVerificationStatus = {
+  VERIFIED: 'verified',
+  VERIFYING: 'verifying',
+  NONE: 'none',
+} as const;
+
 export type HttpValidationError = {
   detail?: Array<ValidationError>;
 };
@@ -38,6 +46,7 @@ export type UserResponse = {
   username: string;
   email?: string | null;
   full_name?: string | null;
+  email_verification_status: EmailVerificationStatus;
 };
 
 export type ValidationError = {
@@ -157,6 +166,52 @@ export type UpdateUserInfoUsersUpdatePatchResponses = {
 
 export type UpdateUserInfoUsersUpdatePatchResponse =
   UpdateUserInfoUsersUpdatePatchResponses[keyof UpdateUserInfoUsersUpdatePatchResponses];
+
+export type VerifyEmailUsersVerifyEmailGetData = {
+  body?: never;
+  path?: never;
+  query: {
+    token: string;
+  };
+  url: '/users/verify-email';
+};
+
+export type VerifyEmailUsersVerifyEmailGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type VerifyEmailUsersVerifyEmailGetError =
+  VerifyEmailUsersVerifyEmailGetErrors[keyof VerifyEmailUsersVerifyEmailGetErrors];
+
+export type VerifyEmailUsersVerifyEmailGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: UserResponse;
+};
+
+export type VerifyEmailUsersVerifyEmailGetResponse =
+  VerifyEmailUsersVerifyEmailGetResponses[keyof VerifyEmailUsersVerifyEmailGetResponses];
+
+export type SendVerificationEmailUsersVerifyEmailPostData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/users/verify-email';
+};
+
+export type SendVerificationEmailUsersVerifyEmailPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: UserResponse;
+};
+
+export type SendVerificationEmailUsersVerifyEmailPostResponse =
+  SendVerificationEmailUsersVerifyEmailPostResponses[keyof SendVerificationEmailUsersVerifyEmailPostResponses];
 
 export type ClientOptions = {
   baseUrl: `${string}://${string}/api/v1` | (string & {});

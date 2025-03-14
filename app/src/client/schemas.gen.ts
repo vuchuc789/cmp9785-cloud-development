@@ -91,6 +91,11 @@ export const CreateUserFormSchema = {
   required: ['username', 'password', 'password_repeat'],
 } as const;
 
+export const EmailVerificationStatusSchema = {
+  type: 'string',
+  enum: ['verified', 'verifying', 'none'],
+} as const;
+
 export const HTTPValidationErrorSchema = {
   properties: {
     detail: {
@@ -201,9 +206,12 @@ export const UserResponseSchema = {
         },
       ],
     },
+    email_verification_status: {
+      $ref: '#/components/schemas/EmailVerificationStatus',
+    },
   },
   type: 'object',
-  required: ['username'],
+  required: ['username', 'email_verification_status'],
 } as const;
 
 export const ValidationErrorSchema = {

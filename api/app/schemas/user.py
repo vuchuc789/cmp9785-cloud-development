@@ -2,6 +2,7 @@ from typing import Any, Self
 
 from pydantic import BaseModel, EmailStr, Field, model_validator
 
+from app.models.user import EmailVerificationStatus
 from app.utils.model import convert_empty_str_to_none
 
 
@@ -20,7 +21,8 @@ class CreateUserData(User):
     password: str = Field(min_length=6, max_length=50)
 
 
-class CreateUserForm(CreateUserData):
+class CreateUserForm(User):
+    password: str = Field(min_length=6, max_length=50)
     password_repeat: str = Field(min_length=6, max_length=50)
 
     @model_validator(mode='after')
@@ -32,9 +34,12 @@ class CreateUserForm(CreateUserData):
 
 class UpdateUserData(User):
     password: str | None = Field(default=None, min_length=6, max_length=50)
+    email_verification_token: str | None = None
+    email_verification_status: EmailVerificationStatus = EmailVerificationStatus.none
 
 
-class UpdateUserForm(UpdateUserData):
+class UpdateUserForm(User):
+    password: str | None = Field(default=None, min_length=6, max_length=50)
     password_repeat: str | None = Field(default=None, min_length=6, max_length=50)
 
     @model_validator(mode='after')
@@ -45,4 +50,4 @@ class UpdateUserForm(UpdateUserData):
 
 
 class UserResponse(User):
-    pass
+    email_verification_status: EmailVerificationStatus

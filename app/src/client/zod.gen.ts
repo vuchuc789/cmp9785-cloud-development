@@ -19,6 +19,12 @@ export const zCreateUserForm = z.object({
   password_repeat: z.string().min(6).max(50),
 });
 
+export const zEmailVerificationStatus = z.enum([
+  'verified',
+  'verifying',
+  'none',
+]);
+
 export const zHttpValidationError = z.object({
   detail: z
     .array(
@@ -48,6 +54,7 @@ export const zUserResponse = z.object({
   username: z.string().min(6).max(50),
   email: z.union([z.string().email(), z.null()]).optional(),
   full_name: z.union([z.string(), z.null()]).optional(),
+  email_verification_status: zEmailVerificationStatus,
 });
 
 export const zValidationError = z.object({
@@ -63,3 +70,7 @@ export const zLoginForAccessTokenUsersLoginPostResponse = zToken;
 export const zGetCurrentUserInfoUsersInfoGetResponse = zUserResponse;
 
 export const zUpdateUserInfoUsersUpdatePatchResponse = zUserResponse;
+
+export const zVerifyEmailUsersVerifyEmailGetResponse = zUserResponse;
+
+export const zSendVerificationEmailUsersVerifyEmailPostResponse = zUserResponse;

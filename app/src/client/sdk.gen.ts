@@ -19,6 +19,11 @@ import type {
   UpdateUserInfoUsersUpdatePatchData,
   UpdateUserInfoUsersUpdatePatchResponse,
   UpdateUserInfoUsersUpdatePatchError,
+  VerifyEmailUsersVerifyEmailGetData,
+  VerifyEmailUsersVerifyEmailGetResponse,
+  VerifyEmailUsersVerifyEmailGetError,
+  SendVerificationEmailUsersVerifyEmailPostData,
+  SendVerificationEmailUsersVerifyEmailPostResponse,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
 import {
@@ -26,6 +31,8 @@ import {
   zLoginForAccessTokenUsersLoginPostResponse,
   zGetCurrentUserInfoUsersInfoGetResponse,
   zUpdateUserInfoUsersUpdatePatchResponse,
+  zVerifyEmailUsersVerifyEmailGetResponse,
+  zSendVerificationEmailUsersVerifyEmailPostResponse,
 } from './zod.gen';
 
 export type Options<
@@ -167,5 +174,55 @@ export const updateUserInfoUsersUpdatePatch = <
       'Content-Type': 'application/x-www-form-urlencoded',
       ...options?.headers,
     },
+  });
+};
+
+/**
+ * Verify Email
+ */
+export const verifyEmailUsersVerifyEmailGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<VerifyEmailUsersVerifyEmailGetData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    VerifyEmailUsersVerifyEmailGetResponse,
+    VerifyEmailUsersVerifyEmailGetError,
+    ThrowOnError
+  >({
+    responseValidator: async (data) => {
+      return await zVerifyEmailUsersVerifyEmailGetResponse.parseAsync(data);
+    },
+    url: '/users/verify-email',
+    ...options,
+  });
+};
+
+/**
+ * Send Verification Email
+ */
+export const sendVerificationEmailUsersVerifyEmailPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<SendVerificationEmailUsersVerifyEmailPostData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    SendVerificationEmailUsersVerifyEmailPostResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zSendVerificationEmailUsersVerifyEmailPostResponse.parseAsync(
+        data
+      );
+    },
+    url: '/users/verify-email',
+    ...options,
   });
 };

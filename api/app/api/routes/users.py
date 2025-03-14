@@ -1,12 +1,19 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import UUID4
 
 from app.api.dependencies import CurrentUserDep, SessionDep, SettingsDep
 from app.core.security import Token, create_access_token
-from app.schemas.user import CreateUserForm, UpdateUserForm, UserResponse
+from app.schemas.user import (
+    CreateUserData,
+    CreateUserForm,
+    UpdateUserData,
+    UpdateUserForm,
+    UserResponse,
+)
 from app.services.user_service import user_service
 
 router = APIRouter()
@@ -14,7 +21,7 @@ router = APIRouter()
 
 @router.post('/register', response_model=UserResponse)
 async def register_new_user(user: Annotated[CreateUserForm, Form()], session: SessionDep):
-    response_user = user_service.create_user(session, user=user)
+    response_user = user_service.create_user(session, user=CreateUserData(**user.model_dump()))
     return response_user
 
 
@@ -50,11 +57,31 @@ async def get_current_user_info(current_user: CurrentUserDep):
 async def update_user_info(
     user: Annotated[UpdateUserForm, Form()], current_user: CurrentUserDep, session: SessionDep
 ):
-    if user.username != current_user.username:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Username and token do not match',
-        )
+    user_service.update_user(
+        session, user=UpdateUserData(**user.model_dump()), current_user=current_user
+    )
+    return current_user
 
-    user_service.update_user(session, user=user, current_user=current_user)
+
+@router.get('/verify-email', response_model=UserResponse)
+async def verify_email(
+    token: UUID4,
+    session: SessionDep,
+):
+    user = user_service.verify_email(token=str(token), db=session)
+
+    return user
+
+
+@router.post('/verify-email', response_model=UserResponse)
+async def send_verification_email(
+    current_user: CurrentUserDep,
+    session: SessionDep,
+    settings: SettingsDep,
+    background_tasks: BackgroundTasks,
+):
+    user_service.send_verification_email(
+        session, settings=settings, current_user=current_user, background_tasks=background_tasks
+    )
+
     return current_user
