@@ -7,8 +7,7 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
 
 # Setup SSH
 COPY sshd_config /etc/ssh/sshd_config
-ENV SSH_PASSWD="root:Docker!"
-RUN echo "$SSH_PASSWD" | chpasswd
+RUN echo "root:Docker!" | chpasswd
 
 COPY ./requirements.txt /
 RUN pip install --no-cache-dir --upgrade -r /requirements.txt

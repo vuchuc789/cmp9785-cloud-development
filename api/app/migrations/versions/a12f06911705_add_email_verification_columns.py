@@ -30,6 +30,7 @@ def upgrade() -> None:
                 'verified', 'verifying', 'none', name='emailverificationstatus', create_type=False
             ),
             nullable=False,
+            server_default='none',
         ),
     )
     op.add_column(
