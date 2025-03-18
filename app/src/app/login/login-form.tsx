@@ -1,6 +1,5 @@
 'use client';
 
-import { loginForAccessTokenUsersLoginPost } from '@/client';
 import { zBodyLoginForAccessTokenUsersLoginPost } from '@/client/zod.gen';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,21 +9,22 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { z } from 'zod';
 import {
   Form,
   FormControl,
   FormField,
   FormLabel,
   FormMessage,
-} from './ui/form';
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/auth';
+import { useAuthNotRequired } from '@/hooks/auth';
+import { cn } from '@/lib/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 export function LoginForm({
   className,
@@ -40,28 +40,20 @@ export function LoginForm({
   });
 
   const router = useRouter();
+  const {
+    login,
+    state: { isLoading },
+  } = useAuth();
+
+  useAuthNotRequired();
 
   const onSubmit = async (
     values: z.infer<typeof zBodyLoginForAccessTokenUsersLoginPost>
   ) => {
-    if (!values.username || !values.password) {
-      toast.error('Username and password should not be empty');
-      return;
-    }
+    const isSuccessed = await login(values);
 
-    const res = await loginForAccessTokenUsersLoginPost({
-      body: values,
-    });
-
-    if (res.response.status === 200) {
-      toast.success('Logged in successfully');
+    if (isSuccessed) {
       router.push('/');
-    } else if (res.response.status >= 400) {
-      if (typeof res.error?.detail === 'string') {
-        toast.error(res.error.detail);
-      } else {
-        toast.error('Something went wrong');
-      }
     }
   };
 
@@ -102,15 +94,15 @@ export function LoginForm({
                   name="password"
                   render={({ field }) => (
                     <div className="grid gap-3">
-                      {/* <div className="flex items-center"> */}
-                      <FormLabel htmlFor="password">Password</FormLabel>
-                      {/* <a
+                      <div className="flex items-center">
+                        <FormLabel htmlFor="password">Password</FormLabel>
+                        <a
                           href="#"
                           className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                         >
                           Forgot your password?
-                        </a> */}
-                      {/* </div> */}
+                        </a>
+                      </div>
                       <FormControl>
                         <Input
                           id="password"
@@ -125,7 +117,7 @@ export function LoginForm({
                 />
 
                 {/* <div className="flex flex-col gap-3"> */}
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" disabled={isLoading}>
                   Login
                 </Button>
                 {/* <Button variant="outline" className="w-full">

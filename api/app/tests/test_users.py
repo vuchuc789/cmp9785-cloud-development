@@ -261,6 +261,96 @@ def test_update_user_info(session: Session, settings: Settings, client: TestClie
     assert response.json()['email'] == 'johndoe@gmail.com'
 
 
+def test_update_user_info_update_verifying_email(
+    session: Session, settings: Settings, client: TestClient
+):
+    mock_token = uuid4()
+    user = User(
+        username='johndoe',
+        hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
+        full_name='John Doe',
+        email='johndoe@example.com',
+        email_verification_status=EmailVerificationStatus.verifying,
+        email_verification_token=str(mock_token),
+    )
+    session.add(user)
+    session.commit()
+
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    encoded_jwt = jwt.encode(
+        to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
+    )
+    headers['Authorization'] = f'Bearer {encoded_jwt}'
+
+    request_data = {
+        'username': 'johndoe',
+        'password': 'abc123',
+        'password_repeat': 'abc123',
+        'email': 'johndoe@gmail.com',
+        'full_name': 'John Doeeeee',
+    }
+
+    response = client.patch('/users/update', data=request_data, headers=headers)
+
+    session.refresh(user)
+
+    # Assert response to use the variable
+    assert response.status_code == 200
+    assert response.json()['username'] == 'johndoe'
+    assert response.json()['full_name'] == 'John Doeeeee'
+    assert response.json()['email'] == 'johndoe@gmail.com'
+    assert response.json()['email_verification_status'] == 'none'
+    assert user.email_verification_status == 'none'
+    assert user.email_verification_token is None
+
+
+def test_update_user_info_update_verified_email(
+    session: Session, settings: Settings, client: TestClient
+):
+    mock_token = uuid4()
+    user = User(
+        username='johndoe',
+        hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
+        full_name='John Doe',
+        email='johndoe@example.com',
+        email_verification_status=EmailVerificationStatus.verified,
+        email_verification_token=str(mock_token),
+    )
+    session.add(user)
+    session.commit()
+
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    encoded_jwt = jwt.encode(
+        to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
+    )
+    headers['Authorization'] = f'Bearer {encoded_jwt}'
+
+    request_data = {
+        'username': 'johndoe',
+        'password': 'abc123',
+        'password_repeat': 'abc123',
+        'email': 'johndoe@gmail.com',
+        'full_name': 'John Doeeeee',
+    }
+
+    response = client.patch('/users/update', data=request_data, headers=headers)
+
+    session.refresh(user)
+
+    # Assert response to use the variable
+    assert response.status_code == 200
+    assert response.json()['username'] == 'johndoe'
+    assert response.json()['full_name'] == 'John Doeeeee'
+    assert response.json()['email'] == 'johndoe@gmail.com'
+    assert response.json()['email_verification_status'] == 'none'
+    assert user.email_verification_status == 'none'
+    assert user.email_verification_token is None
+
+
 def test_update_user_info_user_fields_empty(
     session: Session, settings: Settings, client: TestClient
 ):
@@ -613,3 +703,28 @@ def test_verify_email_already_verified(
 
     assert response.status_code == 400
     assert response.json()['detail'] == 'User is already verified'
+
+
+def test_verify_email_updated_email(
+    session: Session,
+    client: TestClient,
+):
+    mock_token = uuid4()
+
+    user = User(
+        username='johndoe',
+        hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
+        full_name='John Doe',
+        email='johndoe@example.com',
+        email_verification_token=str(mock_token),
+        email_verification_status=EmailVerificationStatus.none,
+    )
+    session.add(user)
+    session.commit()
+
+    response = client.get('/users/verify-email', params={'token': str(mock_token)})
+
+    session.refresh(user)
+
+    assert response.status_code == 400
+    assert response.json()['detail'] == 'Email has been updated'

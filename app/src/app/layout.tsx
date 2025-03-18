@@ -1,8 +1,13 @@
+import Footer from '@/components/footer';
+import { Header } from '@/components/header';
 import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider } from '@/contexts/auth';
 import ProgressProvider from '@/contexts/progress';
+import { ThemeProvider } from '@/contexts/theme';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import React from 'react';
+
 import './globals.css';
 
 const geistSans = Geist({
@@ -29,14 +34,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ProgressProvider>
-          {children}
-          <Toaster />
-        </ProgressProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ProgressProvider>
+            <AuthProvider>
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                {children}
+                <Footer />
+              </div>
+              <Toaster />
+            </AuthProvider>
+          </ProgressProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -61,14 +61,16 @@ class UserService:
                 detail='Username and token do not match',
             )
 
+        if user.password is not None:
+            current_user.hashed_password = get_password_hash(user.password)
+
         if user.full_name is not None:
             current_user.full_name = user.full_name
 
-        if user.email is not None:
+        if user.email is not None and user.email != current_user.email:
             current_user.email = user.email
-
-        if user.password is not None:
-            current_user.hashed_password = get_password_hash(user.password)
+            current_user.email_verification_token = None
+            current_user.email_verification_status = EmailVerificationStatus.none
 
         if user.email_verification_token is not None:
             current_user.email_verification_token = user.email_verification_token
@@ -130,6 +132,11 @@ class UserService:
 
         if user is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Token not found')
+
+        if user.email_verification_status == EmailVerificationStatus.none:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail='Email has been updated'
+            )
 
         if user.email_verification_status == EmailVerificationStatus.verified:
             raise HTTPException(

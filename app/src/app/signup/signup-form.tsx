@@ -1,6 +1,5 @@
 'use client';
 
-import { registerNewUserUsersRegisterPost } from '@/client';
 import { zCreateUserForm } from '@/client/zod.gen';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,22 +9,23 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
-import { toast } from 'sonner';
-import { z } from 'zod';
 import {
   Form,
   FormControl,
   FormField,
   FormLabel,
   FormMessage,
-} from './ui/form';
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/auth';
+import { useAuthNotRequired } from '@/hooks/auth';
+import { cn } from '@/lib/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { z } from 'zod';
 
 export function SignupForm({
   className,
@@ -40,6 +40,7 @@ export function SignupForm({
       password: '',
       password_repeat: '',
     },
+    mode: 'onChange',
   });
 
   const [fullname, email] = useWatch({
@@ -48,32 +49,30 @@ export function SignupForm({
   });
 
   const router = useRouter();
+  const {
+    signup,
+    state: { isLoading },
+  } = useAuth();
+
+  useAuthNotRequired();
 
   const onSubmit = async (values: z.infer<typeof zCreateUserForm>) => {
-    const res = await registerNewUserUsersRegisterPost({
-      body: values,
-    });
-
-    if (res.response.status === 200) {
-      toast.success('Your account has been created');
+    const isSuccessed = await signup(values);
+    if (isSuccessed) {
       router.push('/login');
-    } else if (res.response.status >= 400) {
-      if (typeof res.error?.detail === 'string') {
-        toast.error(res.error.detail);
-      } else {
-        toast.error('Something went wrong');
-      }
     }
   };
 
   useEffect(() => {
     if (fullname === '') {
+      form.clearErrors('full_name');
       form.setValue('full_name', null);
     }
   }, [fullname, form]);
 
   useEffect(() => {
     if (email === '') {
+      form.clearErrors('email');
       form.setValue('email', null);
     }
   }, [email, form]);
@@ -187,7 +186,7 @@ export function SignupForm({
                     </div>
                   )}
                 />
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" disabled={isLoading}>
                   Sign up
                 </Button>
               </div>

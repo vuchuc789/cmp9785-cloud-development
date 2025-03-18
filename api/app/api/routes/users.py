@@ -55,7 +55,9 @@ async def get_current_user_info(current_user: CurrentUserDep):
 
 @router.patch('/update', response_model=UserResponse)
 async def update_user_info(
-    user: Annotated[UpdateUserForm, Form()], current_user: CurrentUserDep, session: SessionDep
+    user: Annotated[UpdateUserForm, Form()],
+    current_user: CurrentUserDep,
+    session: SessionDep,
 ):
     user_service.update_user(
         session, user=UpdateUserData(**user.model_dump()), current_user=current_user
@@ -81,7 +83,10 @@ async def send_verification_email(
     background_tasks: BackgroundTasks,
 ):
     user_service.send_verification_email(
-        session, settings=settings, current_user=current_user, background_tasks=background_tasks
+        session,
+        settings=settings,
+        current_user=current_user,
+        background_tasks=background_tasks,
     )
 
     return current_user
