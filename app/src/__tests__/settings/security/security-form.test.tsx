@@ -1,4 +1,4 @@
-import Page from '@/app/signup/page';
+import Page from '@/app/settings/profile/page';
 import { AuthProvider } from '@/contexts/auth';
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
@@ -10,7 +10,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('Page', () => {
-  it('renders signup page unchanged', () => {
+  it('renders security page unchanged', () => {
     const { container } = render(
       <AuthProvider>
         <Page />

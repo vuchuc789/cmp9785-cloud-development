@@ -10,7 +10,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('Page', () => {
-  it('renders reset password page (without token) unchanged', () => {
+  it('renders profile page unchanged', () => {
     const { container } = render(
       <AuthProvider>
         <Page />

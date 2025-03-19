@@ -1,19 +1,10 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronsUpDown } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
+import { zUpdateUserForm } from '@/client/zod.gen';
 import { Button } from '@/components/ui/button';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
 import {
   Form,
   FormControl,
@@ -24,155 +15,86 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { useAuthRequired } from '@/hooks/auth';
-import { cn } from '@/lib/utils';
-
-const languages = [
-  { label: 'English', value: 'en' },
-  { label: 'French', value: 'fr' },
-  { label: 'German', value: 'de' },
-  { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'pt' },
-  { label: 'Russian', value: 'ru' },
-  { label: 'Japanese', value: 'ja' },
-  { label: 'Korean', value: 'ko' },
-  { label: 'Chinese', value: 'zh' },
-] as const;
-
-const accountFormSchema = z.object({
-  name: z
-    .string()
-    .min(2, {
-      message: 'Name must be at least 2 characters.',
-    })
-    .max(30, {
-      message: 'Name must not be longer than 30 characters.',
-    }),
-  dob: z.date({
-    required_error: 'A date of birth is required.',
-  }),
-  language: z.string({
-    required_error: 'Please select a language.',
-  }),
-});
-
-type AccountFormValues = z.infer<typeof accountFormSchema>;
-
-// This can come from your database or API.
-const defaultValues: Partial<AccountFormValues> = {
-  // name: "Your name",
-  // dob: new Date("2023-01-23"),
-};
+import { z } from 'zod';
+import { useAuth } from '@/contexts/auth';
+import { useEffect } from 'react';
 
 export function SecurityForm() {
-  const form = useForm<AccountFormValues>({
-    resolver: zodResolver(accountFormSchema),
-    defaultValues,
+  const form = useForm<z.infer<typeof zUpdateUserForm>>({
+    resolver: zodResolver(zUpdateUserForm),
+    defaultValues: {
+      username: '',
+      password: '',
+      password_repeat: '',
+    },
+    mode: 'onChange',
   });
+
+  const {
+    state: { userInfo, isLoading },
+    updateUser,
+  } = useAuth();
 
   useAuthRequired();
 
-  function onSubmit(data: AccountFormValues) {
-    console.log(data);
-    // toast({
-    //   title: 'You submitted the following values:',
-    //   description: (
-    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-    //     </pre>
-    //   ),
-    // });
+  async function onSubmit(data: z.infer<typeof zUpdateUserForm>) {
+    await updateUser(data);
   }
+
+  useEffect(() => {
+    if (!userInfo) {
+      return;
+    }
+    form.setValue('username', userInfo.username);
+  }, [userInfo, form]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="name"
+          name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel htmlFor="password">Password</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="new-password"
+                  {...field}
+                  value={field.value ?? ''}
+                />
               </FormControl>
-              <FormDescription>
-                This is the name that will be displayed on your profile and in
-                emails.
-              </FormDescription>
+              <FormDescription>Your new password.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
-          name="language"
+          name="password_repeat"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Language</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        'w-[200px] justify-between',
-                        !field.value && 'text-muted-foreground'
-                      )}
-                    >
-                      {field.value
-                        ? languages.find(
-                            (language) => language.value === field.value
-                          )?.label
-                        : 'Select language'}
-                      <ChevronsUpDown className="opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
-                  <Command>
-                    <CommandInput placeholder="Search language..." />
-                    <CommandList>
-                      <CommandEmpty>No language found.</CommandEmpty>
-                      <CommandGroup>
-                        {languages.map((language) => (
-                          <CommandItem
-                            value={language.label}
-                            key={language.value}
-                            onSelect={() => {
-                              form.setValue('language', language.value);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                'mr-2',
-                                language.value === field.value
-                                  ? 'opacity-100'
-                                  : 'opacity-0'
-                              )}
-                            />
-                            {language.label}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormDescription>
-                This is the language that will be used in the dashboard.
-              </FormDescription>
+            <FormItem>
+              <FormLabel htmlFor="password_repeat">Confirm password</FormLabel>
+              <FormControl>
+                <Input
+                  id="password_repeat"
+                  type="password"
+                  autoComplete="new-password"
+                  {...field}
+                  value={field.value ?? ''}
+                />
+              </FormControl>
+              <FormDescription>Confirm your new password.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Update account</Button>
+        <Button type="submit" disabled={isLoading}>
+          Update password
+        </Button>
       </form>
     </Form>
   );

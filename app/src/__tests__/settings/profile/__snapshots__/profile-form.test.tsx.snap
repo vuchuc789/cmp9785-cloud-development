@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Page renders reset password page (without token) unchanged 1`] = `
+exports[`Page renders profile page unchanged 1`] = `
 <div>
   <div
     class="space-y-6"
