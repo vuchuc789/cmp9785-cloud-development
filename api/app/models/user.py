@@ -25,3 +25,4 @@ class User(SQLModel, table=True):
     hashed_password: str
     email_verification_status: EmailVerificationStatus = EmailVerificationStatus.none
     email_verification_token: str | None = None
+    password_reset_token: str | None = None

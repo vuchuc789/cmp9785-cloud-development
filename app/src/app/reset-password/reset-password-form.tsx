@@ -1,6 +1,6 @@
 'use client';
 
-import { zBodyLoginForAccessTokenUsersLoginPost } from '@/client/zod.gen';
+import { zPasswordResetForm } from '@/client/zod.gen';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -21,39 +21,35 @@ import { useAuth } from '@/contexts/auth';
 import { useAuthNotRequired } from '@/hooks/auth';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-export function LoginForm({
+export function ResetPasswordForm({
+  token,
   className,
   ...props
-}: React.ComponentProps<'div'>) {
-  const form = useForm<z.infer<typeof zBodyLoginForAccessTokenUsersLoginPost>>({
-    resolver: zodResolver(zBodyLoginForAccessTokenUsersLoginPost),
+}: React.ComponentProps<'div'> & { token: string }) {
+  const form = useForm<z.infer<typeof zPasswordResetForm>>({
+    resolver: zodResolver(zPasswordResetForm),
     defaultValues: {
-      grant_type: 'password',
-      username: '',
       password: '',
+      password_repeat: '',
     },
   });
 
   const router = useRouter();
   const {
-    login,
+    resetPassword,
     state: { isLoading },
   } = useAuth();
 
   useAuthNotRequired();
 
-  const onSubmit = async (
-    values: z.infer<typeof zBodyLoginForAccessTokenUsersLoginPost>
-  ) => {
-    const isSuccessed = await login(values);
-
+  const onSubmit = async (values: z.infer<typeof zPasswordResetForm>) => {
+    const isSuccessed = await resetPassword(token, values);
     if (isSuccessed) {
-      router.push('/');
+      router.push('/login');
     }
   };
 
@@ -61,10 +57,8 @@ export function LoginForm({
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            Enter your username below to login to your account
-          </CardDescription>
+          <CardTitle>Reset your password</CardTitle>
+          <CardDescription>Fill in below passwords to reset</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -72,16 +66,15 @@ export function LoginForm({
               <div className="flex flex-col gap-6">
                 <FormField
                   control={form.control}
-                  name="username"
+                  name="password"
                   render={({ field }) => (
                     <div className="grid gap-3">
-                      <FormLabel htmlFor="username">Username</FormLabel>
+                      <FormLabel htmlFor="password">Password</FormLabel>
                       <FormControl>
                         <Input
-                          id="username"
-                          placeholder="johndoe"
-                          type="text"
-                          autoComplete="username"
+                          id="password"
+                          type="password"
+                          autoComplete="new-password"
                           {...field}
                         />
                       </FormControl>
@@ -91,23 +84,17 @@ export function LoginForm({
                 />
                 <FormField
                   control={form.control}
-                  name="password"
+                  name="password_repeat"
                   render={({ field }) => (
                     <div className="grid gap-3">
-                      <div className="flex items-center">
-                        <FormLabel htmlFor="password">Password</FormLabel>
-                        <Link
-                          href="/reset-password"
-                          className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                        >
-                          Forgot your password?
-                        </Link>
-                      </div>
+                      <FormLabel htmlFor="password-repeat">
+                        Confirm password
+                      </FormLabel>
                       <FormControl>
                         <Input
-                          id="password"
+                          id="password-repeat"
                           type="password"
-                          autoComplete="current-password"
+                          autoComplete="new-password"
                           {...field}
                         />
                       </FormControl>
@@ -118,18 +105,8 @@ export function LoginForm({
 
                 {/* <div className="flex flex-col gap-3"> */}
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  Login
+                  Reset
                 </Button>
-                {/* <Button variant="outline" className="w-full">
-                  Login with Google
-                </Button> */}
-                {/* </div> */}
-              </div>
-              <div className="mt-4 text-center text-sm">
-                Don&apos;t have an account?{' '}
-                <Link href="/signup" className="underline underline-offset-4">
-                  Sign up
-                </Link>
               </div>
             </form>
           </Form>

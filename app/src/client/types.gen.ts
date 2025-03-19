@@ -17,6 +17,10 @@ export type CreateUserForm = {
   password_repeat: string;
 };
 
+export type EmailRequest = {
+  email: string;
+};
+
 export type EmailVerificationStatus = 'verified' | 'verifying' | 'none';
 
 export const EmailVerificationStatus = {
@@ -27,6 +31,11 @@ export const EmailVerificationStatus = {
 
 export type HttpValidationError = {
   detail?: Array<ValidationError>;
+};
+
+export type PasswordResetForm = {
+  password: string;
+  password_repeat: string;
 };
 
 export type Token = {
@@ -212,6 +221,59 @@ export type SendVerificationEmailUsersVerifyEmailPostResponses = {
 
 export type SendVerificationEmailUsersVerifyEmailPostResponse =
   SendVerificationEmailUsersVerifyEmailPostResponses[keyof SendVerificationEmailUsersVerifyEmailPostResponses];
+
+export type ResetPasswosdUsersResetPasswordPatchData = {
+  body: PasswordResetForm;
+  path?: never;
+  query: {
+    token: string;
+  };
+  url: '/users/reset-password';
+};
+
+export type ResetPasswosdUsersResetPasswordPatchErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ResetPasswosdUsersResetPasswordPatchError =
+  ResetPasswosdUsersResetPasswordPatchErrors[keyof ResetPasswosdUsersResetPasswordPatchErrors];
+
+export type ResetPasswosdUsersResetPasswordPatchResponses = {
+  /**
+   * Successful Response
+   */
+  200: UserResponse;
+};
+
+export type ResetPasswosdUsersResetPasswordPatchResponse =
+  ResetPasswosdUsersResetPasswordPatchResponses[keyof ResetPasswosdUsersResetPasswordPatchResponses];
+
+export type SendResetPasswordEmailUsersResetPasswordPostData = {
+  body: EmailRequest;
+  path?: never;
+  query?: never;
+  url: '/users/reset-password';
+};
+
+export type SendResetPasswordEmailUsersResetPasswordPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type SendResetPasswordEmailUsersResetPasswordPostError =
+  SendResetPasswordEmailUsersResetPasswordPostErrors[keyof SendResetPasswordEmailUsersResetPasswordPostErrors];
+
+export type SendResetPasswordEmailUsersResetPasswordPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
 
 export type ClientOptions = {
   baseUrl: `${string}://${string}/api/v1` | (string & {});

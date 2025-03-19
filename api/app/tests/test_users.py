@@ -728,3 +728,148 @@ def test_verify_email_updated_email(
 
     assert response.status_code == 400
     assert response.json()['detail'] == 'Email has been updated'
+
+
+def test_send_reset_password_email(
+    session: Session,
+    settings: Settings,
+    mocker: MockerFixture,
+    client: TestClient,
+):
+    mock_add_task = mocker.patch('app.services.user_service.BackgroundTasks.add_task')
+    mock_token_1 = uuid4()
+    mock_token_2 = uuid4()
+    mock_uuid4 = mocker.patch('app.services.user_service.uuid4')
+    mock_uuid4.return_value = mock_token_1
+
+    user = User(
+        username='johndoe',
+        hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
+        full_name='John Doe',
+        email='johndoe@example.com',
+        email_verification_status=EmailVerificationStatus.verified,
+        email_verification_token=str(mock_token_2),
+    )
+    session.add(user)
+    session.commit()
+
+    body = {'email': 'johndoe@example.com'}
+
+    response = client.post('/users/reset-password', json=body)
+
+    session.refresh(user)
+
+    assert response.status_code == 200
+    assert (
+        response.json()['detail']
+        == 'If your email is found and verified, an reset password email will be sent'
+    )
+    assert user.password_reset_token == str(mock_token_1)
+
+    mock_add_task.assert_called_once()
+    mock_add_task.assert_called_once_with(
+        send_email_with_sendgrid,
+        api_key=settings.sendgrid_api_key,
+        from_email=settings.source_email,
+        to_emails=['johndoe@example.com'],
+        subject='Reset your password',
+        content=f'<p>Click this <a href="http://localhost:3000/reset-password?token={str(mock_token_1)}">link</a> to reset password for user <b>johndoe</b>.</p>',  # noqa: E501
+    )
+
+
+def test_send_reset_password_email_not_sent(
+    mocker: MockerFixture,
+    client: TestClient,
+):
+    mock_add_task = mocker.patch('app.services.user_service.BackgroundTasks.add_task')
+    mock_uuid4 = mocker.patch('app.services.user_service.uuid4')
+
+    body = {'email': 'johndoe@gmail.com'}
+
+    response = client.post('/users/reset-password', json=body)
+
+    assert response.status_code == 200
+    assert (
+        response.json()['detail']
+        == 'If your email is found and verified, an reset password email will be sent'
+    )
+
+    mock_uuid4.assert_not_called()
+    mock_add_task.assert_not_called()
+
+
+def test_reset_password(
+    session: Session,
+    client: TestClient,
+):
+    mock_token = uuid4()
+
+    user = User(
+        username='johndoe',
+        hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
+        full_name='John Doe',
+        email='johndoe@example.com',
+        password_reset_token=str(mock_token),
+    )
+    session.add(user)
+    session.commit()
+
+    response = client.patch(
+        '/users/reset-password',
+        params={'token': str(mock_token)},
+        data={'password': 'abc123', 'password_repeat': 'abc123'},
+        headers={'Content-Type': 'application/x-www-form-urlencoded'},
+    )
+
+    session.refresh(user)
+
+    assert response.status_code == 200
+    assert user.password_reset_token is None
+    assert user.hashed_password != '$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS'
+
+
+def test_reset_password_token_not_found(
+    session: Session,
+    client: TestClient,
+):
+    mock_token = uuid4()
+
+    response = client.patch(
+        '/users/reset-password',
+        params={'token': str(mock_token)},
+        data={'password': 'abc123', 'password_repeat': 'abc123'},
+        headers={'Content-Type': 'application/x-www-form-urlencoded'},
+    )
+
+    assert response.status_code == 400
+    assert response.json()['detail'] == 'Token not found'
+
+
+def test_reset_password_passwords_not_match(
+    session: Session,
+    client: TestClient,
+):
+    mock_token = uuid4()
+
+    user = User(
+        username='johndoe',
+        hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
+        full_name='John Doe',
+        email='johndoe@example.com',
+        password_reset_token=str(mock_token),
+    )
+    session.add(user)
+    session.commit()
+
+    response = client.patch(
+        '/users/reset-password',
+        params={'token': str(mock_token)},
+        data={'password': 'abc123', 'password_repeat': 'abc1234'},
+        headers={'Content-Type': 'application/x-www-form-urlencoded'},
+    )
+
+    session.refresh(user)
+
+    assert response.status_code == 422
+    assert user.password_reset_token == str(mock_token)
+    assert user.hashed_password == '$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS'

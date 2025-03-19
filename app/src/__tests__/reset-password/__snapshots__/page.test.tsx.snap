@@ -1,0 +1,168 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Page renders reset password page (without token) unchanged 1`] = `
+<div>
+  <div
+    class="flex flex-col gap-6"
+  >
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+      data-slot="card"
+    >
+      <div
+        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-[data-slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+        data-slot="card-header"
+      >
+        <div
+          class="leading-none font-semibold"
+          data-slot="card-title"
+        >
+          Reset your password
+        </div>
+        <div
+          class="text-muted-foreground text-sm"
+          data-slot="card-description"
+        >
+          Fill in your email to reset
+        </div>
+      </div>
+      <div
+        class="px-6"
+        data-slot="card-content"
+      >
+        <form>
+          <div
+            class="flex flex-col gap-6"
+          >
+            <div
+              class="grid gap-3"
+            >
+              <label
+                class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive-foreground"
+                data-error="false"
+                data-slot="form-label"
+                for="email"
+              >
+                Email
+              </label>
+              <input
+                aria-describedby="undefined-form-item-description"
+                aria-invalid="false"
+                class="border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                data-slot="form-control"
+                id="email"
+                name="email"
+                placeholder="johndoe@example.com"
+                type="email"
+                value=""
+              />
+            </div>
+            <button
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3 w-full"
+              data-slot="button"
+              type="submit"
+            >
+              Reset
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Page renders reset password page (without token) unchanged 2`] = `
+<div>
+  <div
+    class="flex flex-col gap-6"
+  >
+    <div
+      class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+      data-slot="card"
+    >
+      <div
+        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-[data-slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+        data-slot="card-header"
+      >
+        <div
+          class="leading-none font-semibold"
+          data-slot="card-title"
+        >
+          Reset your password
+        </div>
+        <div
+          class="text-muted-foreground text-sm"
+          data-slot="card-description"
+        >
+          Fill in below passwords to reset
+        </div>
+      </div>
+      <div
+        class="px-6"
+        data-slot="card-content"
+      >
+        <form>
+          <div
+            class="flex flex-col gap-6"
+          >
+            <div
+              class="grid gap-3"
+            >
+              <label
+                class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive-foreground"
+                data-error="false"
+                data-slot="form-label"
+                for="password"
+              >
+                Password
+              </label>
+              <input
+                aria-describedby="undefined-form-item-description"
+                aria-invalid="false"
+                autocomplete="new-password"
+                class="border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                data-slot="form-control"
+                id="password"
+                name="password"
+                type="password"
+                value=""
+              />
+            </div>
+            <div
+              class="grid gap-3"
+            >
+              <label
+                class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive-foreground"
+                data-error="false"
+                data-slot="form-label"
+                for="password-repeat"
+              >
+                Confirm password
+              </label>
+              <input
+                aria-describedby="undefined-form-item-description"
+                aria-invalid="false"
+                autocomplete="new-password"
+                class="border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+                data-slot="form-control"
+                id="password-repeat"
+                name="password_repeat"
+                type="password"
+                value=""
+              />
+            </div>
+            <button
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3 w-full"
+              data-slot="button"
+              type="submit"
+            >
+              Reset
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+`;

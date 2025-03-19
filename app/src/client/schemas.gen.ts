@@ -91,6 +91,17 @@ export const CreateUserFormSchema = {
   required: ['username', 'password', 'password_repeat'],
 } as const;
 
+export const EmailRequestSchema = {
+  properties: {
+    email: {
+      type: 'string',
+      format: 'email',
+    },
+  },
+  type: 'object',
+  required: ['email'],
+} as const;
+
 export const EmailVerificationStatusSchema = {
   type: 'string',
   enum: ['verified', 'verifying', 'none'],
@@ -106,6 +117,23 @@ export const HTTPValidationErrorSchema = {
     },
   },
   type: 'object',
+} as const;
+
+export const PasswordResetFormSchema = {
+  properties: {
+    password: {
+      type: 'string',
+      maxLength: 50,
+      minLength: 6,
+    },
+    password_repeat: {
+      type: 'string',
+      maxLength: 50,
+      minLength: 6,
+    },
+  },
+  type: 'object',
+  required: ['password', 'password_repeat'],
 } as const;
 
 export const TokenSchema = {

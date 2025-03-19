@@ -10,6 +10,8 @@ from app.core.security import Token, create_access_token
 from app.schemas.user import (
     CreateUserData,
     CreateUserForm,
+    EmailRequest,
+    PasswordResetForm,
     UpdateUserData,
     UpdateUserForm,
     UserResponse,
@@ -90,3 +92,31 @@ async def send_verification_email(
     )
 
     return current_user
+
+
+@router.post('/reset-password')
+async def send_reset_password_email(
+    body: EmailRequest,
+    session: SessionDep,
+    settings: SettingsDep,
+    background_tasks: BackgroundTasks,
+):
+    user_service.send_reset_password_email(
+        email=body.email,
+        db=session,
+        settings=settings,
+        background_tasks=background_tasks,
+    )
+
+    return {'detail': 'If your email is found and verified, an reset password email will be sent'}
+
+
+@router.patch('/reset-password', response_model=UserResponse)
+async def reset_passwosd(
+    token: UUID4,
+    form_data: Annotated[PasswordResetForm, Form()],
+    session: SessionDep,
+):
+    user = user_service.reset_password(token=str(token), password=form_data.password, db=session)
+
+    return user

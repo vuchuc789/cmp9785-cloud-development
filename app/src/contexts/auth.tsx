@@ -4,6 +4,8 @@ import {
   getCurrentUserInfoUsersInfoGet,
   loginForAccessTokenUsersLoginPost,
   registerNewUserUsersRegisterPost,
+  resetPasswosdUsersResetPasswordPatch,
+  sendResetPasswordEmailUsersResetPasswordPost,
   sendVerificationEmailUsersVerifyEmailPost,
   Token,
   updateUserInfoUsersUpdatePatch,
@@ -13,6 +15,8 @@ import { client } from '@/client/client.gen';
 import {
   zBodyLoginForAccessTokenUsersLoginPost,
   zCreateUserForm,
+  zEmailRequest,
+  zPasswordResetForm,
   zUpdateUserForm,
 } from '@/client/zod.gen';
 import { RequestOptions } from '@hey-api/client-next';
@@ -56,6 +60,13 @@ const AuthStateContext = createContext<
       logout: () => void;
       updateUser: (values: z.infer<typeof zUpdateUserForm>) => Promise<boolean>;
       verifyEmail: () => Promise<boolean>;
+      sendResetPasswordEmail: (
+        values: z.infer<typeof zEmailRequest>
+      ) => Promise<boolean>;
+      resetPassword: (
+        token: string,
+        values: z.infer<typeof zPasswordResetForm>
+      ) => Promise<boolean>;
     }
   | undefined
 >(undefined);
@@ -293,6 +304,84 @@ function AuthProvider({ children }: AuthProviderProps) {
     return true;
   }, []);
 
+  const sendResetPasswordEmail = useCallback(
+    async (values: z.infer<typeof zEmailRequest>): Promise<boolean> => {
+      dispatch({
+        type: AuthActionType.SetLoading,
+        payload: { isLoading: true },
+      });
+
+      const res = await sendResetPasswordEmailUsersResetPasswordPost({
+        body: values,
+      });
+
+      if (res.response.status !== 200) {
+        if (typeof res.error?.detail === 'string') {
+          toast.error(res.error.detail);
+        } else {
+          toast.error('Something went wrong');
+        }
+        dispatch({
+          type: AuthActionType.SetLoading,
+          payload: { isLoading: false },
+        });
+
+        return false;
+      }
+
+      toast.success(
+        'If your email is valid, a reset password email will be sent'
+      );
+      dispatch({
+        type: AuthActionType.SetLoading,
+        payload: { isLoading: false },
+      });
+
+      return true;
+    },
+    []
+  );
+
+  const resetPassword = useCallback(
+    async (
+      token: string,
+      values: z.infer<typeof zPasswordResetForm>
+    ): Promise<boolean> => {
+      dispatch({
+        type: AuthActionType.SetLoading,
+        payload: { isLoading: true },
+      });
+
+      const res = await resetPasswosdUsersResetPasswordPatch({
+        body: values,
+        query: { token },
+      });
+
+      if (res.response.status !== 200) {
+        if (typeof res.error?.detail === 'string') {
+          toast.error(res.error.detail);
+        } else {
+          toast.error('Something went wrong');
+        }
+        dispatch({
+          type: AuthActionType.SetLoading,
+          payload: { isLoading: false },
+        });
+
+        return false;
+      }
+
+      toast.success('Your password has been updated');
+      dispatch({
+        type: AuthActionType.SetLoading,
+        payload: { isLoading: false },
+      });
+
+      return true;
+    },
+    []
+  );
+
   // check access token in session storage
   useEffect(() => {
     const asyncFunc = async () => {
@@ -401,6 +490,8 @@ function AuthProvider({ children }: AuthProviderProps) {
         logout,
         updateUser,
         verifyEmail,
+        sendResetPasswordEmail,
+        resetPassword,
       }}
     >
       {children}

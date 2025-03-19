@@ -19,6 +19,10 @@ export const zCreateUserForm = z.object({
   password_repeat: z.string().min(6).max(50),
 });
 
+export const zEmailRequest = z.object({
+  email: z.string().email(),
+});
+
 export const zEmailVerificationStatus = z.enum([
   'verified',
   'verifying',
@@ -35,6 +39,11 @@ export const zHttpValidationError = z.object({
       })
     )
     .optional(),
+});
+
+export const zPasswordResetForm = z.object({
+  password: z.string().min(6).max(50),
+  password_repeat: z.string().min(6).max(50),
 });
 
 export const zToken = z.object({
@@ -74,3 +83,5 @@ export const zUpdateUserInfoUsersUpdatePatchResponse = zUserResponse;
 export const zVerifyEmailUsersVerifyEmailGetResponse = zUserResponse;
 
 export const zSendVerificationEmailUsersVerifyEmailPostResponse = zUserResponse;
+
+export const zResetPasswosdUsersResetPasswordPatchResponse = zUserResponse;

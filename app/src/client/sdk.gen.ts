@@ -24,6 +24,11 @@ import type {
   VerifyEmailUsersVerifyEmailGetError,
   SendVerificationEmailUsersVerifyEmailPostData,
   SendVerificationEmailUsersVerifyEmailPostResponse,
+  ResetPasswosdUsersResetPasswordPatchData,
+  ResetPasswosdUsersResetPasswordPatchResponse,
+  ResetPasswosdUsersResetPasswordPatchError,
+  SendResetPasswordEmailUsersResetPasswordPostData,
+  SendResetPasswordEmailUsersResetPasswordPostError,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
 import {
@@ -33,6 +38,7 @@ import {
   zUpdateUserInfoUsersUpdatePatchResponse,
   zVerifyEmailUsersVerifyEmailGetResponse,
   zSendVerificationEmailUsersVerifyEmailPostResponse,
+  zResetPasswosdUsersResetPasswordPatchResponse,
 } from './zod.gen';
 
 export type Options<
@@ -224,5 +230,58 @@ export const sendVerificationEmailUsersVerifyEmailPost = <
     },
     url: '/users/verify-email',
     ...options,
+  });
+};
+
+/**
+ * Reset Passwosd
+ */
+export const resetPasswosdUsersResetPasswordPatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<ResetPasswosdUsersResetPasswordPatchData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).patch<
+    ResetPasswosdUsersResetPasswordPatchResponse,
+    ResetPasswosdUsersResetPasswordPatchError,
+    ThrowOnError
+  >({
+    ...urlSearchParamsBodySerializer,
+    responseValidator: async (data) => {
+      return await zResetPasswosdUsersResetPasswordPatchResponse.parseAsync(
+        data
+      );
+    },
+    url: '/users/reset-password',
+    ...options,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Send Reset Password Email
+ */
+export const sendResetPasswordEmailUsersResetPasswordPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    SendResetPasswordEmailUsersResetPasswordPostData,
+    ThrowOnError
+  >
+) => {
+  return (options.client ?? _heyApiClient).post<
+    unknown,
+    SendResetPasswordEmailUsersResetPasswordPostError,
+    ThrowOnError
+  >({
+    url: '/users/reset-password',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
   });
 };

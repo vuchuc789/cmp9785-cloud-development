@@ -63,6 +63,7 @@ class UserService:
 
         if user.password is not None:
             current_user.hashed_password = get_password_hash(user.password)
+            current_user.password_reset_token = None
 
         if user.full_name is not None:
             current_user.full_name = user.full_name
@@ -77,6 +78,9 @@ class UserService:
 
         if user.email_verification_status != EmailVerificationStatus.none:
             current_user.email_verification_status = user.email_verification_status
+
+        if user.password_reset_token is not None:
+            current_user.password_reset_token = user.password_reset_token
 
         db.add(current_user)
         try:
@@ -143,11 +147,52 @@ class UserService:
                 status_code=status.HTTP_400_BAD_REQUEST, detail='User is already verified'
             )
 
-        user.email_verification_status = EmailVerificationStatus.verified
+        user_to_update = UpdateUserData(username=user.username)
+        user_to_update.email_verification_status = EmailVerificationStatus.verified
 
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+        self.update_user(db, user=user_to_update, current_user=user)
+
+        return user
+
+    def send_reset_password_email(
+        self, db: Session, settings: Settings, email: str, background_tasks: BackgroundTasks
+    ):
+        statement = select(User).where(User.email == email)
+        results = db.exec(statement)
+        user = results.first()
+
+        if user is None or user.email_verification_status != EmailVerificationStatus.verified:
+            # no error returned as this action is run on unauthenticated users
+            return
+
+        user_to_update = UpdateUserData(username=user.username)
+        user_to_update.password_reset_token = str(uuid4())
+        self.update_user(db, user=user_to_update, current_user=user)
+
+        verify_link = f'{settings.frontend_url}reset-password?token={user.password_reset_token}'
+        content = f'<p>Click this <a href="{verify_link}">link</a> to reset password for user <b>{user.username}</b>.</p>'  # noqa: E501
+
+        background_tasks.add_task(
+            send_email_with_sendgrid,
+            api_key=settings.sendgrid_api_key,
+            from_email=settings.source_email,
+            to_emails=[user.email],
+            subject='Reset your password',
+            content=content,
+        )
+
+    def reset_password(self, token: str, password: str, db: Session):
+        statement = select(User).where(User.password_reset_token == token)
+        results = db.exec(statement)
+        user = results.first()
+
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Token not found')
+
+        print(user)
+        print(password)
+        user_to_update = UpdateUserData(username=user.username, password=password)
+        self.update_user(db, user=user_to_update, current_user=user)
 
         return user
 

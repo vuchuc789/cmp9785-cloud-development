@@ -36,6 +36,7 @@ class UpdateUserData(User):
     password: str | None = Field(default=None, min_length=6, max_length=50)
     email_verification_token: str | None = None
     email_verification_status: EmailVerificationStatus = EmailVerificationStatus.none
+    password_reset_token: str | None = None
 
 
 class UpdateUserForm(User):
@@ -51,3 +52,18 @@ class UpdateUserForm(User):
 
 class UserResponse(User):
     email_verification_status: EmailVerificationStatus
+
+
+class EmailRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetForm(BaseModel):
+    password: str = Field(min_length=6, max_length=50)
+    password_repeat: str = Field(min_length=6, max_length=50)
+
+    @model_validator(mode='after')
+    def check_password_matchs(self) -> Self:
+        if self.password != self.password_repeat:
+            raise ValueError('Passwords do not match')
+        return self
