@@ -1,5 +1,5 @@
 # FROM python:3.12
-FROM mcr.microsoft.com/azure-functions/python:4-python3.12
+FROM mcr.microsoft.com/azure-functions/python:4-python3.12@sha256:f125c99b928fc23b890b3ff4692d62be741b15cb0a3d24f3590b209c782281ac
 # FROM mcr.microsoft.com/azure-functions/python:4-python3.12-appservice
 
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \

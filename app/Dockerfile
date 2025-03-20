@@ -1,7 +1,7 @@
 # syntax=docker.io/docker/dockerfile:1
 
 # FROM node:22-alpine AS base
-FROM mcr.microsoft.com/azure-functions/node:4-node22 AS base
+FROM mcr.microsoft.com/azure-functions/node:4-node22@sha256:49eebe894584b67878b2364e5a2c1464ce503ed411f8c211cdcd09ccaf0d577a AS base
 # FROM mcr.microsoft.com/azure-functions/node:4-node22-appservice AS base
 
 # Install dependencies only when needed
@@ -36,7 +36,7 @@ FROM base AS runner
 WORKDIR /home/site/wwwroot
 
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
-    AzureFunctionsJobHost__Logging__Console__IsEnabled=true
+  AzureFunctionsJobHost__Logging__Console__IsEnabled=true
 
 ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
