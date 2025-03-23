@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import users
+from app.api.routes import media, users
 from app.core.config import get_settings
 from app.core.database import run_migrations
 
@@ -33,6 +33,7 @@ async def root():
 
 
 app.include_router(users.router, prefix='/users', tags=['users'])
+app.include_router(media.router, prefix='/media', tags=['media'])
 
 if __name__ == '__main__':
     reload = settings.env == 'dev'

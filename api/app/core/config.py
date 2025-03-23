@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     source_email: EmailStr
     frontend_url: HttpUrl
 
+    openverse_url: HttpUrl
+    openverse_client_id: str
+    openverse_client_secret: str
+
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
 

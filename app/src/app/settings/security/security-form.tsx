@@ -92,7 +92,7 @@ export function SecurityForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading} className="cursor-pointer">
           Update password
         </Button>
       </form>

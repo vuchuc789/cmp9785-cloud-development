@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import jwt
 import pytest
@@ -32,7 +32,7 @@ async def test_get_current_user(session: Session, settings: Settings):
     session.add(User(username='johndoe', hashed_password='abc'))
     session.commit()
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -46,7 +46,7 @@ async def test_get_current_user_not_found(session: Session, settings: Settings):
     session.add(User(username='johndoe', hashed_password='abc'))
     session.commit()
 
-    to_encode = {'sub': 'johndoe1', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe1', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -63,7 +63,7 @@ async def test_get_current_user_expired_token(session: Session, settings: Settin
     session.add(User(username='johndoe', hashed_password='abc'))
     session.commit()
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() - timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) - timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -80,7 +80,7 @@ async def test_get_current_user_invalid_credentials(session: Session, settings: 
     session.add(User(username='johndoe', hashed_password='abc'))
     session.commit()
 
-    to_encode = {'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )

@@ -121,6 +121,7 @@ export function ProfileForm() {
                   onClick={async () => {
                     await verifyEmail();
                   }}
+                  className="cursor-pointer"
                 >
                   {userInfo?.email_verification_status === 'verified'
                     ? 'Verified'
@@ -135,7 +136,7 @@ export function ProfileForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading} className="cursor-pointer">
           Update profile
         </Button>
       </form>

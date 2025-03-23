@@ -47,15 +47,15 @@ export function SearchBar() {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search for movies, TV shows, music, podcasts..."
-                className="pl-10 pr-20 h-12"
+                placeholder="Search for images and audio..."
+                className="pl-10 pr-22 h-12"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
           </PopoverTrigger>
           <PopoverContent
-            className="w-[--radix-popover-trigger-width] p-0"
+            className="w-(--radix-popover-trigger-width) p-0"
             align="start"
           >
             <Command>
@@ -86,7 +86,7 @@ export function SearchBar() {
         </Popover>
         <Button
           type="submit"
-          className="absolute right-1 top-1/2 h-10 -translate-y-1/2"
+          className="absolute right-1 top-1/2 h-10 -translate-y-1/2 cursor-pointer"
         >
           Search
         </Button>

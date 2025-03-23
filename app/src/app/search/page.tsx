@@ -1,12 +1,12 @@
 'use client';
 
 import { FilterSidebar } from '@/components/filter-sidebar';
-import { MediaGrid } from '@/components/media-grid';
+import { MediaResults } from '@/components/media-results';
 import { MobileFilters } from '@/components/mobile-filters';
 import { SearchBar } from '@/components/search-bar';
 import { useAuthRequired } from '@/hooks/auth';
 
-export default function Home() {
+export default function Page() {
   useAuthRequired();
 
   return (
@@ -17,7 +17,7 @@ export default function Home() {
             Discover Media
           </h1>
           <p className="mt-2 text-xl text-muted-foreground">
-            Search for movies, TV shows, music, and podcasts all in one place.
+            Search for images and audio all in one place.
           </p>
         </div>
         <SearchBar />
@@ -29,7 +29,7 @@ export default function Home() {
             <MobileFilters />
           </div>
           <div className="flex-1">
-            <MediaGrid />
+            <MediaResults />
           </div>
         </div>
       </div>

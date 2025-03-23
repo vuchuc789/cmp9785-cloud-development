@@ -29,6 +29,9 @@ import type {
   ResetPasswosdUsersResetPasswordPatchError,
   SendResetPasswordEmailUsersResetPasswordPostData,
   SendResetPasswordEmailUsersResetPasswordPostError,
+  SearchMediaMediaSearchGetData,
+  SearchMediaMediaSearchGetResponse,
+  SearchMediaMediaSearchGetError,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
 import {
@@ -39,6 +42,7 @@ import {
   zVerifyEmailUsersVerifyEmailGetResponse,
   zSendVerificationEmailUsersVerifyEmailPostResponse,
   zResetPasswosdUsersResetPasswordPatchResponse,
+  zSearchMediaMediaSearchGetResponse,
 } from './zod.gen';
 
 export type Options<
@@ -283,5 +287,24 @@ export const sendResetPasswordEmailUsersResetPasswordPost = <
       'Content-Type': 'application/json',
       ...options?.headers,
     },
+  });
+};
+
+/**
+ * Search Media
+ */
+export const searchMediaMediaSearchGet = <ThrowOnError extends boolean = false>(
+  options: Options<SearchMediaMediaSearchGetData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    SearchMediaMediaSearchGetResponse,
+    SearchMediaMediaSearchGetError,
+    ThrowOnError
+  >({
+    responseValidator: async (data) => {
+      return await zSearchMediaMediaSearchGetResponse.parseAsync(data);
+    },
+    url: '/media/search',
+    ...options,
   });
 };

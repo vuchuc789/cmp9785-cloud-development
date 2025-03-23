@@ -189,8 +189,6 @@ class UserService:
         if user is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Token not found')
 
-        print(user)
-        print(password)
         user_to_update = UpdateUserData(username=user.username, password=password)
         self.update_user(db, user=user_to_update, current_user=user)
 

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import jwt
@@ -113,7 +113,7 @@ def test_get_current_user_info(session: Session, settings: Settings, client: Tes
     session.add(user)
     session.commit()
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -238,7 +238,7 @@ def test_update_user_info(session: Session, settings: Settings, client: TestClie
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -278,7 +278,7 @@ def test_update_user_info_update_verifying_email(
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -323,7 +323,7 @@ def test_update_user_info_update_verified_email(
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -365,7 +365,7 @@ def test_update_user_info_user_fields_empty(
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -402,7 +402,7 @@ def test_update_user_info_user_fields_none(
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -435,7 +435,7 @@ def test_update_user_info_user_usernames_not_match(
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -468,7 +468,7 @@ def test_update_user_info_user_passwords_not_match(
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -507,7 +507,7 @@ def test_update_user_info_user_usernames_email_existed(
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -545,7 +545,7 @@ def test_send_verification_email(
     session.add(user)
     session.commit()
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -586,7 +586,7 @@ def test_send_verification_email_with_no_email(
     session.add(user)
     session.commit()
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -623,7 +623,7 @@ def test_send_verification_email_with_verified_email(
     session.add(user)
     session.commit()
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now() + timedelta(minutes=15)}
+    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )

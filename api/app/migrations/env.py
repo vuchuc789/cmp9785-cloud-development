@@ -8,6 +8,7 @@ from sqlmodel import SQLModel
 from app.core.database import db_url
 
 # List of models for auto generating
+from app.models.openverse_token import OpenverseToken  # noqa: F401
 from app.models.user import User  # noqa: F401
 
 # this is the Alembic Config object, which provides
