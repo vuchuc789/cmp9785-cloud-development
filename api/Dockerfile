@@ -7,7 +7,7 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
 
 # Install OpenSSH Server
 RUN apt-get update \
-  && apt-get install -y openssh-server \
+  && apt-get install -y openssh-server postgresql-client \
   && rm -rf /var/lib/apt/lists/*
 
 # Setup SSH

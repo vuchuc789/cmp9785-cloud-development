@@ -27,6 +27,7 @@ import {
   useContext,
   useEffect,
   useReducer,
+  useRef,
 } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -103,6 +104,11 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 
 function AuthProvider({ children }: AuthProviderProps) {
   const [state, dispatch] = useReducer(authReducer, { isLoading: true });
+
+  const authInterceptorRef = useRef<
+    ((options: RequestOptions<boolean, string>) => void) | null
+  >(null);
+
   const router = useRouter();
 
   // log user in with data from login form
@@ -182,7 +188,8 @@ function AuthProvider({ children }: AuthProviderProps) {
         payload: { userInfo: userRes.data },
       });
 
-      client.interceptors.request.eject(authInterceptor);
+      // client.interceptors.request.eject(authInterceptor);
+      authInterceptorRef.current = authInterceptor;
 
       toast.success('Logged in successfully');
       dispatch({
@@ -431,7 +438,8 @@ function AuthProvider({ children }: AuthProviderProps) {
         payload: { userInfo: userRes.data },
       });
 
-      client.interceptors.request.eject(authInterceptor);
+      // client.interceptors.request.eject(authInterceptor);
+      authInterceptorRef.current = authInterceptor;
       dispatch({
         type: AuthActionType.SetLoading,
         payload: { isLoading: false },
@@ -441,25 +449,11 @@ function AuthProvider({ children }: AuthProviderProps) {
     asyncFunc();
   }, []);
 
-  // inject access token to requests
   useEffect(() => {
-    if (!state.accessToken?.access_token) {
-      return;
+    if (!state.accessToken?.access_token && authInterceptorRef.current) {
+      client.interceptors.request.eject(authInterceptorRef.current);
+      authInterceptorRef.current = null;
     }
-
-    const authInterceptor = (options: RequestOptions<boolean, string>) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      options.headers?.set(
-        'Authorization',
-        `Bearer ${state.accessToken?.access_token ?? ''}`
-      );
-    };
-    client.interceptors.request.use(authInterceptor);
-
-    return () => {
-      client.interceptors.request.eject(authInterceptor);
-    };
   }, [state.accessToken?.access_token]);
 
   useEffect(() => {

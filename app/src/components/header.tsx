@@ -40,14 +40,6 @@ export function Header() {
           <Link href="/" className="flex items-center space-x-2">
             <span className="font-bold sm:inline-block">MediaSearch</span>
           </Link>
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link
-              href="/search"
-              className="transition-colors hover:text-foreground/80"
-            >
-              Discover
-            </Link>
-          </nav>
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />

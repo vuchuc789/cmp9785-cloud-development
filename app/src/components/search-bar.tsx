@@ -1,7 +1,5 @@
 'use client';
 
-import type React from 'react';
-
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -9,6 +7,7 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import {
@@ -16,81 +15,146 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { SearchActionType, useSearch } from '@/contexts/search';
+import { Clock, Search, Trash2, X } from 'lucide-react';
+import moment from 'moment';
+import type React from 'react';
+import { useMemo, useState } from 'react';
+import { Form, FormControl, FormField } from './ui/form';
 
 export function SearchBar() {
-  const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle search logic here
-    console.log('Searching for:', query);
+  const { state, dispatch, form, search } = useSearch();
+
+  const filteredHistory = useMemo<
+    { query: string; timestamp: number }[]
+  >(() => {
+    return Object.entries(state.history)
+      .map(([q, t]) => ({ query: q, timestamp: t }))
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 5);
+  }, [state.history]);
+
+  const handleHistoryItemClick = (text: string) => {
+    form.setValue('q', text);
+    setOpen(false);
   };
 
-  const suggestions = [
-    'Inception',
-    'Breaking Bad',
-    'The Dark Knight',
-    'Stranger Things',
-    'Pink Floyd',
-    'The Joe Rogan Experience',
-  ];
+  const removeHistoryItem = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    dispatch({
+      type: SearchActionType.DeleteHistory,
+      payload: { history: { [id]: 0 } },
+    });
+  };
+
+  const clearAllHistory = () => {
+    dispatch({
+      type: SearchActionType.ClearHistoty,
+    });
+  };
 
   return (
-    <form onSubmit={handleSearch} className="relative">
-      <div className="relative flex w-full max-w-full items-center">
-        <Popover open={open && query.length > 0} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search for images and audio..."
-                className="pl-10 pr-22 h-12"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-(--radix-popover-trigger-width) p-0"
-            align="start"
-          >
-            <Command>
-              <CommandList>
-                <CommandEmpty>No results found.</CommandEmpty>
-                <CommandGroup heading="Suggestions">
-                  {suggestions
-                    .filter(
-                      (item) =>
-                        item.toLowerCase().includes(query.toLowerCase()) &&
-                        query.length > 0
-                    )
-                    .map((item) => (
-                      <CommandItem
-                        key={item}
-                        onSelect={() => {
-                          setQuery(item);
-                          setOpen(false);
-                        }}
-                      >
-                        {item}
-                      </CommandItem>
-                    ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-        <Button
-          type="submit"
-          className="absolute right-1 top-1/2 h-10 -translate-y-1/2 cursor-pointer"
-        >
-          Search
-        </Button>
-      </div>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(search)} className="relative">
+        <div className="relative flex w-full max-w-full items-center">
+          <FormField
+            control={form.control}
+            name="q"
+            render={({ field }) => (
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <FormControl>
+                  <Input
+                    type="search"
+                    placeholder="Search for images and audio..."
+                    className="pl-10 pr-32 h-12 focus-visible:ring-0"
+                    {...field}
+                  />
+                </FormControl>
+              </div>
+            )}
+          />
+
+          <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 cursor-pointer"
+                >
+                  <Clock className="h-4 w-4" />
+                  <span className="sr-only">Search history</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-[300px] p-0"
+                align="end"
+                alignOffset={-85}
+                sideOffset={8}
+              >
+                <Command>
+                  <CommandList>
+                    <CommandEmpty>No search history found</CommandEmpty>
+                    {filteredHistory.length > 0 && (
+                      <CommandGroup heading="Recent Searches">
+                        {filteredHistory.map(({ query: q, timestamp: t }) => (
+                          <CommandItem
+                            key={q}
+                            onSelect={() => handleHistoryItemClick(q)}
+                            className="flex items-center justify-between"
+                          >
+                            <div className="flex items-center gap-2 flex-1">
+                              <Clock className="h-4 w-4 text-muted-foreground" />
+                              <span>{q}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground">
+                                {moment(t).fromNow()}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 rounded-full hover:bg-destructive/10"
+                                onClick={(e) => removeHistoryItem(e, q)}
+                              >
+                                <X className="h-3 w-3" />
+                                <span className="sr-only">Remove</span>
+                              </Button>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    )}
+                    {filteredHistory.length > 0 && (
+                      <>
+                        <CommandSeparator />
+                        <div className="p-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-muted-foreground hover:text-destructive"
+                            onClick={clearAllHistory}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Clear search history
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <Button type="submit" className="h-10 cursor-pointer">
+              Search
+            </Button>
+          </div>
+        </div>
+      </form>
+    </Form>
   );
 }
