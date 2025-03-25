@@ -2,7 +2,6 @@ import Footer from '@/components/footer';
 import { Header } from '@/components/header';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/auth';
-import ProgressProvider from '@/contexts/progress';
 import { ThemeProvider } from '@/contexts/theme';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
