@@ -6,9 +6,9 @@ let nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'api.openverse.org',
+        hostname: '**',
         port: '',
-        pathname: '/v1/images/**',
+        pathname: '**',
         search: '',
       },
     ],

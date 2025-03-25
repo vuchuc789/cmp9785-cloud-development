@@ -5,7 +5,7 @@ from fastapi import BackgroundTasks, HTTPException, status
 from sqlmodel import Session
 
 from app.core.config import Settings
-from app.schemas.media import MediaSearchParams, MediaType
+from app.schemas.media import MediaDetailParams, MediaSearchParams, MediaType
 from app.utils.openverse import get_openverse_token
 
 
@@ -95,6 +95,47 @@ class MediaService:
         headers = {'Authorization': f'Bearer {self.openverse_access_token}'}
 
         response = requests.get(url, headers=headers, params=params)
+
+        if response.status_code != 200:
+            if response.status_code == 400:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=response.json()['detail'],
+                )
+            if response.status_code == 401:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=response.json()['detail'],
+                )
+
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Unabled to fetch media',
+            )
+
+        # print(curlify.to_curl(response.request))
+
+        data = response.json()
+        return data
+
+    def detail(
+        self,
+        query_params: MediaDetailParams,
+        db: Session,
+        settings: Settings,
+        background_tasks: BackgroundTasks,
+    ):
+        self.check_openverse_token(db=db, settings=settings, background_tasks=background_tasks)
+
+        if query_params.type == MediaType.IMAGE:
+            url = f'{settings.openverse_url}v1/images/{query_params.id}'
+
+        if query_params.type == MediaType.AUDIO:
+            url = f'{settings.openverse_url}v1/audio/{query_params.id}'
+
+        headers = {'Authorization': f'Bearer {self.openverse_access_token}'}
+
+        response = requests.get(url, headers=headers)
 
         if response.status_code != 200:
             if response.status_code == 400:

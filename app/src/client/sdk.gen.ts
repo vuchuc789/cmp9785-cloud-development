@@ -32,6 +32,9 @@ import type {
   SearchMediaMediaSearchGetData,
   SearchMediaMediaSearchGetResponse,
   SearchMediaMediaSearchGetError,
+  MediaDetailMediaDetailGetData,
+  MediaDetailMediaDetailGetResponse,
+  MediaDetailMediaDetailGetError,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
 import {
@@ -43,6 +46,7 @@ import {
   zSendVerificationEmailUsersVerifyEmailPostResponse,
   zResetPasswosdUsersResetPasswordPatchResponse,
   zSearchMediaMediaSearchGetResponse,
+  zMediaDetailMediaDetailGetResponse,
 } from './zod.gen';
 
 export type Options<
@@ -301,10 +305,41 @@ export const searchMediaMediaSearchGet = <ThrowOnError extends boolean = false>(
     SearchMediaMediaSearchGetError,
     ThrowOnError
   >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
     responseValidator: async (data) => {
       return await zSearchMediaMediaSearchGetResponse.parseAsync(data);
     },
     url: '/media/search',
+    ...options,
+  });
+};
+
+/**
+ * Media Detail
+ */
+export const mediaDetailMediaDetailGet = <ThrowOnError extends boolean = false>(
+  options: Options<MediaDetailMediaDetailGetData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    MediaDetailMediaDetailGetResponse,
+    MediaDetailMediaDetailGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zMediaDetailMediaDetailGetResponse.parseAsync(data);
+    },
+    url: '/media/detail',
     ...options,
   });
 };

@@ -44,16 +44,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ProgressProvider>
-            <AuthProvider>
-              <div className="min-h-screen flex flex-col">
-                <Header />
-                {children}
-                <Footer />
-              </div>
-              <Toaster />
-            </AuthProvider>
-          </ProgressProvider>
+          <AuthProvider>
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              {children}
+              <Footer />
+            </div>
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

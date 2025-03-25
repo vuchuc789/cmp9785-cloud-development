@@ -263,3 +263,8 @@ export const zSearchMediaMediaSearchGetResponse = z.union([
   zImageSearchResponse,
   zAudioSearchResponse,
 ]);
+
+export const zMediaDetailMediaDetailGetResponse = z.union([
+  zImageSearchItem,
+  zAudioSearchItem,
+]);

@@ -509,6 +509,36 @@ export type SearchMediaMediaSearchGetResponses = {
 export type SearchMediaMediaSearchGetResponse =
   SearchMediaMediaSearchGetResponses[keyof SearchMediaMediaSearchGetResponses];
 
+export type MediaDetailMediaDetailGetData = {
+  body?: never;
+  path?: never;
+  query: {
+    type: MediaType;
+    id: string;
+  };
+  url: '/media/detail';
+};
+
+export type MediaDetailMediaDetailGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type MediaDetailMediaDetailGetError =
+  MediaDetailMediaDetailGetErrors[keyof MediaDetailMediaDetailGetErrors];
+
+export type MediaDetailMediaDetailGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ImageSearchItem | AudioSearchItem;
+};
+
+export type MediaDetailMediaDetailGetResponse =
+  MediaDetailMediaDetailGetResponses[keyof MediaDetailMediaDetailGetResponses];
+
 export type ClientOptions = {
   baseUrl: `${string}://${string}/api/v1` | (string & {});
 };

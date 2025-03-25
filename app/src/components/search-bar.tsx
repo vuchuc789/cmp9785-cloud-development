@@ -39,6 +39,7 @@ export function SearchBar() {
   const handleHistoryItemClick = (text: string) => {
     form.setValue('q', text);
     setOpen(false);
+    search();
   };
 
   const removeHistoryItem = (e: React.MouseEvent, id: string) => {

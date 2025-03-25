@@ -16,12 +16,17 @@ import { usePagination } from '@/hooks/pagination';
 import { stringToColor } from '@/lib/utils';
 import { ImageIcon, Music, Pause, Play } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 export function MediaResults() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
+
+  const mediaType = searchParams.get('type') === 'audio' ? 'audio' : 'image';
+
+  const [currentTab, setCurrentTab] = useState<'image' | 'audio'>(mediaType);
   const [playingAudio, setPlayingAudio] = useState<{
     id: string;
     url: string;
@@ -32,8 +37,6 @@ export function MediaResults() {
     form,
     search,
   } = useSearch();
-
-  const mediaType = searchParams.get('type') === 'audio' ? 'audio' : 'image';
 
   const pagination = usePagination({
     pageNumber:
@@ -58,6 +61,7 @@ export function MediaResults() {
 
   const onChangeTab = (value: string) => {
     form.setValue('type', value as 'image' | 'audio');
+    setCurrentTab(value as 'image' | 'audio');
 
     search();
   };
@@ -71,6 +75,13 @@ export function MediaResults() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    const tab = searchParams.get('type');
+    if (tab === 'image' || tab === 'audio') {
+      setCurrentTab(tab);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!playingAudio?.url) {
@@ -99,6 +110,7 @@ export function MediaResults() {
   return (
     <Tabs
       defaultValue={mediaType}
+      value={currentTab}
       className="w-full"
       onValueChange={onChangeTab}
     >
@@ -123,27 +135,26 @@ export function MediaResults() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {!!imageResult?.results.length &&
             imageResult.results.map((item) => (
-              <Card
-                key={item.id}
-                className="overflow-hidden border-0 rounded-md py-0 cursor-pointer transition-transform hover:scale-[1.02]"
-              >
-                <div className="relative aspect-square w-full bg-gray-100 dark:bg-gray-800">
-                  <Image
-                    src={item.thumbnail}
-                    alt={item.title ?? 'An image'}
-                    fill
-                    className="object-cover"
-                    placeholder="blur"
-                    blurDataURL="/placeholder.svg"
-                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  />
-                  <div className="absolute inset-0 opacity-0 hover:opacity-100 bg-black/50 transition-opacity">
-                    <div className="absolute bottom-3 left-3 text-white">
-                      <p className="text-xs font-medium">{item.license}</p>
+              <Link href={`/image/${item.id}`} key={item.id}>
+                <Card className="overflow-hidden border-0 rounded-md py-0 cursor-pointer transition-transform hover:scale-[1.02]">
+                  <div className="relative aspect-square w-full bg-gray-100 dark:bg-gray-800">
+                    <Image
+                      src={item.thumbnail}
+                      alt={item.attribution ?? 'An image'}
+                      fill
+                      className="object-cover"
+                      placeholder="blur"
+                      blurDataURL="/placeholder.svg"
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    />
+                    <div className="absolute inset-0 opacity-0 hover:opacity-100 bg-black/50 transition-opacity">
+                      <div className="absolute bottom-3 left-3 text-white">
+                        <p className="text-xs font-medium">{item.license}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </Link>
             ))}
         </div>
 
@@ -207,45 +218,46 @@ export function MediaResults() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {!!audioResult?.results.length &&
             audioResult.results.map((item) => (
-              <Card
-                key={item.id}
-                className="overflow-hidden border-0 rounded-md py-0 cursor-pointer transition-transform hover:scale-[1.02]"
-              >
-                <div
-                  className={`relative aspect-square w-full group`}
-                  style={{
-                    backgroundColor: stringToColor(
-                      item.title ?? 'An audio file'
-                    ),
-                  }}
-                >
-                  <div className="absolute inset-0 flex flex-col justify-between p-4">
-                    <div>
-                      <h3 className="font-medium text-gray-900">
-                        {item.title}
-                      </h3>
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/30 transition-opacity">
-                    <div className="absolute bottom-3 left-3 text-white">
-                      <p className="text-xs font-medium">{item.license}</p>
-                    </div>
-                  </div>
-                  <button
-                    className="absolute bottom-3 right-3 h-10 w-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-900 z-10 cursor-pointer"
-                    aria-label={`Play ${item.title}`}
-                    onClick={() => {
-                      playAudio(item.id, item.url ?? undefined);
+              <Link href={`/audio/${item.id}`} key={item.id}>
+                <Card className="overflow-hidden border-0 rounded-md py-0 cursor-pointer transition-transform hover:scale-[1.02]">
+                  <div
+                    className={`relative aspect-square w-full group`}
+                    style={{
+                      backgroundColor: stringToColor(
+                        item.title ?? 'An audio file'
+                      ),
                     }}
                   >
-                    {item.id === playingAudio?.id ? (
-                      <Pause className="h-5 w-5" />
-                    ) : (
-                      <Play className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-              </Card>
+                    <div className="absolute inset-0 flex flex-col justify-between p-4">
+                      <div>
+                        <h3 className="font-medium text-gray-900">
+                          {item.title}
+                        </h3>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/30 transition-opacity">
+                      <div className="absolute bottom-3 left-3 text-white">
+                        <p className="text-xs font-medium">{item.license}</p>
+                      </div>
+                    </div>
+                    <button
+                      className="absolute bottom-3 right-3 h-10 w-10 rounded-full bg-gray-900/80 flex items-center justify-center text-white hover:bg-gray-900 z-10 cursor-pointer"
+                      aria-label={`Play ${item.title}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+
+                        playAudio(item.id, item.url ?? undefined);
+                      }}
+                    >
+                      {item.id === playingAudio?.id ? (
+                        <Pause className="h-5 w-5" />
+                      ) : (
+                        <Play className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </Card>
+              </Link>
             ))}
         </div>
 

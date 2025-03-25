@@ -165,7 +165,7 @@ function SearchProvider({ children }: SearchProviderProps) {
       }
 
       const q = searchParams.get('q');
-      if (q) {
+      if (typeof q === 'string') {
         form.setValue('q', q);
       }
 

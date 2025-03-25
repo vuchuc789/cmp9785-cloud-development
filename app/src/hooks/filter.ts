@@ -38,6 +38,7 @@ export const useFilters = ({
 
   const handleResetFilters = () => {
     form.setValue('license', null);
+    search();
   };
 
   return {

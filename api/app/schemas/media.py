@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Self
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import UUID4, BaseModel, Field, model_validator
 
 
 class MediaType(str, Enum):
@@ -100,6 +100,11 @@ class MediaSearchParams(BaseModel):
                 raise ValueError('aspect_ratio is not allowed for type=audio')
 
         return self
+
+
+class MediaDetailParams(BaseModel):
+    type: MediaType
+    id: UUID4
 
 
 class MediaTag(BaseModel):
