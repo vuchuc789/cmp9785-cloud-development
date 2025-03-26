@@ -8,6 +8,7 @@ import {
 import { LicenseDetails } from '@/components/license-details';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { useAuthRequired } from '@/hooks/auth';
 import { isBrowser, stringToColor } from '@/lib/utils';
 import {
   ArrowLeft,
@@ -41,8 +42,14 @@ export default function AudioDetailPage({
 
   const router = useRouter();
 
+  const isAuthLoading = useAuthRequired();
+
   useEffect(() => {
     const asyncFunc = async () => {
+      if (isAuthLoading) {
+        return;
+      }
+
       const result = await mediaDetailMediaDetailGet({
         query: {
           type: 'audio',
@@ -58,7 +65,7 @@ export default function AudioDetailPage({
       setAudioDetails(result.data as AudioSearchItem);
     };
     asyncFunc();
-  }, [id]);
+  }, [isAuthLoading, id]);
 
   useEffect(() => {
     const audio = audioRef.current;

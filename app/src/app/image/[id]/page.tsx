@@ -7,6 +7,7 @@ import {
 } from '@/client';
 import { LicenseDetails } from '@/components/license-details';
 import { Button } from '@/components/ui/button';
+import { useAuthRequired } from '@/hooks/auth';
 import { isBrowser } from '@/lib/utils';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
@@ -26,8 +27,14 @@ export default function ImageDetailPage({
 
   const router = useRouter();
 
+  const isAuthLoading = useAuthRequired();
+
   useEffect(() => {
     const asyncFunc = async () => {
+      if (isAuthLoading) {
+        return;
+      }
+
       const result = await mediaDetailMediaDetailGet({
         query: {
           type: 'image',
@@ -43,7 +50,7 @@ export default function ImageDetailPage({
       setImageDetails(result.data as ImageSearchItem);
     };
     asyncFunc();
-  }, [id]);
+  }, [isAuthLoading, id]);
 
   return (
     <div className="grow max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8">
