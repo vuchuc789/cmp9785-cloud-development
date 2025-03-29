@@ -138,14 +138,14 @@ class MediaService:
         response = requests.get(url, headers=headers)
 
         if response.status_code != 200:
-            if response.status_code == 400:
+            if response.status_code == 401:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=response.json()['detail'],
                 )
-            if response.status_code == 401:
+            if response.status_code == 404:
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
+                    status_code=status.HTTP_404_NOT_FOUND,
                     detail=response.json()['detail'],
                 )
 

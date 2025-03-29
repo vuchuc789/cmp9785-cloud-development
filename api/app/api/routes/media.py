@@ -19,8 +19,6 @@ router = APIRouter()
 @router.get(
     '/search',
     response_model=Union[ImageSearchResponse, AudioSearchResponse],  # noqa: UP007
-    # response_model=ImageSearchResponse,
-    # response_model=AudioSearchResponse,
     response_model_exclude_unset=True,
 )
 async def search_media(
