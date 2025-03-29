@@ -1,0 +1,71 @@
+name: Validate and Test
+on: push
+jobs:
+  test-api:
+    name: Test with Pytest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api/
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Create .env file
+        run: |
+          cp .env.example .env
+      - name: Test with pytest
+        run: |
+          pytest --cov=.
+  test-app:
+    name: Test with Jest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+      - name: Install dependencies
+        run: |
+          npm install
+      - name: Create .env file
+        run: |
+          cp .env.example .env
+      - name: Test with jest
+        run: |
+          npm run test
+  validate-infra:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+    env:
+      ARM_SUBSCRIPTION_ID: "${{ secrets.ARM_SUBSCRIPTION_ID }}"
+      ARM_TENANT_ID: "${{ secrets.ARM_TENANT_ID }}"
+      ARM_CLIENT_ID: "${{ secrets.ARM_CLIENT_ID }}"
+      ARM_CLIENT_SECRET: "${{ secrets.ARM_CLIENT_SECRET }}"
+      TF_VAR_db_password: "${{ secrets.DB_PASSWORD }}"
+      TF_VAR_api_auth_token_secret_key: "${{ secrets.API_AUTH_TOKEN_SECRET_KEY }}"
+      TF_VAR_openverse_client_id: "${{ secrets.OPENVERSE_CLIENT_ID }}"
+      TF_VAR_openverse_client_secret: "${{ secrets.OPENVERSE_CLIENT_SECRET }}"
+      TF_VAR_sendgrid_api_key: "${{ secrets.SENDGRID_API_KEY }}"
+    defaults:
+      run:
+        working-directory: infra/
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform init
+        run: terraform init -input=false
+      - name: Terraform plan
+        run: terraform plan -input=false -var="image_tag=<new-tag>"

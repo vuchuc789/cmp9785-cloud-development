@@ -1,0 +1,116 @@
+name: Deploy Api and App
+on:
+  workflow_run:
+    workflows: [Validate and Test]
+    types: [completed]
+    branches: [main]
+# on: push
+jobs:
+  build-api:
+    name: Build and Push image to Docker Hub
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: vuchuc781999/cmp9134-api
+          tags: |
+            type=sha,prefix=m-
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        with:
+          context: ./api
+          file: ./api/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: index.docker.io/vuchuc781999/cmp9134-api
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+  build-app:
+    name: Build and Push image to Docker Hub
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: vuchuc781999/cmp9134-app
+          tags: |
+            type=sha,prefix=m-
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: index.docker.io/vuchuc781999/cmp9134-app
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+  deploy:
+    name: Deploy to Azure
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs:
+      - build-api
+      - build-app
+    env:
+      ARM_SUBSCRIPTION_ID: "${{ secrets.ARM_SUBSCRIPTION_ID }}"
+      ARM_TENANT_ID: "${{ secrets.ARM_TENANT_ID }}"
+      ARM_CLIENT_ID: "${{ secrets.ARM_CLIENT_ID }}"
+      ARM_CLIENT_SECRET: "${{ secrets.ARM_CLIENT_SECRET }}"
+      TF_VAR_db_password: "${{ secrets.DB_PASSWORD }}"
+      TF_VAR_api_auth_token_secret_key: "${{ secrets.API_AUTH_TOKEN_SECRET_KEY }}"
+      TF_VAR_openverse_client_id: "${{ secrets.OPENVERSE_CLIENT_ID }}"
+      TF_VAR_openverse_client_secret: "${{ secrets.OPENVERSE_CLIENT_SECRET }}"
+      TF_VAR_sendgrid_api_key: "${{ secrets.SENDGRID_API_KEY }}"
+    defaults:
+      run:
+        working-directory: infra/
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform init
+        run: terraform init -input=false
+      - name: Terraform apply
+        run: terraform apply -input=false -auto-approve -var="image_tag=m-$(git rev-parse --short HEAD)"
