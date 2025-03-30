@@ -461,7 +461,6 @@ function AuthProvider({ children }: AuthProviderProps) {
       if (response.status === 401) {
         logout();
         router.push('/login');
-        toast.warning('Your session has been expired');
       }
 
       return response;
