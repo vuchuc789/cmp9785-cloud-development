@@ -217,7 +217,7 @@ function SearchProvider({ children }: SearchProviderProps) {
   }, [searchParams, form, isAuthLoading]);
 
   useEffect(() => {
-    const searchHistoryStr = localStorage.getItem(
+    const searchHistoryStr = sessionStorage.getItem(
       SEARCH_HISTORY_LOCAL_STORAGE_KEY
     );
     if (!searchHistoryStr) {
@@ -236,7 +236,7 @@ function SearchProvider({ children }: SearchProviderProps) {
 
   useEffect(() => {
     const searchHistoryStr = JSON.stringify(state.history);
-    localStorage.setItem(SEARCH_HISTORY_LOCAL_STORAGE_KEY, searchHistoryStr);
+    sessionStorage.setItem(SEARCH_HISTORY_LOCAL_STORAGE_KEY, searchHistoryStr);
   }, [state.history]);
 
   return (

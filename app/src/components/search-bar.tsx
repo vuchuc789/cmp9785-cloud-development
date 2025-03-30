@@ -106,7 +106,7 @@ export function SearchBar() {
                           <CommandItem
                             key={q}
                             onSelect={() => handleHistoryItemClick(q)}
-                            className="flex items-center justify-between"
+                            className="flex items-center justify-between cursor-pointer"
                           >
                             <div className="flex items-center gap-2 flex-1">
                               <Clock className="h-4 w-4 text-muted-foreground" />
@@ -119,7 +119,7 @@ export function SearchBar() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-6 w-6 rounded-full hover:bg-destructive/10"
+                                className="h-6 w-6 rounded-full hover:bg-destructive/10 cursor-pointer"
                                 onClick={(e) => removeHistoryItem(e, q)}
                               >
                                 <X className="h-3 w-3" />
@@ -137,7 +137,7 @@ export function SearchBar() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="w-full justify-start text-muted-foreground hover:text-destructive"
+                            className="w-full justify-start text-muted-foreground hover:text-destructive cursor-pointer"
                             onClick={clearAllHistory}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
