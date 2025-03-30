@@ -7,7 +7,7 @@ on:
 # on: push
 jobs:
   build-api:
-    name: Build and Push image to Docker Hub
+    name: Build Api
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
@@ -46,7 +46,7 @@ jobs:
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
   build-app:
-    name: Build and Push image to Docker Hub
+    name: Build App
     runs-on: ubuntu-latest
     permissions:
       packages: write

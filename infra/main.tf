@@ -40,11 +40,13 @@ variable "db_user" {
 }
 
 variable "db_password" {
-  type = string
+  sensitive = true
+  type      = string
 }
 
 variable "api_auth_token_secret_key" {
-  type = string
+  sensitive = true
+  type      = string
 }
 
 variable "openverse_url" {
@@ -53,15 +55,18 @@ variable "openverse_url" {
 }
 
 variable "openverse_client_id" {
-  type = string
+  sensitive = true
+  type      = string
 }
 
 variable "openverse_client_secret" {
-  type = string
+  sensitive = true
+  type      = string
 }
 
 variable "sendgrid_api_key" {
-  type = string
+  sensitive = true
+  type      = string
 }
 
 variable "api_source_email" {
