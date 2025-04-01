@@ -1,7 +1,9 @@
+import uuid
+from datetime import datetime
 from enum import Enum
 
 from sqlalchemy import UniqueConstraint
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class EmailVerificationStatus(str, Enum):
@@ -26,3 +28,18 @@ class User(SQLModel, table=True):
     email_verification_status: EmailVerificationStatus = EmailVerificationStatus.none
     email_verification_token: str | None = None
     password_reset_token: str | None = None
+
+    auth_sessions: list['AuthSession'] = Relationship(back_populates='user')
+
+
+class AuthSession(SQLModel, table=True):
+    __tablename__ = 'auth_sessions'
+    __table_args__ = {'extend_existing': True}
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    expires_date: datetime
+    token_version: uuid.UUID
+    is_ended: bool = Field(default=False)
+
+    user_id: int | None = Field(default=None, foreign_key='users.id')
+    user: User | None = Relationship(back_populates='auth_sessions')

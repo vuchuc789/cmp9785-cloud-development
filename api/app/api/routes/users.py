@@ -1,12 +1,28 @@
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    Form,
+    HTTPException,
+    Response,
+    status,
+)
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import UUID4
 
-from app.api.dependencies import CurrentUserDep, SessionDep, SettingsDep
-from app.core.security import Token, create_access_token
+from app.api.dependencies import (
+    CurrentRefreshTokenUserDep,
+    CurrentUserDep,
+    SessionDep,
+    SettingsDep,
+    get_current_user,
+)
+from app.core.config import Settings
+from app.core.security import Token, create_jwt_token
+from app.models.user import AuthSession, User
 from app.schemas.user import (
     CreateUserData,
     CreateUserForm,
@@ -21,6 +37,47 @@ from app.services.user_service import user_service
 router = APIRouter()
 
 
+def generate_tokens(user: User, auth_session: AuthSession, settings: Settings, now: datetime):
+    """Generates both access and refresh tokens."""
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token = create_jwt_token(
+        data={
+            'sub': user.username,
+            'session_id': str(auth_session.id),
+        },
+        issued_at=now,
+        expires_time=now + access_token_expires,
+        secret_key=settings.auth_token_secret_key,
+        algorithm=settings.auth_token_algorithm,
+    )
+
+    refresh_token_expires = timedelta(days=settings.refresh_token_expire_days)
+    refresh_token = create_jwt_token(
+        data={
+            'sub': user.username,
+            'session_id': str(auth_session.id),
+            'token_version': str(auth_session.token_version),
+        },
+        issued_at=now,
+        secret_key=settings.auth_token_secret_key,
+        algorithm=settings.auth_token_algorithm,
+    )
+
+    return access_token, refresh_token, now + refresh_token_expires
+
+
+def set_refresh_token_cookie(response: Response, refresh_token: str, expires_at: datetime):
+    """Sets the refresh token as a secure HTTP-only cookie."""
+    response.set_cookie(
+        key='refresh_token',
+        value=refresh_token,
+        httponly=True,  # Prevents JS access
+        samesite='None',  # Required for cross-origin
+        secure=True,  # Required for HTTPS
+        expires=expires_at,
+    )
+
+
 @router.post('/register', response_model=UserResponse)
 async def register_new_user(user: Annotated[CreateUserForm, Form()], session: SessionDep):
     response_user = user_service.create_user(session, user=CreateUserData(**user.model_dump()))
@@ -32,6 +89,7 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: SessionDep,
     settings: SettingsDep,
+    response: Response,
 ) -> Token:
     user = user_service.authenticate_user(session, form_data.username, form_data.password)
     if not user:
@@ -40,14 +98,62 @@ async def login_for_access_token(
             detail='Incorrect username or password',
             headers={'WWW-Authenticate': 'Bearer'},
         )
-    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
-    access_token = create_access_token(
-        data={'sub': user.username},
-        expires_delta=access_token_expires,
-        secret_key=settings.auth_token_secret_key,
-        algorithm=settings.auth_token_algorithm,
+    now = datetime.now(UTC)
+
+    refresh_token_expires = timedelta(days=settings.refresh_token_expire_days)
+    auth_session = user_service.create_session(
+        user=user, expires_date=now + refresh_token_expires, db=session
     )
+
+    access_token, refresh_token, refresh_expires_at = generate_tokens(
+        user, auth_session, settings, now
+    )
+    set_refresh_token_cookie(response, refresh_token, refresh_expires_at)
+
     return Token(access_token=access_token, token_type='bearer')
+
+
+@router.post('/refresh')
+def refresh_access_token(
+    user_auth_session: CurrentRefreshTokenUserDep,
+    response: Response,
+    settings: SettingsDep,
+    session: SessionDep,
+) -> Token:
+    user = user_auth_session[0]
+    auth_session = user_auth_session[1]
+
+    now = datetime.now(UTC)
+
+    refresh_token_expires = timedelta(days=settings.refresh_token_expire_days)
+    user_service.update_session(auth_session, expires_date=now + refresh_token_expires, db=session)
+
+    access_token, refresh_token, refresh_expires_at = generate_tokens(
+        user, auth_session, settings, now
+    )
+    set_refresh_token_cookie(response, refresh_token, refresh_expires_at)
+
+    return Token(access_token=access_token, token_type='bearer')
+
+
+@router.delete('/logout')
+def logout(
+    user_auth_session: Annotated[tuple[User, AuthSession], Depends(get_current_user)],
+    session: SessionDep,
+    response: Response,
+):
+    auth_session = user_auth_session[1]
+
+    user_service.update_session(auth_session, is_ended=True, db=session)
+
+    response.delete_cookie(
+        key='refresh_token',
+        httponly=True,
+        samesite='None',
+        secure=True,
+    )
+
+    return {'detail': 'Logged out'}
 
 
 @router.get('/info', response_model=UserResponse)

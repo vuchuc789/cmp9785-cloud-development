@@ -328,6 +328,47 @@ export type LoginForAccessTokenUsersLoginPostResponses = {
 export type LoginForAccessTokenUsersLoginPostResponse =
   LoginForAccessTokenUsersLoginPostResponses[keyof LoginForAccessTokenUsersLoginPostResponses];
 
+export type RefreshAccessTokenUsersRefreshPostData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/users/refresh';
+};
+
+export type RefreshAccessTokenUsersRefreshPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type RefreshAccessTokenUsersRefreshPostError =
+  RefreshAccessTokenUsersRefreshPostErrors[keyof RefreshAccessTokenUsersRefreshPostErrors];
+
+export type RefreshAccessTokenUsersRefreshPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: Token;
+};
+
+export type RefreshAccessTokenUsersRefreshPostResponse =
+  RefreshAccessTokenUsersRefreshPostResponses[keyof RefreshAccessTokenUsersRefreshPostResponses];
+
+export type LogoutUsersLogoutDeleteData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/users/logout';
+};
+
+export type LogoutUsersLogoutDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
 export type GetCurrentUserInfoUsersInfoGetData = {
   body?: never;
   path?: never;

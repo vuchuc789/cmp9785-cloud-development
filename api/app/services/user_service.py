@@ -1,12 +1,15 @@
+import uuid
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from fastapi import BackgroundTasks, HTTPException, status
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import Session, select
+from sqlmodel import Session, not_, select
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from app.core.config import Settings
 from app.core.security import get_password_hash, verify_password
-from app.models.user import EmailVerificationStatus, User
+from app.models.user import AuthSession, EmailVerificationStatus, User
 from app.schemas.user import CreateUserData, UpdateUserData
 from app.utils.mail import send_email_with_sendgrid
 
@@ -14,6 +17,23 @@ from app.utils.mail import send_email_with_sendgrid
 class UserService:
     def get_user(self, db: Session, username: str) -> User | None:
         statement = select(User).where(User.username == username)
+        results = db.exec(statement)
+
+        return results.first()
+
+    def get_user_with_auth_session(
+        self, db: Session, username: str, auth_session_id: uuid.UUID
+    ) -> tuple[User, AuthSession] | None:
+        statement = (
+            select(User, AuthSession)
+            .join(AuthSession)
+            .where(
+                User.username == username,
+                AuthSession.id == auth_session_id,
+                AuthSession.expires_date > datetime.now(UTC),
+                not_(AuthSession.is_ended),
+            )
+        )
         results = db.exec(statement)
 
         return results.first()
@@ -193,6 +213,51 @@ class UserService:
         self.update_user(db, user=user_to_update, current_user=user)
 
         return user
+
+    def create_session(self, user: User, expires_date: datetime, db: Session):
+        try:
+            token_version = uuid4()
+            auth_session = AuthSession(
+                expires_date=expires_date,
+                token_version=token_version,
+                user=user,
+            )
+
+            db.add(auth_session)
+            db.commit()
+            db.refresh(auth_session)
+
+            return auth_session
+        except Exception as err:
+            raise HTTPException(
+                status_code=HTTP_500_INTERNAL_SERVER_ERROR, detail='Failed to create session'
+            ) from err
+
+    def update_session(
+        self,
+        auth_session: AuthSession,
+        db: Session,
+        expires_date: datetime | None = None,
+        is_ended: bool = False,
+    ):
+        try:
+            if expires_date is None:
+                expires_date = datetime.now(UTC)
+
+            if is_ended:
+                auth_session.is_ended = True
+            else:
+                token_version = str(uuid4())
+                auth_session.expires_date = expires_date
+                auth_session.token_version = token_version
+
+            db.add(auth_session)
+            db.commit()
+            db.refresh(auth_session)
+        except Exception as err:
+            raise HTTPException(
+                status_code=HTTP_500_INTERNAL_SERVER_ERROR, detail='Failed to update session'
+            ) from err
 
 
 user_service = UserService()

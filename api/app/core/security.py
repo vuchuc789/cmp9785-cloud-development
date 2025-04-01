@@ -1,4 +1,5 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime
+from uuid import uuid4
 
 import bcrypt
 import jwt
@@ -35,9 +36,22 @@ def verify_password(plain_password: str, hashed_password: str):
     )
 
 
-def create_access_token(data: dict, expires_delta: timedelta, secret_key: str, algorithm: str):
+def create_jwt_token(
+    data: dict,
+    secret_key: str,
+    algorithm: str,
+    issued_at: datetime | None = None,
+    expires_time: datetime | None = None,
+):
     to_encode = data.copy()
-    expire = datetime.now(UTC) + expires_delta
-    to_encode.update({'exp': expire})
+
+    to_encode.update({'jti': str(uuid4())})
+
+    if issued_at is not None:
+        to_encode.update({'iat': issued_at})
+
+    if expires_time is not None:
+        to_encode.update({'exp': expires_time})
+
     encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algorithm)
     return encoded_jwt

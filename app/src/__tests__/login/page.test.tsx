@@ -7,6 +7,16 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({}),
 }));
 
+jest.mock('../../client/', () => ({
+  refreshAccessTokenUsersRefreshPost: jest.fn(() => ({
+    data: { accessToken: 'abc' },
+  })),
+  getCurrentUserInfoUsersInfoGet: jest.fn(() => ({
+    data: {},
+    response: { status: 200 },
+  })),
+}));
+
 describe('Page', () => {
   it('renders login page unchanged', () => {
     const { container } = render(

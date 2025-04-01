@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from uuid import uuid4
 
 import jwt
 import pytest
@@ -8,7 +9,7 @@ from sqlmodel.pool import StaticPool
 
 from app.api.dependencies import get_current_user
 from app.core.config import Settings, get_settings
-from app.models.user import User
+from app.models.user import AuthSession, User
 
 
 @pytest.fixture(name='session')
@@ -29,24 +30,54 @@ def settings_fixture():
 
 @pytest.mark.asyncio
 async def test_get_current_user(session: Session, settings: Settings):
-    session.add(User(username='johndoe', hashed_password='abc'))
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
+    user = User(
+        username='johndoe',
+        hashed_password='abc',
+        auth_sessions=[auth_session],
+    )
+    session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
     user = await get_current_user(encoded_jwt, session, settings)
 
-    assert user.username == 'johndoe'
+    assert user[0].username == 'johndoe'
 
 
 @pytest.mark.asyncio
 async def test_get_current_user_not_found(session: Session, settings: Settings):
-    session.add(User(username='johndoe', hashed_password='abc'))
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
+    user = User(
+        username='johndoe1',
+        hashed_password='abc',
+        auth_sessions=[auth_session],
+    )
+    session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
-    to_encode = {'sub': 'johndoe1', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -60,10 +91,25 @@ async def test_get_current_user_not_found(session: Session, settings: Settings):
 
 @pytest.mark.asyncio
 async def test_get_current_user_expired_token(session: Session, settings: Settings):
-    session.add(User(username='johndoe', hashed_password='abc'))
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
+    user = User(
+        username='johndoe',
+        hashed_password='abc',
+        auth_sessions=[auth_session],
+    )
+    session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) - timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) - timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -77,10 +123,24 @@ async def test_get_current_user_expired_token(session: Session, settings: Settin
 
 @pytest.mark.asyncio
 async def test_get_current_user_invalid_credentials(session: Session, settings: Settings):
-    session.add(User(username='johndoe', hashed_password='abc'))
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
+    user = User(
+        username='johndoe',
+        hashed_password='abc',
+        auth_sessions=[auth_session],
+    )
+    session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
-    to_encode = {'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )

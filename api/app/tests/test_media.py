@@ -1,5 +1,6 @@
 from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock
+from uuid import uuid4
 
 import jwt
 import pytest
@@ -13,7 +14,7 @@ from app.core.config import Settings, get_settings
 from app.core.database import get_session
 from app.main import app
 from app.models.openverse_token import OpenverseToken
-from app.models.user import User
+from app.models.user import AuthSession, User
 from app.services.media_service import MediaService
 
 
@@ -175,14 +176,21 @@ def test_search_media_image(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -200,7 +208,11 @@ def test_search_media_image(
     }
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -226,14 +238,21 @@ def test_search_media_audio(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -251,7 +270,11 @@ def test_search_media_audio(
     }
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -278,14 +301,21 @@ def test_search_media_400(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -297,7 +327,11 @@ def test_search_media_400(
     mock_response.json.return_value = {'detail': 'error'}
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -325,14 +359,21 @@ def test_search_media_401(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -344,7 +385,11 @@ def test_search_media_401(
     mock_response.json.return_value = {'detail': 'error'}
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -372,14 +417,21 @@ def test_search_media_error(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -391,7 +443,11 @@ def test_search_media_error(
     mock_response.json.return_value = {'detail': 'error'}
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -419,14 +475,21 @@ def test_detail_media_image(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -463,7 +526,11 @@ def test_detail_media_image(
     }
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -489,14 +556,21 @@ def test_detail_media_audio(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -533,7 +607,11 @@ def test_detail_media_audio(
     }
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -559,14 +637,21 @@ def test_detail_media_401(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -578,7 +663,11 @@ def test_detail_media_401(
     mock_response.json.return_value = {'detail': 'error'}
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -605,14 +694,21 @@ def test_detail_media_404(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -624,7 +720,11 @@ def test_detail_media_404(
     mock_response.json.return_value = {'detail': 'error'}
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -651,14 +751,21 @@ def test_detail_media_error(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -670,7 +777,11 @@ def test_detail_media_error(
     mock_response.json.return_value = {'detail': 'error'}
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -697,14 +808,21 @@ def test_search_media_wrong_field_1(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -722,7 +840,11 @@ def test_search_media_wrong_field_1(
     }
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -744,14 +866,21 @@ def test_search_media_wrong_field_2(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -769,7 +898,11 @@ def test_search_media_wrong_field_2(
     }
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -791,14 +924,21 @@ def test_search_media_wrong_field_3(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -816,7 +956,11 @@ def test_search_media_wrong_field_3(
     }
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -838,14 +982,21 @@ def test_search_media_wrong_field_4(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -863,7 +1014,11 @@ def test_search_media_wrong_field_4(
     }
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -885,14 +1040,21 @@ def test_search_media_wrong_field_5(
     requests: MagicMock,
     get_openverse_token: MagicMock,
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     openverse_token = OpenverseToken(
         access_token='valid_token', expires_in=datetime.now(UTC) + timedelta(hours=2)
@@ -910,7 +1072,11 @@ def test_search_media_wrong_field_5(
     }
     requests.get.return_value = mock_response
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )

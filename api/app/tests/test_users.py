@@ -11,7 +11,7 @@ from sqlmodel.pool import StaticPool
 from app.core.config import Settings, get_settings
 from app.core.database import get_session
 from app.main import app
-from app.models.user import EmailVerificationStatus, User
+from app.models.user import AuthSession, EmailVerificationStatus, User
 from app.utils.mail import send_email_with_sendgrid
 
 
@@ -104,16 +104,27 @@ def test_login_for_access_token_wrong_password(session: Session, client: TestCli
 
 
 def test_get_current_user_info(session: Session, settings: Settings, client: TestClient):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -227,18 +238,29 @@ def test_register_new_user_email_wrong_type(client: TestClient):
 
 
 def test_update_user_info(session: Session, settings: Settings, client: TestClient):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -264,6 +286,11 @@ def test_update_user_info(session: Session, settings: Settings, client: TestClie
 def test_update_user_info_update_verifying_email(
     session: Session, settings: Settings, client: TestClient
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     mock_token = uuid4()
     user = User(
         username='johndoe',
@@ -272,13 +299,19 @@ def test_update_user_info_update_verifying_email(
         email='johndoe@example.com',
         email_verification_status=EmailVerificationStatus.verifying,
         email_verification_token=str(mock_token),
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -309,6 +342,11 @@ def test_update_user_info_update_verifying_email(
 def test_update_user_info_update_verified_email(
     session: Session, settings: Settings, client: TestClient
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     mock_token = uuid4()
     user = User(
         username='johndoe',
@@ -317,13 +355,19 @@ def test_update_user_info_update_verified_email(
         email='johndoe@example.com',
         email_verification_status=EmailVerificationStatus.verified,
         email_verification_token=str(mock_token),
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -354,18 +398,29 @@ def test_update_user_info_update_verified_email(
 def test_update_user_info_user_fields_empty(
     session: Session, settings: Settings, client: TestClient
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -391,18 +446,29 @@ def test_update_user_info_user_fields_empty(
 def test_update_user_info_user_fields_none(
     session: Session, settings: Settings, client: TestClient
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -424,18 +490,29 @@ def test_update_user_info_user_fields_none(
 def test_update_user_info_user_usernames_not_match(
     session: Session, settings: Settings, client: TestClient
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -457,18 +534,29 @@ def test_update_user_info_user_usernames_not_match(
 def test_update_user_info_user_passwords_not_match(
     session: Session, settings: Settings, client: TestClient
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -489,11 +577,17 @@ def test_update_user_info_user_passwords_not_match(
 def test_update_user_info_user_usernames_email_existed(
     session: Session, settings: Settings, client: TestClient
 ):
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user_1 = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     user_2 = User(
         username='johndoe1',
@@ -504,10 +598,15 @@ def test_update_user_info_user_usernames_email_existed(
     session.add(user_1)
     session.add(user_2)
     session.commit()
+    session.refresh(auth_session)
 
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -536,16 +635,27 @@ def test_send_verification_email(
     mock_uuid4 = mocker.patch('app.services.user_service.uuid4')
     mock_uuid4.return_value = mock_token
 
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
         email='johndoe@example.com',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -578,15 +688,27 @@ def test_send_verification_email_with_no_email(
     client: TestClient,
 ):
     mock_add_task = mocker.patch('app.services.user_service.BackgroundTasks.add_task')
+
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
         full_name='John Doe',
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )
@@ -612,6 +734,11 @@ def test_send_verification_email_with_verified_email(
 ):
     mock_add_task = mocker.patch('app.services.user_service.BackgroundTasks.add_task')
 
+    token_version = uuid4()
+    auth_session = AuthSession(
+        expires_date=datetime.now(UTC) + timedelta(hours=1),
+        token_version=token_version,
+    )
     user = User(
         username='johndoe',
         hashed_password='$2b$12$AHQ9qSw9./9eosG4RuH3W.hsSUUPS5yUHocSMna7oswoWOfirTWkS',
@@ -619,11 +746,17 @@ def test_send_verification_email_with_verified_email(
         email='johndoe@example.com',
         email_verification_token='i-am-a-token',
         email_verification_status=EmailVerificationStatus.verified,
+        auth_sessions=[auth_session],
     )
     session.add(user)
     session.commit()
+    session.refresh(auth_session)
 
-    to_encode = {'sub': 'johndoe', 'exp': datetime.now(UTC) + timedelta(minutes=15)}
+    to_encode = {
+        'sub': 'johndoe',
+        'session_id': str(auth_session.id),
+        'exp': datetime.now(UTC) + timedelta(minutes=15),
+    }
     encoded_jwt = jwt.encode(
         to_encode, settings.auth_token_secret_key, algorithm=settings.auth_token_algorithm
     )

@@ -3,6 +3,8 @@
 import {
   getCurrentUserInfoUsersInfoGet,
   loginForAccessTokenUsersLoginPost,
+  logoutUsersLogoutDelete,
+  refreshAccessTokenUsersRefreshPost,
   registerNewUserUsersRegisterPost,
   resetPasswosdUsersResetPasswordPatch,
   sendResetPasswordEmailUsersResetPasswordPost,
@@ -20,7 +22,6 @@ import {
   zUpdateUserForm,
 } from '@/client/zod.gen';
 import { RequestOptions } from '@hey-api/client-next';
-import { useRouter } from 'next/navigation';
 import {
   createContext,
   useCallback,
@@ -31,8 +32,6 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
-
-const ACCESS_TOKEN_SESSION_STORAGE_KEY = 'access-token';
 
 enum AuthActionType {
   UpdateAccessToken,
@@ -58,7 +57,7 @@ const AuthStateContext = createContext<
         values: z.infer<typeof zBodyLoginForAccessTokenUsersLoginPost>
       ) => Promise<boolean>;
       signup: (values: z.infer<typeof zCreateUserForm>) => Promise<boolean>;
-      logout: () => void;
+      logout: () => Promise<void>;
       updateUser: (values: z.infer<typeof zUpdateUserForm>) => Promise<boolean>;
       verifyEmail: () => Promise<boolean>;
       sendResetPasswordEmail: (
@@ -105,11 +104,62 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 function AuthProvider({ children }: AuthProviderProps) {
   const [state, dispatch] = useReducer(authReducer, { isLoading: true });
 
+  // this ref contains an interceptor of the current access token
   const authInterceptorRef = useRef<
     ((options: RequestOptions<boolean, string>) => void) | null
   >(null);
 
-  const router = useRouter();
+  const getAuthInterceptor = useCallback((accessToken: string) => {
+    return (options: RequestOptions<boolean, string>) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      options.headers?.set('Authorization', `Bearer ${accessToken}`);
+    };
+  }, []);
+
+  const updateAuthInfo = useCallback(
+    async (accessToken: Token) => {
+      const authInterceptor = getAuthInterceptor(accessToken.access_token);
+
+      client.interceptors.request.use(authInterceptor);
+
+      const userRes = await getCurrentUserInfoUsersInfoGet();
+
+      if (userRes.response.status !== 200) {
+        client.interceptors.request.eject(authInterceptor);
+
+        dispatch({
+          type: AuthActionType.SetLoading,
+          payload: { isLoading: false },
+        });
+
+        return false;
+      }
+
+      dispatch({
+        type: AuthActionType.UpdateAccessToken,
+        payload: { accessToken },
+      });
+      dispatch({
+        type: AuthActionType.UpdateUserInfo,
+        payload: { userInfo: userRes.data },
+      });
+
+      if (authInterceptorRef.current) {
+        // eject the old interceptor
+        client.interceptors.request.eject(authInterceptorRef.current);
+      }
+      authInterceptorRef.current = authInterceptor;
+
+      dispatch({
+        type: AuthActionType.SetLoading,
+        payload: { isLoading: false },
+      });
+
+      return true;
+    },
+    [getAuthInterceptor]
+  );
 
   // log user in with data from login form
   const login = useCallback(
@@ -133,9 +183,10 @@ function AuthProvider({ children }: AuthProviderProps) {
 
       const authRes = await loginForAccessTokenUsersLoginPost({
         body: values,
+        credentials: 'include',
       });
 
-      if (authRes.response.status !== 200) {
+      if (authRes.response.status !== 200 || !authRes.data) {
         if (typeof authRes.error?.detail === 'string') {
           toast.error(authRes.error.detail);
         } else {
@@ -149,57 +200,15 @@ function AuthProvider({ children }: AuthProviderProps) {
         return false;
       }
 
-      const authInterceptor = (options: RequestOptions<boolean, string>) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        options.headers?.set(
-          'Authorization',
-          `Bearer ${authRes.data?.access_token ?? ''}`
-        );
-      };
-
-      client.interceptors.request.use(authInterceptor);
-
-      const userRes = await getCurrentUserInfoUsersInfoGet();
-
-      if (userRes.response.status !== 200) {
-        client.interceptors.request.eject(authInterceptor);
-
+      if (!(await updateAuthInfo(authRes.data))) {
         toast.error('Something went wrong');
-        dispatch({
-          type: AuthActionType.SetLoading,
-          payload: { isLoading: false },
-        });
-
         return false;
       }
 
-      sessionStorage.setItem(
-        ACCESS_TOKEN_SESSION_STORAGE_KEY,
-        authRes.data?.access_token ?? ''
-      );
-
-      dispatch({
-        type: AuthActionType.UpdateAccessToken,
-        payload: { accessToken: authRes.data },
-      });
-      dispatch({
-        type: AuthActionType.UpdateUserInfo,
-        payload: { userInfo: userRes.data },
-      });
-
-      // client.interceptors.request.eject(authInterceptor);
-      authInterceptorRef.current = authInterceptor;
-
-      toast.success('Logged in successfully');
-      dispatch({
-        type: AuthActionType.SetLoading,
-        payload: { isLoading: false },
-      });
-
+      toast.info('Logged in successfully');
       return true;
     },
-    []
+    [updateAuthInfo]
   );
 
   const signup = useCallback(
@@ -238,8 +247,15 @@ function AuthProvider({ children }: AuthProviderProps) {
     []
   );
 
-  const logout = useCallback(() => {
-    sessionStorage.removeItem(ACCESS_TOKEN_SESSION_STORAGE_KEY);
+  const logout = useCallback(async () => {
+    await logoutUsersLogoutDelete({ credentials: 'include' });
+
+    if (authInterceptorRef.current) {
+      // eject the old interceptor
+      client.interceptors.request.eject(authInterceptorRef.current);
+      authInterceptorRef.current = null;
+    }
+
     dispatch({ type: AuthActionType.Logout });
   }, []);
 
@@ -389,89 +405,68 @@ function AuthProvider({ children }: AuthProviderProps) {
     []
   );
 
-  // check access token in session storage
+  // check existing session
   useEffect(() => {
     const asyncFunc = async () => {
-      const accessToken = sessionStorage.getItem(
-        ACCESS_TOKEN_SESSION_STORAGE_KEY
-      );
+      const tokenRes = await refreshAccessTokenUsersRefreshPost({
+        credentials: 'include',
+      });
 
-      if (!accessToken) {
+      if (!tokenRes.data) {
         dispatch({
           type: AuthActionType.SetLoading,
           payload: { isLoading: false },
         });
-        sessionStorage.removeItem(ACCESS_TOKEN_SESSION_STORAGE_KEY);
 
         return;
       }
 
-      const authInterceptor = (options: RequestOptions<boolean, string>) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        options.headers?.set('Authorization', `Bearer ${accessToken}`);
-      };
-
-      client.interceptors.request.use(authInterceptor);
-
-      const userRes = await getCurrentUserInfoUsersInfoGet();
-
-      if (userRes.response.status !== 200) {
-        client.interceptors.request.eject(authInterceptor);
-        dispatch({
-          type: AuthActionType.SetLoading,
-          payload: { isLoading: false },
-        });
-        sessionStorage.removeItem(ACCESS_TOKEN_SESSION_STORAGE_KEY);
-
-        return;
-      }
-
-      dispatch({
-        type: AuthActionType.UpdateAccessToken,
-        payload: {
-          accessToken: { access_token: accessToken, token_type: 'bearer' },
-        },
-      });
-      dispatch({
-        type: AuthActionType.UpdateUserInfo,
-        payload: { userInfo: userRes.data },
-      });
-
-      // client.interceptors.request.eject(authInterceptor);
-      authInterceptorRef.current = authInterceptor;
-      dispatch({
-        type: AuthActionType.SetLoading,
-        payload: { isLoading: false },
-      });
+      await updateAuthInfo(tokenRes.data);
     };
 
     asyncFunc();
-  }, []);
+  }, [updateAuthInfo]);
 
   useEffect(() => {
-    if (!state.accessToken?.access_token && authInterceptorRef.current) {
-      client.interceptors.request.eject(authInterceptorRef.current);
-      authInterceptorRef.current = null;
+    if (!state.accessToken) {
+      return;
     }
-  }, [state.accessToken?.access_token]);
 
-  useEffect(() => {
-    const unauthorizedCheckInterceptor = (response: Response) => {
-      if (response.status === 401) {
-        logout();
-        router.push('/login');
+    const asyncFunc = async () => {
+      const tokenRes = await refreshAccessTokenUsersRefreshPost({
+        credentials: 'include',
+      });
+
+      if (!tokenRes.data) {
+        return;
       }
 
-      return response;
+      const authInterceptor = getAuthInterceptor(tokenRes.data.access_token);
+
+      client.interceptors.request.use(authInterceptor);
+
+      if (authInterceptorRef.current) {
+        client.interceptors.request.eject(authInterceptorRef.current);
+      }
+      authInterceptorRef.current = authInterceptor;
+
+      dispatch({
+        type: AuthActionType.UpdateAccessToken,
+        payload: { accessToken: tokenRes.data },
+      });
     };
 
-    client.interceptors.response.use(unauthorizedCheckInterceptor);
+    const timeout = setTimeout(
+      asyncFunc,
+      process.env.NEXT_PUBLIC_REFRESH_TOKEN_INTERVAL
+        ? parseInt(process.env.NEXT_PUBLIC_REFRESH_TOKEN_INTERVAL)
+        : 1500000 // set default to 25 minutes
+    );
 
     return () => {
-      client.interceptors.response.eject(unauthorizedCheckInterceptor);
+      clearTimeout(timeout);
     };
-  }, [logout, router]);
+  }, [state.accessToken, getAuthInterceptor]);
 
   return (
     <AuthStateContext.Provider

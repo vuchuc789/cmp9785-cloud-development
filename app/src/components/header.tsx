@@ -91,8 +91,8 @@ export function Header() {
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={() => {
-                      logout();
+                    onClick={async () => {
+                      await logout();
                       router.push('/');
                     }}
                   >

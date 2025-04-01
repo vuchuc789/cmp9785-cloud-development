@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     auth_token_secret_key: str  # openssl rand -hex 32
     auth_token_algorithm: str = 'HS256'
     access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 3
 
     cors_origins: list[str] = ['*']
 

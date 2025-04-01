@@ -14,6 +14,10 @@ import type {
   LoginForAccessTokenUsersLoginPostData,
   LoginForAccessTokenUsersLoginPostResponse,
   LoginForAccessTokenUsersLoginPostError,
+  RefreshAccessTokenUsersRefreshPostData,
+  RefreshAccessTokenUsersRefreshPostResponse,
+  RefreshAccessTokenUsersRefreshPostError,
+  LogoutUsersLogoutDeleteData,
   GetCurrentUserInfoUsersInfoGetData,
   GetCurrentUserInfoUsersInfoGetResponse,
   UpdateUserInfoUsersUpdatePatchData,
@@ -40,6 +44,7 @@ import { client as _heyApiClient } from './client.gen';
 import {
   zRegisterNewUserUsersRegisterPostResponse,
   zLoginForAccessTokenUsersLoginPostResponse,
+  zRefreshAccessTokenUsersRefreshPostResponse,
   zGetCurrentUserInfoUsersInfoGetResponse,
   zUpdateUserInfoUsersUpdatePatchResponse,
   zVerifyEmailUsersVerifyEmailGetResponse,
@@ -129,6 +134,49 @@ export const loginForAccessTokenUsersLoginPost = <
       'Content-Type': 'application/x-www-form-urlencoded',
       ...options?.headers,
     },
+  });
+};
+
+/**
+ * Refresh Access Token
+ */
+export const refreshAccessTokenUsersRefreshPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<RefreshAccessTokenUsersRefreshPostData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).post<
+    RefreshAccessTokenUsersRefreshPostResponse,
+    RefreshAccessTokenUsersRefreshPostError,
+    ThrowOnError
+  >({
+    responseValidator: async (data) => {
+      return await zRefreshAccessTokenUsersRefreshPostResponse.parseAsync(data);
+    },
+    url: '/users/refresh',
+    ...options,
+  });
+};
+
+/**
+ * Logout
+ */
+export const logoutUsersLogoutDelete = <ThrowOnError extends boolean = false>(
+  options?: Options<LogoutUsersLogoutDeleteData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).delete<
+    unknown,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/users/logout',
+    ...options,
   });
 };
 

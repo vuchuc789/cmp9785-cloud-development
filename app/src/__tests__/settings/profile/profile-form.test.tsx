@@ -9,6 +9,16 @@ jest.mock('next/navigation', () => ({
   }),
 }));
 
+jest.mock('../../../client/', () => ({
+  refreshAccessTokenUsersRefreshPost: jest.fn(() => ({
+    data: { accessToken: 'abc' },
+  })),
+  getCurrentUserInfoUsersInfoGet: jest.fn(() => ({
+    data: {},
+    response: { status: 200 },
+  })),
+}));
+
 describe('Page', () => {
   it('renders profile page unchanged', () => {
     const { container } = render(

@@ -249,6 +249,8 @@ export const zRegisterNewUserUsersRegisterPostResponse = zUserResponse;
 
 export const zLoginForAccessTokenUsersLoginPostResponse = zToken;
 
+export const zRefreshAccessTokenUsersRefreshPostResponse = zToken;
+
 export const zGetCurrentUserInfoUsersInfoGetResponse = zUserResponse;
 
 export const zUpdateUserInfoUsersUpdatePatchResponse = zUserResponse;
