@@ -1,0 +1,10 @@
+image_tag = "m-5f1ce7c"
+
+db_password = ""
+
+api_auth_token_secret_key = ""
+
+openverse_client_id     = ""
+openverse_client_secret = ""
+
+sendgrid_api_key = ""

@@ -20,6 +20,16 @@ provider "azurerm" {
   features {}
 }
 
+variable "api_image_name" {
+  type    = string
+  default = "vuchuc781999/cmp9134-api"
+}
+
+variable "app_image_name" {
+  type    = string
+  default = "vuchuc781999/cmp9134-app"
+}
+
 variable "image_tag" {
   type = string
 }

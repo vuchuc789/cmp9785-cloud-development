@@ -62,7 +62,7 @@ resource "azurerm_linux_function_app" "api" {
     }
     application_stack {
       docker {
-        image_name   = "vuchuc781999/cmp9134-api"
+        image_name   = var.api_image_name
         image_tag    = var.image_tag
         registry_url = "https://index.docker.io"
       }
@@ -96,3 +96,6 @@ resource "azurerm_app_service_certificate_binding" "api" {
   ssl_state           = "SniEnabled"
 }
 
+output "api-hostname" {
+  value = azurerm_linux_function_app.api.default_hostname
+}

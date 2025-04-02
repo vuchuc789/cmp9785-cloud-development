@@ -48,7 +48,7 @@ resource "azurerm_linux_function_app" "app" {
     }
     application_stack {
       docker {
-        image_name   = "vuchuc781999/cmp9134-app"
+        image_name   = var.app_image_name
         image_tag    = var.image_tag
         registry_url = "https://index.docker.io"
       }
@@ -79,4 +79,8 @@ resource "azurerm_app_service_certificate_binding" "app" {
   hostname_binding_id = azurerm_app_service_custom_hostname_binding.app.id
   certificate_id      = azurerm_app_service_managed_certificate.app.id
   ssl_state           = "SniEnabled"
+}
+
+output "app-hostname" {
+  value = azurerm_linux_function_app.app.default_hostname
 }
