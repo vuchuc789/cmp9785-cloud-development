@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { SearchActionType, useSearch } from '@/contexts/search';
+import { useSearch } from '@/contexts/search';
 import { Clock, Search, Trash2, X } from 'lucide-react';
 import moment from 'moment';
 import type React from 'react';
@@ -25,15 +25,10 @@ import { Form, FormControl, FormField } from './ui/form';
 export function SearchBar() {
   const [open, setOpen] = useState(false);
 
-  const { state, dispatch, form, search } = useSearch();
+  const { state, form, search, deleteHistory } = useSearch();
 
-  const filteredHistory = useMemo<
-    { query: string; timestamp: number }[]
-  >(() => {
-    return Object.entries(state.history)
-      .map(([q, t]) => ({ query: q, timestamp: t }))
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, 5);
+  const filteredHistory = useMemo(() => {
+    return state.history.slice(0, 5);
   }, [state.history]);
 
   const handleHistoryItemClick = (text: string) => {
@@ -42,18 +37,13 @@ export function SearchBar() {
     search();
   };
 
-  const removeHistoryItem = (e: React.MouseEvent, id: string) => {
+  const removeHistoryItem = async (e: React.MouseEvent, keyword: string) => {
     e.stopPropagation();
-    dispatch({
-      type: SearchActionType.DeleteHistory,
-      payload: { history: { [id]: 0 } },
-    });
+    deleteHistory(keyword);
   };
 
   const clearAllHistory = () => {
-    dispatch({
-      type: SearchActionType.ClearHistoty,
-    });
+    deleteHistory();
   };
 
   return (
@@ -102,7 +92,7 @@ export function SearchBar() {
                     <CommandEmpty>No search history found</CommandEmpty>
                     {filteredHistory.length > 0 && (
                       <CommandGroup heading="Recent Searches">
-                        {filteredHistory.map(({ query: q, timestamp: t }) => (
+                        {filteredHistory.map(({ keyword: q, timestamp: t }) => (
                           <CommandItem
                             key={q}
                             onSelect={() => handleHistoryItemClick(q)}

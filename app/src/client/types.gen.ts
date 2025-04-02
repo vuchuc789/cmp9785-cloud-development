@@ -182,6 +182,11 @@ export const ImageSize = {
   SMALL: 'small',
 } as const;
 
+export type MediaHistoryResponse = {
+  keyword: string;
+  timestamp: Date;
+};
+
 export type MediaLicense =
   | 'by'
   | 'by-nc'
@@ -579,6 +584,52 @@ export type MediaDetailMediaDetailGetResponses = {
 
 export type MediaDetailMediaDetailGetResponse =
   MediaDetailMediaDetailGetResponses[keyof MediaDetailMediaDetailGetResponses];
+
+export type DeleteHistoryMediaHistoryDeleteData = {
+  body?: never;
+  path?: never;
+  query?: {
+    keyword?: string | null;
+  };
+  url: '/media/history';
+};
+
+export type DeleteHistoryMediaHistoryDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeleteHistoryMediaHistoryDeleteError =
+  DeleteHistoryMediaHistoryDeleteErrors[keyof DeleteHistoryMediaHistoryDeleteErrors];
+
+export type DeleteHistoryMediaHistoryDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<MediaHistoryResponse>;
+};
+
+export type DeleteHistoryMediaHistoryDeleteResponse =
+  DeleteHistoryMediaHistoryDeleteResponses[keyof DeleteHistoryMediaHistoryDeleteResponses];
+
+export type GetHistoryMediaHistoryGetData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/media/history';
+};
+
+export type GetHistoryMediaHistoryGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<MediaHistoryResponse>;
+};
+
+export type GetHistoryMediaHistoryGetResponse =
+  GetHistoryMediaHistoryGetResponses[keyof GetHistoryMediaHistoryGetResponses];
 
 export type ClientOptions = {
   baseUrl: `${string}://${string}/api/v1` | (string & {});

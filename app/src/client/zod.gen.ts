@@ -186,6 +186,11 @@ export const zImageSearchResponse = z.object({
 
 export const zImageSize = z.enum(['large', 'medium', 'small']);
 
+export const zMediaHistoryResponse = z.object({
+  keyword: z.string(),
+  timestamp: z.string().datetime(),
+});
+
 export const zMediaLicense = z.enum([
   'by',
   'by-nc',
@@ -270,3 +275,11 @@ export const zMediaDetailMediaDetailGetResponse = z.union([
   zImageSearchItem,
   zAudioSearchItem,
 ]);
+
+export const zDeleteHistoryMediaHistoryDeleteResponse = z.array(
+  zMediaHistoryResponse
+);
+
+export const zGetHistoryMediaHistoryGetResponse = z.array(
+  zMediaHistoryResponse
+);

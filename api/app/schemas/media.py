@@ -206,3 +206,8 @@ class AudioSearchResponse(BaseModel):
     page: int
     results: list[AudioSearchItem]
     warnings: list[dict[str, Any]] | None = None
+
+
+class MediaHistoryResponse(BaseModel):
+    keyword: str
+    timestamp: datetime

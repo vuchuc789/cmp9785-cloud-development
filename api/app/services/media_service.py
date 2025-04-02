@@ -2,9 +2,10 @@ from datetime import UTC, datetime, timedelta
 
 import requests
 from fastapi import BackgroundTasks, HTTPException, status
-from sqlmodel import Session
+from sqlmodel import Session, delete, select
 
 from app.core.config import Settings
+from app.models.user import MediaHistory, User
 from app.schemas.media import MediaDetailParams, MediaSearchParams, MediaType
 from app.utils.openverse import get_openverse_token
 
@@ -28,7 +29,7 @@ class MediaService:
                 )
 
             self.openverse_access_token = token.access_token
-            self.openverse_expires_in = token.expires_in.replace(tzinfo=UTC)
+            self.openverse_expires_in = token.expires_in
             return
 
         if self.openverse_access_token is not None and self.openverse_expires_in <= now + timedelta(
@@ -158,6 +159,36 @@ class MediaService:
 
         data = response.json()
         return data
+
+    def update_history(self, keyword: str, user: User, db: Session):
+        statement = select(MediaHistory).where(
+            MediaHistory.user_id == user.id, MediaHistory.keyword == keyword
+        )
+
+        history = db.exec(statement).first()
+        now = datetime.now(UTC)
+
+        if history is not None:
+            history.timestamp = now
+        else:
+            history = MediaHistory(keyword=keyword, timestamp=now, user=user)
+
+        db.add(history)
+        db.commit()
+
+    def delete_history(self, keyword: str, user: User, db: Session):
+        statement = delete(MediaHistory).where(
+            MediaHistory.user_id == user.id, MediaHistory.keyword == keyword
+        )
+
+        db.exec(statement)
+        db.commit()
+
+    def delete_all_history(self, user: User, db: Session):
+        statement = delete(MediaHistory).where(MediaHistory.user_id == user.id)
+
+        db.exec(statement)
+        db.commit()
 
 
 media_service = MediaService()

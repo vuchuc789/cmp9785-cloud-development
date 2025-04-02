@@ -39,6 +39,11 @@ import type {
   MediaDetailMediaDetailGetData,
   MediaDetailMediaDetailGetResponse,
   MediaDetailMediaDetailGetError,
+  DeleteHistoryMediaHistoryDeleteData,
+  DeleteHistoryMediaHistoryDeleteResponse,
+  DeleteHistoryMediaHistoryDeleteError,
+  GetHistoryMediaHistoryGetData,
+  GetHistoryMediaHistoryGetResponse,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
 import {
@@ -52,7 +57,13 @@ import {
   zResetPasswosdUsersResetPasswordPatchResponse,
   zSearchMediaMediaSearchGetResponse,
   zMediaDetailMediaDetailGetResponse,
+  zDeleteHistoryMediaHistoryDeleteResponse,
+  zGetHistoryMediaHistoryGetResponse,
 } from './zod.gen';
+import {
+  deleteHistoryMediaHistoryDeleteResponseTransformer,
+  getHistoryMediaHistoryGetResponseTransformer,
+} from './transformers.gen';
 
 export type Options<
   TData extends TDataShape = TDataShape,
@@ -388,6 +399,60 @@ export const mediaDetailMediaDetailGet = <ThrowOnError extends boolean = false>(
       return await zMediaDetailMediaDetailGetResponse.parseAsync(data);
     },
     url: '/media/detail',
+    ...options,
+  });
+};
+
+/**
+ * Delete History
+ */
+export const deleteHistoryMediaHistoryDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<DeleteHistoryMediaHistoryDeleteData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).delete<
+    DeleteHistoryMediaHistoryDeleteResponse,
+    DeleteHistoryMediaHistoryDeleteError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    responseTransformer: deleteHistoryMediaHistoryDeleteResponseTransformer,
+    responseValidator: async (data) => {
+      return await zDeleteHistoryMediaHistoryDeleteResponse.parseAsync(data);
+    },
+    url: '/media/history',
+    ...options,
+  });
+};
+
+/**
+ * Get History
+ */
+export const getHistoryMediaHistoryGet = <ThrowOnError extends boolean = false>(
+  options?: Options<GetHistoryMediaHistoryGetData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    GetHistoryMediaHistoryGetResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    responseTransformer: getHistoryMediaHistoryGetResponseTransformer,
+    responseValidator: async (data) => {
+      return await zGetHistoryMediaHistoryGetResponse.parseAsync(data);
+    },
+    url: '/media/history',
     ...options,
   });
 };

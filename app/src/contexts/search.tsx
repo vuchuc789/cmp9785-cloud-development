@@ -1,6 +1,9 @@
 import {
   AudioSearchResponse,
+  deleteHistoryMediaHistoryDelete,
+  getHistoryMediaHistoryGet,
   ImageSearchResponse,
+  MediaHistoryResponse,
   MediaLicense,
   MediaType,
   searchMediaMediaSearchGet,
@@ -12,6 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -21,19 +25,15 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-const SEARCH_HISTORY_LOCAL_STORAGE_KEY = 'search-history';
-
 enum SearchActionType {
   UpdateResult,
   UpdateHistory,
-  DeleteHistory,
-  ClearHistoty,
 }
 
 type SearchState = {
   imageResult?: ImageSearchResponse;
   audioResult?: AudioSearchResponse;
-  history: { [key: string]: number };
+  history: MediaHistoryResponse[];
 };
 type SearchAction = { type: SearchActionType; payload?: Partial<SearchState> };
 type SearchDispatch = (action: SearchAction) => void;
@@ -54,6 +54,7 @@ const SearchContext = createContext<
       dispatch: SearchDispatch;
       form: ReturnType<typeof useForm<z.infer<typeof zSearchParams>>>;
       search: () => void;
+      deleteHistory: (keyword?: string) => Promise<void>;
     }
   | undefined
 >(undefined);
@@ -71,40 +72,17 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
     case SearchActionType.UpdateHistory: {
       return {
         ...state,
-        history: { ...state.history, ...action.payload?.history },
+        history: action.payload?.history ?? state.history,
       };
     }
 
-    case SearchActionType.DeleteHistory: {
-      if (!action.payload?.history) {
-        return { ...state };
-      }
-
-      const newHistory: SearchState['history'] = {};
-      for (const [k, v] of Object.entries(state.history)) {
-        if (!(k in action.payload.history)) {
-          newHistory[k] = v;
-        }
-      }
-
-      return {
-        ...state,
-        history: newHistory,
-      };
-    }
-
-    case SearchActionType.ClearHistoty:
-      return {
-        ...state,
-        history: {},
-      };
     default:
       throw new Error(`Unhandled action type: ${action.type}`);
   }
 }
 
 function SearchProvider({ children }: SearchProviderProps) {
-  const [state, dispatch] = useReducer(searchReducer, { history: {} });
+  const [state, dispatch] = useReducer(searchReducer, { history: [] });
 
   const form = useForm<z.infer<typeof zSearchParams>>({
     resolver: zodResolver(zSearchParams),
@@ -129,13 +107,6 @@ function SearchProvider({ children }: SearchProviderProps) {
 
         const query = form.getValues();
 
-        if (query.q) {
-          dispatch({
-            type: SearchActionType.UpdateHistory,
-            payload: { history: { [query.q]: Date.now() } },
-          });
-        }
-
         const newSearchParams = new URLSearchParams({
           type: query.type,
           q: query.q,
@@ -149,8 +120,63 @@ function SearchProvider({ children }: SearchProviderProps) {
         }
 
         router.push(`/search?${newSearchParams.toString()}`, { scroll: false });
-      }, 1000),
+      }, 500),
     [form, router]
+  );
+
+  const getHistory = useCallback(async () => {
+    const res = await getHistoryMediaHistoryGet();
+
+    dispatch({
+      type: SearchActionType.UpdateHistory,
+      payload: {
+        history: res.data?.sort(
+          (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
+        ),
+      },
+    });
+  }, []);
+
+  const deleteHistory = useCallback(
+    async (keyword?: string) => {
+      const oldHistory = [...state.history];
+
+      dispatch({
+        type: SearchActionType.UpdateHistory,
+        payload: {
+          history:
+            typeof keyword === 'string'
+              ? state.history.filter((hi) => hi.keyword !== keyword)
+              : [],
+        },
+      });
+
+      const res = await deleteHistoryMediaHistoryDelete({
+        query: {
+          keyword: keyword,
+        },
+      });
+
+      if (!res.data) {
+        toast.error('Failed to delete history');
+        dispatch({
+          type: SearchActionType.UpdateHistory,
+          payload: { history: oldHistory },
+        });
+
+        return;
+      }
+
+      dispatch({
+        type: SearchActionType.UpdateHistory,
+        payload: {
+          history: res.data.sort(
+            (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
+          ),
+        },
+      });
+    },
+    [state.history]
   );
 
   useEffect(() => {
@@ -194,50 +220,26 @@ function SearchProvider({ children }: SearchProviderProps) {
         return;
       }
 
-      if (query.type === 'image') {
-        dispatch({
-          type: SearchActionType.UpdateResult,
-          payload: { imageResult: res.data as ImageSearchResponse },
-        });
-
-        return;
+      switch (query.type) {
+        case 'image':
+          dispatch({
+            type: SearchActionType.UpdateResult,
+            payload: { imageResult: res.data as ImageSearchResponse },
+          });
+          break;
+        case 'audio':
+          dispatch({
+            type: SearchActionType.UpdateResult,
+            payload: { audioResult: res.data as AudioSearchResponse },
+          });
+          break;
       }
 
-      if (query.type === 'audio') {
-        dispatch({
-          type: SearchActionType.UpdateResult,
-          payload: { audioResult: res.data as AudioSearchResponse },
-        });
-
-        return;
-      }
+      await getHistory();
     };
 
     asyncFunc();
-  }, [searchParams, form, isAuthLoading]);
-
-  useEffect(() => {
-    const searchHistoryStr = sessionStorage.getItem(
-      SEARCH_HISTORY_LOCAL_STORAGE_KEY
-    );
-    if (!searchHistoryStr) {
-      return;
-    }
-
-    const searchHistory = JSON.parse(searchHistoryStr) as {
-      [key: string]: number;
-    };
-
-    dispatch({
-      type: SearchActionType.UpdateHistory,
-      payload: { history: searchHistory },
-    });
-  }, []);
-
-  useEffect(() => {
-    const searchHistoryStr = JSON.stringify(state.history);
-    sessionStorage.setItem(SEARCH_HISTORY_LOCAL_STORAGE_KEY, searchHistoryStr);
-  }, [state.history]);
+  }, [searchParams, form, isAuthLoading, getHistory]);
 
   return (
     <SearchContext.Provider
@@ -246,6 +248,7 @@ function SearchProvider({ children }: SearchProviderProps) {
         dispatch,
         form,
         search,
+        deleteHistory,
       }}
     >
       {children}

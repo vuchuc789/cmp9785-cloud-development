@@ -855,6 +855,20 @@ export const ImageSizeSchema = {
   enum: ['large', 'medium', 'small'],
 } as const;
 
+export const MediaHistoryResponseSchema = {
+  properties: {
+    keyword: {
+      type: 'string',
+    },
+    timestamp: {
+      type: 'string',
+      format: 'date-time',
+    },
+  },
+  type: 'object',
+  required: ['keyword', 'timestamp'],
+} as const;
+
 export const MediaLicenseSchema = {
   type: 'string',
   enum: [
