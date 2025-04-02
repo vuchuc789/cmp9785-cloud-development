@@ -1,5 +1,7 @@
 # Open-license media search
 
+![GitHub branch check runs](https://img.shields.io/github/check-runs/vuchuc789/cmp9134-software-engineering/main)
+
 This project is part of my Software Engineering module (CMP-9134) at the University of Lincoln. It is a web application that enables authenticated users to search for open-license media, including images, audio, and songs. The platform provides an intuitive interface for discovering and accessing media content with proper licensing information.
 
 ## Features
@@ -96,11 +98,11 @@ npm run dev
 
 ### Demo Screenshots
 
-Web Application
+**Web Application**
 
 ![App Demo](app-demo.png)
 
-API Documentation
+**API Documentation**
 
 ![API Demo](api-demo.png)
 
