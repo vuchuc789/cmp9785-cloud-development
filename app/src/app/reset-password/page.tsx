@@ -1,7 +1,7 @@
 import { EmailForm } from './email-form';
 import { ResetPasswordForm } from './reset-password-form';
 
-export default async function Page({
+export default async function ResetPasswordPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

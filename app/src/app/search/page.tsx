@@ -7,7 +7,7 @@ import { SearchBar } from '@/components/search-bar';
 import { SearchProvider } from '@/contexts/search';
 import { Suspense } from 'react';
 
-export default function Page() {
+export default function SearchPage() {
   return (
     <Suspense>
       <SearchProvider>

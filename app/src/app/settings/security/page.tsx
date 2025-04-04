@@ -1,7 +1,7 @@
 import { SecurityForm } from '@/app/settings/security/security-form';
 import { Separator } from '@/components/ui/separator';
 
-export default function Page() {
+export default function SecurityPage() {
   return (
     <div className="space-y-6">
       <div>

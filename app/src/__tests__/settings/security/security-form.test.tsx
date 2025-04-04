@@ -1,31 +1,25 @@
-import Page from '@/app/settings/profile/page';
-import { AuthProvider } from '@/contexts/auth';
+import SecurityPage from '@/app/settings/security/page';
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
+import { act } from 'react';
 
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    replace: jest.fn(),
-  }),
+  useRouter: () => ({ replace: () => {} }),
 }));
 
-jest.mock('../../../client/', () => ({
-  refreshAccessTokenUsersRefreshPost: jest.fn(() => ({
-    data: { accessToken: 'abc' },
-  })),
-  getCurrentUserInfoUsersInfoGet: jest.fn(() => ({
-    data: {},
-    response: { status: 200 },
-  })),
+jest.mock('../../../contexts/auth', () => ({
+  useAuth: jest.fn(() => ({ state: { accessToken: 'abc', isLoading: false } })),
 }));
 
-describe('Page', () => {
-  it('renders security page unchanged', () => {
-    const { container } = render(
-      <AuthProvider>
-        <Page />
-      </AuthProvider>
-    );
+describe('SecurityPage', () => {
+  it('renders profile page unchanged', async () => {
+    let container;
+    await act(async () => {
+      const result = render(<SecurityPage />);
+
+      container = result.container;
+    });
+
     expect(container).toMatchSnapshot();
   });
 });

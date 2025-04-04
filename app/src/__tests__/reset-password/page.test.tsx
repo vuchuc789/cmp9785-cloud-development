@@ -1,39 +1,42 @@
-import { EmailForm } from '@/app/reset-password/email-form';
-import { ResetPasswordForm } from '@/app/reset-password/reset-password-form';
-import { AuthProvider } from '@/contexts/auth';
+import ResetPasswordPage from '@/app/reset-password/page';
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
+import { act } from 'react';
 
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({}),
+  useRouter: () => ({ replace: () => {} }),
 }));
 
-jest.mock('../../client/', () => ({
-  refreshAccessTokenUsersRefreshPost: jest.fn(() => ({
-    data: { accessToken: 'abc' },
-  })),
-  getCurrentUserInfoUsersInfoGet: jest.fn(() => ({
-    data: {},
-    response: { status: 200 },
-  })),
+jest.mock('../../contexts/auth', () => ({
+  useAuth: jest.fn(() => ({ state: { accessToken: null, isLoading: false } })),
 }));
 
-describe('Page', () => {
-  it('renders reset password page (without token) unchanged', () => {
-    const { container } = render(
-      <AuthProvider>
-        <EmailForm />
-      </AuthProvider>
-    );
+describe('ResetPasswordPage', () => {
+  it('renders EmailForm unchanged', async () => {
+    let container;
+    await act(async () => {
+      const Result = ResetPasswordPage({
+        searchParams: new Promise((resolve) => resolve({})),
+      });
+      const result = render(Result);
+
+      container = result.container;
+    });
+
     expect(container).toMatchSnapshot();
   });
 
-  it('renders reset password page (without token) unchanged', () => {
-    const { container } = render(
-      <AuthProvider>
-        <ResetPasswordForm token="c7566ed5-0ec4-412a-b6ef-b012f02366e4" />
-      </AuthProvider>
-    );
+  it('renders ResetPasswordForm unchanged', async () => {
+    let container;
+    await act(async () => {
+      const Result = ResetPasswordPage({
+        searchParams: new Promise((resolve) => resolve({ token: 'abc' })),
+      });
+      const result = render(Result);
+
+      container = result.container;
+    });
+
     expect(container).toMatchSnapshot();
   });
 });

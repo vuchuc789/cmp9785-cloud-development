@@ -1,7 +1,7 @@
 import { verifyEmailUsersVerifyEmailGet } from '@/client';
 import { CircleCheck, CircleX } from 'lucide-react';
 
-export default async function Page({
+export default async function VerifyPasswordPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

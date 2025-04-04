@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import Page from '../app/page';
 
 Object.defineProperty(globalThis, 'crypto', {
@@ -8,16 +8,16 @@ Object.defineProperty(globalThis, 'crypto', {
   },
 });
 
-describe('Page', () => {
-  it('renders a path', () => {
-    render(<Page />);
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({}),
+}));
 
-    const path = screen.getByText('Search now');
+jest.mock('../contexts/auth', () => ({
+  useAuth: jest.fn(() => ({ state: { accessToken: 'abc', isLoading: false } })),
+}));
 
-    expect(path).toBeInTheDocument();
-  });
-
-  it('renders homepage unchanged', () => {
+describe('Homepage', () => {
+  it('renders unchanged', () => {
     const { container } = render(<Page />);
     expect(container).toMatchSnapshot();
   });

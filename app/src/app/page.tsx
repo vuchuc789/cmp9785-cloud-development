@@ -1,7 +1,5 @@
-import { Button } from '@/components/ui/button';
+import { HomepageButtons } from '@/components/homepage-buttons';
 import Avatar from 'boring-avatars';
-import { LogIn, Search } from 'lucide-react';
-import Link from 'next/link';
 
 export default function Home() {
   const randStr = crypto.randomUUID();
@@ -24,24 +22,7 @@ export default function Home() {
           available for free use.
         </p>
 
-        <div className="flex gap-4 items-start flex-col sm:flex-row">
-          <Link href="/search">
-            <Button size="lg" className="rounded-full cursor-pointer">
-              <Search />
-              Search now
-            </Button>
-          </Link>
-          <Link href="/login">
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-full cursor-pointer"
-            >
-              <LogIn />
-              Or login if you haven&apos;t...
-            </Button>
-          </Link>
-        </div>
+        <HomepageButtons />
       </main>
     </div>
   );

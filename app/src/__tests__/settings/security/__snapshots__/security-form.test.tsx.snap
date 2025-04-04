@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Page renders security page unchanged 1`] = `
+exports[`SecurityPage renders profile page unchanged 1`] = `
 <div>
   <div
     class="space-y-6"
@@ -9,12 +9,12 @@ exports[`Page renders security page unchanged 1`] = `
       <h3
         class="text-lg font-medium"
       >
-        Profile
+        Security
       </h3>
       <p
         class="text-sm text-muted-foreground"
       >
-        This is some of your account's basic information.
+        Update your password here.
       </p>
     </div>
     <div
@@ -34,18 +34,19 @@ exports[`Page renders security page unchanged 1`] = `
           class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive-foreground"
           data-error="false"
           data-slot="form-label"
-          for=":r0:-form-item"
+          for="password"
         >
-          Full name
+          Password
         </label>
         <input
           aria-describedby=":r0:-form-item-description"
           aria-invalid="false"
+          autocomplete="new-password"
           class="border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
           data-slot="form-control"
-          id=":r0:-form-item"
-          name="full_name"
-          placeholder="John Doe"
+          id="password"
+          name="password"
+          type="password"
           value=""
         />
         <p
@@ -53,7 +54,7 @@ exports[`Page renders security page unchanged 1`] = `
           data-slot="form-description"
           id=":r0:-form-item-description"
         >
-          This is your real name, which is optional and different from your username.
+          Your new password.
         </p>
       </div>
       <div
@@ -64,47 +65,35 @@ exports[`Page renders security page unchanged 1`] = `
           class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive-foreground"
           data-error="false"
           data-slot="form-label"
-          for=":r1:-form-item"
+          for="password_repeat"
         >
-          Email
+          Confirm password
         </label>
-        <div
-          class="flex gap-1 flex-nowrap"
-        >
-          <input
-            aria-describedby=":r1:-form-item-description"
-            aria-invalid="false"
-            class="border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
-            data-slot="form-control"
-            id=":r1:-form-item"
-            name="email"
-            placeholder="johndoe@example.com"
-            value=""
-          />
-          <button
-            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 has-[>svg]:px-3 cursor-pointer"
-            data-slot="button"
-            disabled=""
-            type="button"
-          >
-            Verify
-          </button>
-        </div>
+        <input
+          aria-describedby=":r1:-form-item-description"
+          aria-invalid="false"
+          autocomplete="new-password"
+          class="border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+          data-slot="form-control"
+          id="password_repeat"
+          name="password_repeat"
+          type="password"
+          value=""
+        />
         <p
           class="text-muted-foreground text-sm"
           data-slot="form-description"
           id=":r1:-form-item-description"
         >
-          This is your email, which is optional but required when you want to reset your password.
+          Confirm your new password.
         </p>
       </div>
       <button
         class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 has-[>svg]:px-3 cursor-pointer"
         data-slot="button"
-        disabled=""
         type="submit"
       >
-        Update profile
+        Update password
       </button>
     </form>
   </div>

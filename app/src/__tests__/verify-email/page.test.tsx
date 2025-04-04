@@ -1,4 +1,4 @@
-import LoginPage from '@/app/login/page';
+import VerifyPasswordPage from '@/app/verify-email/page';
 import '@testing-library/jest-dom';
 import { render } from '@testing-library/react';
 import { act } from 'react';
@@ -11,11 +11,20 @@ jest.mock('../../contexts/auth', () => ({
   useAuth: jest.fn(() => ({ state: { accessToken: null, isLoading: false } })),
 }));
 
-describe('LoginPage', () => {
-  it('renders unchanged', async () => {
+jest.mock('../../client/', () => ({
+  verifyEmailUsersVerifyEmailGet: jest.fn(() => ({
+    response: { status: 200 },
+  })),
+}));
+
+describe('VerifyPasswordPage', () => {
+  it('renders EmailForm unchanged', async () => {
     let container;
     await act(async () => {
-      const result = render(<LoginPage />);
+      const Result = VerifyPasswordPage({
+        searchParams: new Promise((resolve) => resolve({})),
+      });
+      const result = render(Result);
 
       container = result.container;
     });

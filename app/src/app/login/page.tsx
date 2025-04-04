@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'Login',
 };
 
-export default function Page() {
+export default function LoginPage() {
   return (
     <div className="flex grow items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
