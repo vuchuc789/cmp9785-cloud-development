@@ -67,3 +67,20 @@ jobs:
         run: terraform init -input=false
       - name: Terraform plan
         run: terraform plan -input=false
+  diff-resources:
+    name: Diff Kubernetes Manifests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      - name: Create kubeconfig
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
+          echo "KUBECONFIG=$(pwd)/kubeconfig.yaml" >> $GITHUB_ENV
+      - name: Diff Kubernetes manifests
+        run: kubectl diff -k infra/argocd/ || true
+      - name: Clean up kubeconfig
+        if: always()
+        run: rm -f kubeconfig.yaml
