@@ -1,5 +1,8 @@
 name: Validate and Test
-on: push
+on:
+  push:
+    branches-ignore:
+      - main
 jobs:
   test-api:
     name: Test with Pytest

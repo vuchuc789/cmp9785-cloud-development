@@ -1,0 +1,71 @@
+name: Deploy App
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - app/**
+jobs:
+  test-app:
+    name: Test with Jest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+      - name: Install dependencies
+        run: |
+          npm install
+      - name: Create .env file
+        run: |
+          cp .env.example .env
+      - name: Test with jest
+        run: |
+          npm run test
+  build-app:
+    name: Build App
+    runs-on: ubuntu-latest
+    needs:
+      - test-app
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: vuchuc781999/cmp9785-app
+          tags: |
+            type=sha,prefix=m-
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: index.docker.io/vuchuc781999/cmp9785-app
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
