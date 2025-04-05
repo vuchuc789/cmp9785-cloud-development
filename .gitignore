@@ -1,2 +1,4 @@
 azure_creds.json
 .coverage
+
+deploybot*
