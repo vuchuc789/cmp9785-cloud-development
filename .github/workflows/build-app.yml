@@ -71,6 +71,8 @@ jobs:
           push-to-registry: true
   deploy-app:
     runs-on: ubuntu-latest
+    needs:
+      - build-app
     steps:
       - name: Checkout repo (no token)
         uses: actions/checkout@v4
@@ -94,5 +96,6 @@ jobs:
           git config --global user.name "Deploy Bot"
           git config --global user.email "deploy-bot@github.com"
           git add .
+          git pull --rebase origin ${{ github.ref_name }}
           git commit -m "deploy: app with tag ${{ steps.vars.outputs.sha }}" || echo "No changes to commit"
           git push git@github.com:${{ github.repository }}.git HEAD:${{ github.ref_name }}
