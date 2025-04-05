@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: vuchuc781999/cmp9785-api
-  tag: m-cecdf34
+  tag: m-c1bb7cc
 imagePullSecrets: []
 service:
   type: ClusterIP
