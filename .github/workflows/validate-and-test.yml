@@ -70,6 +70,9 @@ jobs:
   diff-resources:
     name: Diff Kubernetes Manifests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/argocd/
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -80,7 +83,7 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
           echo "KUBECONFIG=$(pwd)/kubeconfig.yaml" >> $GITHUB_ENV
       - name: Diff Kubernetes manifests
-        run: kubectl diff -k infra/argocd/ || true
+        run: kubectl diff -k . || true
       - name: Clean up kubeconfig
         if: always()
         run: rm -f kubeconfig.yaml

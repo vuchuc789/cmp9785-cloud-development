@@ -3,7 +3,6 @@ image:
   repository: vuchuc781999/cmp9785-app
   tag: m-cecdf34
 imagePullSecrets: []
-fullnameOverride: ""
 service:
   type: ClusterIP
   port: 3000
@@ -37,14 +36,3 @@ readinessProbe:
   httpGet:
     path: /
     port: 3000
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
