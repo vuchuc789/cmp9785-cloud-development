@@ -5,14 +5,17 @@ metadata:
   namespace: argocd
 spec:
   project: cmp9785
-  source:
-    chart: hashicorp/vault
-    repoURL: https://helm.releases.hashicorp.com
-    targetRevision: 0.30.0
-    helm:
-      releaseName: vault
-      valueFiles:
-        - ../manifests/vault/values.yaml
+  sources:
+    - repoURL: https://helm.releases.hashicorp.com
+      chart: vault
+      targetRevision: 0.30.0
+      helm:
+        releaseName: vault
+        valueFiles:
+          - $values/infra/argocd/manifests/vault/values.yaml
+    - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: vault
@@ -22,3 +25,8 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      jqPathExpressions:
+        - .webhooks[]?.clientConfig.caBundle
