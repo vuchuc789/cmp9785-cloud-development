@@ -131,32 +131,46 @@ jobs:
           subject-name: index.docker.io/vuchuc781999/cmp9785-app
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
-  # deploy:
-  #   name: Deploy to Azure
-  #   runs-on: ubuntu-latest
-  #   if: ${{ github.event.workflow_run.conclusion == 'success' }}
-  #   needs:
-  #     - build-api
-  #     - build-app
-  #   env:
-  #     ARM_SUBSCRIPTION_ID: "${{ secrets.ARM_SUBSCRIPTION_ID }}"
-  #     ARM_TENANT_ID: "${{ secrets.ARM_TENANT_ID }}"
-  #     ARM_CLIENT_ID: "${{ secrets.ARM_CLIENT_ID }}"
-  #     ARM_CLIENT_SECRET: "${{ secrets.ARM_CLIENT_SECRET }}"
-  #     TF_VAR_db_password: "${{ secrets.DB_PASSWORD }}"
-  #     TF_VAR_api_auth_token_secret_key: "${{ secrets.API_AUTH_TOKEN_SECRET_KEY }}"
-  #     TF_VAR_openverse_client_id: "${{ secrets.OPENVERSE_CLIENT_ID }}"
-  #     TF_VAR_openverse_client_secret: "${{ secrets.OPENVERSE_CLIENT_SECRET }}"
-  #     TF_VAR_sendgrid_api_key: "${{ secrets.SENDGRID_API_KEY }}"
-  #   defaults:
-  #     run:
-  #       working-directory: infra/
-  #   steps:
-  #     - name: Check out the repo
-  #       uses: actions/checkout@v4
-  #     - name: Setup Terraform
-  #       uses: hashicorp/setup-terraform@v3
-  #     - name: Terraform init
-  #       run: terraform init -input=false
-  #     - name: Terraform apply
-  #       run: terraform apply -input=false -auto-approve -var="image_tag=m-$(git rev-parse --short HEAD)"
+  deploy:
+    name: Provision Resources
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+      ARM_CLIENT_SECRET: "${{ secrets.AZURE_CLIENT_SECRET }}"
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Required to get previous commit for diff
+      - name: Fetch last commit SHA from triggering workflow
+        run: |
+          echo "COMMIT_SHA=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }} | jq -r '.head_sha')" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check for changes in infra/terraform/ directory
+        id: check
+        run: |
+          git fetch origin main
+          CHANGED=$(git diff --name-only $COMMIT_SHA HEAD | grep '^infra/terraform/' || true)
+          if [[ -z "$CHANGED" ]]; then
+            echo "No changes in infra/terraform/. Skipping apply."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in infra/terraform/. Proceeding with apply."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Setup Terraform
+        if: steps.check.outputs.skip != 'true'
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform init
+        if: steps.check.outputs.skip != 'true'
+        run: terraform init -input=false
+      - name: Terraform apply
+        if: steps.check.outputs.skip != 'true'
+        run: terraform apply -input=false -auto-approve

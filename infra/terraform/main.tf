@@ -30,6 +30,12 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     name       = "agentpool"
     vm_size    = "Standard_B2as_v2"
     node_count = var.node_count
+
+    upgrade_settings {
+      drain_timeout_in_minutes      = 0
+      max_surge                     = "10%"
+      node_soak_duration_in_minutes = 0
+    }
   }
   linux_profile {
     admin_username = var.username
