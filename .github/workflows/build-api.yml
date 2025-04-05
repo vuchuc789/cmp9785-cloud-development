@@ -68,3 +68,30 @@ jobs:
           subject-name: index.docker.io/vuchuc781999/cmp9785-api
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+  deploy-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo (no token)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false # disable default GITHUB_TOKEN
+      - name: Set up SSH for deploy key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - name: Get short commit SHA
+        id: vars
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Update image tag
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.image.tag = "m-${{ steps.vars.outputs.sha }}"' infra/argocd/manifests/web-api/values.custom.yaml
+      - name: Commit and push
+        run: |
+          git config --global user.name "Deploy Bot"
+          git config --global user.email "deploy-bot@github.com"
+          git add .
+          git commit -m "deploy: api with tag ${{ steps.vars.outputs.sha }}" || echo "No changes to commit"
+          git push git@github.com:${{ github.repository }}.git HEAD:${{ github.ref_name }}
