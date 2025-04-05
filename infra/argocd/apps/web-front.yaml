@@ -11,7 +11,7 @@ spec:
     path: infra/helm/charts/generic-app
     helm:
       valueFiles:
-        - infra/argocd/manifests/web-front/values.yaml
+        - ../../../argocd/manifests/web-front/values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: web-front
