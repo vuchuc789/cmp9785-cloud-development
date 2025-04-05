@@ -18,6 +18,28 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Required to get previous commit for diff
+      - name: Fetch last commit SHA from triggering workflow
+        run: |
+          echo "COMMIT_SHA=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }} | jq -r '.head_sha')" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check for changes in api/ directory
+        id: check
+        run: |
+          git fetch origin main
+          CHANGED=$(git diff --name-only $COMMIT_SHA HEAD | grep '^api/' || true)
+          if [[ -z "$CHANGED" ]]; then
+            echo "No changes in api/. Skipping build."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in api/. Proceeding with build."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Exit early if no changes
+        if: steps.check.outputs.skip == 'true'
+        run: exit 0
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
@@ -56,6 +78,28 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Required to get previous commit for diff
+      - name: Fetch last commit SHA from triggering workflow
+        run: |
+          echo "COMMIT_SHA=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }} | jq -r '.head_sha')" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check for changes in app/ directory
+        id: check
+        run: |
+          git fetch origin main
+          CHANGED=$(git diff --name-only $COMMIT_SHA HEAD | grep '^app/' || true)
+          if [[ -z "$CHANGED" ]]; then
+            echo "No changes in app/. Skipping build."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in app/. Proceeding with build."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Exit early if no changes
+        if: steps.check.outputs.skip == 'true'
+        run: exit 0
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
