@@ -8,7 +8,10 @@ spec:
   source:
     repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
     targetRevision: main
-    path: infra/argocd/base/web-front
+    path: infra/helm/charts/generic-app
+    helm:
+      valueFiles:
+        - infra/argocd/manifests/web-front/values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: web-front
