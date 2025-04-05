@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "generic-app.fullname" . }}
+  name: {{ include "web-front.fullname" . }}
   labels:
-    {{- include "generic-app.labels" . | nindent 4 }}
+    {{- include "web-front.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -12,4 +12,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "generic-app.selectorLabels" . | nindent 4 }}
+    {{- include "web-front.selectorLabels" . | nindent 4 }}
