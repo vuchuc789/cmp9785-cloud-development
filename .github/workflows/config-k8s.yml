@@ -4,7 +4,9 @@ on:
     branches:
       - main
     paths:
-      - infra/argocd/**
+      - infra/argocd/kustomization.yaml
+      - infra/argocd/project.yaml
+      - infra/argocd/apps/**
 jobs:
   deploy:
     name: Deploy Kubernetes Manifests
