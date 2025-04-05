@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: web-front
+  namespace: argocd
+spec:
+  project: cmp9785
+  source:
+    repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
+    targetRevision: main
+    path: infra/argocd/base/web-front
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: web-front
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
