@@ -89,7 +89,7 @@ jobs:
       - name: Update image tag
         uses: mikefarah/yq@master
         with:
-          cmd: yq -i '.image.tag = "m-${{ steps.vars.outputs.sha }}"' infra/argocd/manifests/web-api/values.custom.yaml
+          cmd: yq -i '.image.tag = "m-${{ steps.vars.outputs.sha }}"' infra/helm/values/web-api.yaml
       - name: Commit and push
         run: |
           git config --global user.name "Deploy Bot"

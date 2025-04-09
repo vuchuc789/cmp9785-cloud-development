@@ -51,10 +51,7 @@ jobs:
     name: Validate Terraform
     runs-on: ubuntu-latest
     env:
-      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
-      ARM_CLIENT_SECRET: "${{ secrets.AZURE_CLIENT_SECRET }}"
+      GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
     defaults:
       run:
         working-directory: infra/terraform/
@@ -67,23 +64,3 @@ jobs:
         run: terraform init -input=false
       - name: Terraform plan
         run: terraform plan -input=false
-  diff-resources:
-    name: Diff Kubernetes Manifests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: infra/argocd/
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v3
-      - name: Create kubeconfig
-        run: |
-          echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
-          echo "KUBECONFIG=$(pwd)/kubeconfig.yaml" >> $GITHUB_ENV
-      - name: Diff Kubernetes manifests
-        run: kubectl diff -k . || true
-      - name: Clean up kubeconfig
-        if: always()
-        run: rm -f kubeconfig.yaml

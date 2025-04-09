@@ -1,55 +1,59 @@
-# Generate random resource group name
-resource "random_pet" "rg_name" {
-  prefix = var.resource_group_name_prefix
-}
-
-resource "azurerm_resource_group" "rg" {
-  location = var.resource_group_location
-  name     = random_pet.rg_name.id
-}
-
-resource "random_pet" "azurerm_kubernetes_cluster_name" {
-  prefix = "cluster"
-}
-
-resource "random_pet" "azurerm_kubernetes_cluster_dns_prefix" {
-  prefix = "dns"
-}
-
-resource "azurerm_kubernetes_cluster" "k8s" {
-  location            = azurerm_resource_group.rg.location
-  name                = random_pet.azurerm_kubernetes_cluster_name.id
-  resource_group_name = azurerm_resource_group.rg.name
-  dns_prefix          = random_pet.azurerm_kubernetes_cluster_dns_prefix.id
-
-  identity {
-    type = "SystemAssigned"
+terraform {
+  backend "gcs" {
+    bucket = "cmp-9785-terraform-state"
+    prefix = "terraform/state"
   }
 
-  default_node_pool {
-    name       = "agentpool"
-    vm_size    = "Standard_B2as_v2"
-    node_count = var.node_count
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "6.28.0"
+    }
 
-    upgrade_settings {
-      drain_timeout_in_minutes      = 0
-      max_surge                     = "10%"
-      node_soak_duration_in_minutes = 0
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.36.0"
+    }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = "3.0.0-pre2"
     }
   }
-  linux_profile {
-    admin_username = var.username
 
-    ssh_key {
-      key_data = azapi_resource_action.ssh_public_key_gen.output.publicKey
-    }
-  }
-  network_profile {
-    network_plugin     = "azure"
-    network_data_plane = "cilium"
-    load_balancer_sku  = "standard"
-  }
-  web_app_routing {
-    dns_zone_ids = []
+  required_version = ">= 1.0"
+}
+
+provider "google" {
+  project = "cmp9785"
+  region  = "europe-west2"
+}
+
+data "google_client_config" "provider" {}
+
+provider "kubernetes" {
+  host  = "https://${google_container_cluster.cmp9785.endpoint}"
+  token = data.google_client_config.provider.access_token
+  cluster_ca_certificate = base64decode(
+    google_container_cluster.cmp9785.master_auth[0].cluster_ca_certificate
+  )
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "gke-gcloud-auth-plugin"
   }
 }
+
+provider "helm" {
+  kubernetes = {
+    host  = "https://${google_container_cluster.cmp9785.endpoint}"
+    token = data.google_client_config.provider.access_token
+    cluster_ca_certificate = base64decode(
+      google_container_cluster.cmp9785.master_auth[0].cluster_ca_certificate
+    )
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "gke-gcloud-auth-plugin"
+    }
+  }
+}
+
