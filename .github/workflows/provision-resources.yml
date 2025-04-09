@@ -10,13 +10,10 @@ jobs:
     name: Provision Resources
     runs-on: ubuntu-latest
     env:
-      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
-      ARM_CLIENT_SECRET: "${{ secrets.AZURE_CLIENT_SECRET }}"
+      GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
     defaults:
       run:
-        working-directory: infra/terraform
+        working-directory: infra/terraform/
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4

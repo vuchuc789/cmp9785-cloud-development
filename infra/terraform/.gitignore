@@ -1,9 +1,9 @@
 .terraform/
-
 *.tfstate
 *.tfstate.*
 
 *.tfvars
 
-azurek8s.yml
-
+sa-private-key.json
+gke_gcloud_auth_plugin_cache
+kubeconfig.yaml
