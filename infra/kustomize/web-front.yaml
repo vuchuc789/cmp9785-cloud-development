@@ -9,13 +9,13 @@ spec:
   project: cmp9785
   sources:
     - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
-      targetRevision: main
+      targetRevision: gateway
       path: infra/helm/charts/generic-app
       helm:
         valueFiles:
           - $values/infra/helm/values/web-front.yaml
     - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
-      targetRevision: main
+      targetRevision: gateway
       ref: values
   destination:
     server: https://kubernetes.default.svc
@@ -26,3 +26,41 @@ spec:
       prune: true
     syncOptions:
       - CreateNamespace=true
+---
+kind: Gateway
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: gateway
+  namespace: web-front
+spec:
+  gatewayClassName: gke-l7-regional-external-managed
+  listeners:
+    - name: gateway-pre-shared-certmap
+      protocol: HTTPS
+      port: 443
+      tls:
+        mode: Terminate
+        options:
+          networking.gke.io/cert-manager-certs: cmp9785-rootcert-0906641fa9a53f63
+      allowedRoutes:
+        kinds:
+          - kind: HTTPRoute
+        namespaces:
+          from: All
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: store-external
+  namespace: web-front
+  labels:
+    gateway: gateway
+spec:
+  parentRefs:
+    - name: gateway
+  hostnames:
+    - "cmp9785.vuchuc789.co.uk"
+  rules:
+    - backendRefs:
+        - name: web-front-generic-app
+          port: 3000
