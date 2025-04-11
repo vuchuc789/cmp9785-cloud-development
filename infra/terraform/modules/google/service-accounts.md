@@ -29,7 +29,9 @@ gcloud projects add-iam-policy-binding cmp9785 \
   --member="serviceAccount:gke-admin@cmp9785.iam.gserviceaccount.com" \
   --role="roles/iam.serviceAccountUser"
 
-
+gcloud projects add-iam-policy-binding cmp9785 \
+  --member="serviceAccount:gke-admin@cmp9785.iam.gserviceaccount.com" \
+  --role="roles/certificatemanager.editor"
 
 gcloud iam service-accounts keys create sa-private-key.json \
     --iam-account=gke-admin@cmp9785.iam.gserviceaccount.com
