@@ -1,0 +1,4 @@
+auth:
+  username: cmp9785
+  existingSecret: postgres-password
+  database: cmp9785

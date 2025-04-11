@@ -1,4 +1,8 @@
 azure_creds.json
 .coverage
 
-deploybot*
+**/deploybot*
+
+**/sa-private-key.json
+**/gke_gcloud_auth_plugin_cache
+**/kubeconfig.yaml

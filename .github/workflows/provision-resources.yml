@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
+      TF_VAR_postgres_password: "${{ secrets.POSTGRES_PASSWORD }}"
+      TF_VAR_auth_token_secret: "${{ secrets.AUTH_TOKEN_SECRET }}"
+      TF_VAR_sendgrid_api_key: "${{ secrets.SENDGRID_API_KEY }}"
     defaults:
       run:
         working-directory: infra/terraform/

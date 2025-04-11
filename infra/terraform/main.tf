@@ -3,57 +3,20 @@ terraform {
     bucket = "cmp-9785-terraform-state"
     prefix = "terraform/state"
   }
-
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "6.28.0"
-    }
-
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "2.36.0"
-    }
-
-    helm = {
-      source  = "hashicorp/helm"
-      version = "3.0.0-pre2"
-    }
-  }
-
-  required_version = ">= 1.0"
 }
 
-provider "google" {
-  project = "cmp9785"
-  region  = "europe-west2"
+module "google" {
+  source = "./modules/google"
 }
 
-data "google_client_config" "provider" {}
+module "kubernetes" {
+  source = "./modules/kubernetes"
 
-provider "kubernetes" {
-  host  = "https://${google_container_cluster.cmp9785.endpoint}"
-  token = data.google_client_config.provider.access_token
-  cluster_ca_certificate = base64decode(
-    google_container_cluster.cmp9785.master_auth[0].cluster_ca_certificate
-  )
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "gke-gcloud-auth-plugin"
-  }
-}
-
-provider "helm" {
-  kubernetes = {
-    host  = "https://${google_container_cluster.cmp9785.endpoint}"
-    token = data.google_client_config.provider.access_token
-    cluster_ca_certificate = base64decode(
-      google_container_cluster.cmp9785.master_auth[0].cluster_ca_certificate
-    )
-    exec = {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "gke-gcloud-auth-plugin"
-    }
-  }
+  kubernetes_host   = module.google.kubernetes_host
+  google_token      = module.google.google_token
+  cluster_ca        = module.google.cluster_ca
+  postgres_password = var.postgres_password
+  auth_token_secret = var.auth_token_secret
+  sendgrid_api_key  = var.sendgrid_api_key
 }
 

@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: web-api
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cmp9785
+  sources:
+    - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
+      targetRevision: main
+      path: infra/helm/charts/generic-app
+      helm:
+        valueFiles:
+          - $values/infra/helm/values/web-api.yaml
+    - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: web-api
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
