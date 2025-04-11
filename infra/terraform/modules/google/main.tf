@@ -4,6 +4,11 @@ terraform {
       source  = "hashicorp/google"
       version = "6.28.0"
     }
+
+    random = {
+      source  = "hashicorp/random"
+      version = "3.7.1"
+    }
   }
 
   required_version = ">= 1.0"
