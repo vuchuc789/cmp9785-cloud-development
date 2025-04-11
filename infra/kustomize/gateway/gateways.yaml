@@ -12,7 +12,7 @@ spec:
       tls:
         mode: Terminate
         options:
-          networking.gke.io/cert-manager-certs: cmp9785-rootcert-0906641fa9a53f63
+          networking.gke.io/cert-manager-certs: cmp9785-rootcert
       allowedRoutes:
         kinds:
           - kind: HTTPRoute
