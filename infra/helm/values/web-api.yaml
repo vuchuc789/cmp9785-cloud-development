@@ -37,6 +37,8 @@ env:
     value: cmp9785
   - name: DB_USERNAME
     value: cmp9785
+  - name: CORS_ORIGINS
+    value: '["https://cmp9785.vuchuc789.co.uk","https://app.cmp9785.vuchuc789.co.uk"]'
   - name: SOURCE_EMAIL
     value: "noreply@vuchuc789.co.uk"
   - name: FRONTEND_URL
