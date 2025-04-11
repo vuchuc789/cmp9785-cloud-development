@@ -42,10 +42,10 @@ env:
   - name: SOURCE_EMAIL
     value: "noreply@vuchuc789.co.uk"
   - name: FRONTEND_URL
-    value: "http://localhost:3000"
+    value: "https://cmp9785.vuchuc789.co.uk"
   - name: OPENVERSE_URL
     value: https://api.openverse.org
   - name: OPENVERSE_CLIENT_ID
-    value: "sample"
+    value: "3CH0Q11hWkc30y5GYz3Pre20NohyIv20K0tpf0Ok"
   - name: OPENVERSE_CLIENT_SECRET
-    value: "sample"
+    value: "rGHihC7flAYMDgQ3ntBy1pNoAnSQXavBHy7GRFoSdrCbcfDa7O0lSdNHbmn7l8oDVL3cxz4kRN6SRFetvhCx6RLqUC56AuxrHETzpWe222ammxJAjX7gQ9O7XmRJlZwH"
