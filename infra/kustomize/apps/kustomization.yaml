@@ -4,3 +4,4 @@ resources:
   - postgres.yaml
   - web-api.yaml
   - web-front.yaml
+  - gateway.yaml

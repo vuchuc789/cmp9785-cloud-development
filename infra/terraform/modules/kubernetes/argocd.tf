@@ -70,7 +70,7 @@ resource "kubernetes_manifest" "argocd_apps" {
       "source" = {
         "repoURL"        = "https://github.com/vuchuc789/cmp9785-cloud-development"
         "targetRevision" = "main"
-        "path"           = "infra/kustomize"
+        "path"           = "infra/kustomize/apps"
       }
       "destination" = {
         "server" = "https://kubernetes.default.svc"
