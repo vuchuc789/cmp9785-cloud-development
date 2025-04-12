@@ -40,7 +40,7 @@ resource "google_container_cluster" "cmp9785" {
 resource "google_container_node_pool" "cmp9785_nodes" {
   name       = "cmp9785-node-pool"
   cluster    = google_container_cluster.cmp9785.name
-  node_count = 2
+  node_count = 3
 
   location = "europe-west2-b"
 
@@ -48,7 +48,7 @@ resource "google_container_node_pool" "cmp9785_nodes" {
 
   node_config {
     preemptible  = true
-    machine_type = "e2-medium"
+    machine_type = "e2-standard-4"
 
     image_type = "ubuntu_containerd"
 

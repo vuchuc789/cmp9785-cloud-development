@@ -101,6 +101,23 @@ resource "kubernetes_manifest" "argocd_apps" {
     }
   }
 
-  depends_on = [helm_release.argocd, kubernetes_manifest.argocd_project]
+  wait {
+    fields = {
+      "status.health.status" = "Healthy"
+    }
+  }
+
+  depends_on = [
+    helm_release.argocd,
+    kubernetes_manifest.argocd_project,
+
+    # Avoid conflicts
+    kubernetes_namespace.database,
+    kubernetes_namespace.web_api,
+
+    # Wait for secrets to be created
+    kubernetes_secret.postgres_password,
+    kubernetes_secret.web_api
+  ]
 }
 
