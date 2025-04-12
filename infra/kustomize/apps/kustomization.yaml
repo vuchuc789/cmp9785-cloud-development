@@ -5,3 +5,6 @@ resources:
   - web-api.yaml
   - web-front.yaml
   - gateway.yaml
+  - prometheus-stack.yaml
+  - loki-logs.yaml
+  - fluentbit-logs.yaml
