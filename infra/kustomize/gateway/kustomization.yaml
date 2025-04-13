@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - gateways.yaml
   - http-routes.yaml
+  - health-check-policies.yaml
