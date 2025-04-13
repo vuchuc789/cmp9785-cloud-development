@@ -501,6 +501,17 @@ export const Body_login_for_access_token_users_login_postSchema = {
   required: ['username', 'password'],
 } as const;
 
+export const Body_upload_file_files_upload_postSchema = {
+  properties: {
+    file: {
+      type: 'string',
+      format: 'binary',
+    },
+  },
+  type: 'object',
+  required: ['file'],
+} as const;
+
 export const CreateUserFormSchema = {
   properties: {
     username: {
@@ -558,6 +569,83 @@ export const EmailRequestSchema = {
 export const EmailVerificationStatusSchema = {
   type: 'string',
   enum: ['verified', 'verifying', 'none'],
+} as const;
+
+export const FileDescriptionResponseSchema = {
+  properties: {
+    id: {
+      type: 'integer',
+    },
+    description: {
+      type: 'string',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+    },
+  },
+  type: 'object',
+  required: ['id', 'description', 'created_at'],
+} as const;
+
+export const FileProcessingStatusSchema = {
+  type: 'string',
+  enum: ['pending', 'processing', 'success', 'failed', 'cancelled', 'unknown'],
+} as const;
+
+export const FileResponseSchema = {
+  properties: {
+    id: {
+      type: 'integer',
+    },
+    filename: {
+      type: 'string',
+    },
+    status: {
+      $ref: '#/components/schemas/FileProcessingStatus',
+    },
+    size: {
+      type: 'integer',
+    },
+    type: {
+      type: 'string',
+    },
+    url: {
+      type: 'string',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+    },
+    active_file_description_id: {
+      anyOf: [
+        {
+          type: 'integer',
+        },
+        {
+          type: 'null',
+        },
+      ],
+    },
+    file_descriptions: {
+      items: {
+        $ref: '#/components/schemas/FileDescriptionResponse',
+      },
+      type: 'array',
+    },
+  },
+  type: 'object',
+  required: [
+    'id',
+    'filename',
+    'status',
+    'size',
+    'type',
+    'url',
+    'created_at',
+    'active_file_description_id',
+    'file_descriptions',
+  ],
 } as const;
 
 export const HTTPValidationErrorSchema = {
@@ -855,6 +943,31 @@ export const ImageSizeSchema = {
   enum: ['large', 'medium', 'small'],
 } as const;
 
+export const ListFilesResponseSchema = {
+  properties: {
+    result_count: {
+      type: 'integer',
+    },
+    page_count: {
+      type: 'integer',
+    },
+    page_size: {
+      type: 'integer',
+    },
+    page: {
+      type: 'integer',
+    },
+    results: {
+      items: {
+        $ref: '#/components/schemas/FileResponse',
+      },
+      type: 'array',
+    },
+  },
+  type: 'object',
+  required: ['result_count', 'page_count', 'page_size', 'page', 'results'],
+} as const;
+
 export const MediaHistoryResponseSchema = {
   properties: {
     keyword: {
@@ -940,6 +1053,16 @@ export const PasswordResetFormSchema = {
   },
   type: 'object',
   required: ['password', 'password_repeat'],
+} as const;
+
+export const SortBySchema = {
+  type: 'string',
+  enum: ['created_at', 'name', 'status'],
+} as const;
+
+export const SortOrderSchema = {
+  type: 'string',
+  enum: ['asc', 'desc'],
 } as const;
 
 export const TokenSchema = {
