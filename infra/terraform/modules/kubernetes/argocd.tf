@@ -7,15 +7,8 @@ resource "helm_release" "argocd" {
   namespace        = "argocd"
   create_namespace = true
 
-  set = [
-    {
-      name  = "dex.enabled"
-      value = "false"
-    },
-    {
-      name  = "notifications.enabled"
-      value = "false"
-    }
+  values = [
+    file("${path.module}/argocd-values.yaml")
   ]
 }
 

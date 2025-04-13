@@ -16,6 +16,8 @@ prometheus:
             requests:
               storage: 20Gi
 prometheusOperator:
+  tls:
+    enabled: false
   admissionWebhooks:
     enabled: false
 alertmanager:
