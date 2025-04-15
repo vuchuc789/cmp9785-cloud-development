@@ -49,6 +49,7 @@ resource "google_container_node_pool" "cmp9785_nodes" {
   node_config {
     preemptible  = true
     machine_type = "e2-standard-4"
+    disk_size_gb = 30
 
     image_type = "ubuntu_containerd"
 

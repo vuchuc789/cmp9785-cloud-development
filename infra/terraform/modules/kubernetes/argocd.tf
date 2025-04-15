@@ -57,6 +57,9 @@ resource "kubernetes_manifest" "argocd_apps" {
     "metadata" = {
       "name"      = "applications"
       "namespace" = "argocd"
+      "finalizers" = [
+        "resources-finalizer.argocd.argoproj.io"
+      ]
     }
     "spec" = {
       "project" = "cmp9785"

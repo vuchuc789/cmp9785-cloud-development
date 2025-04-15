@@ -1,6 +1,29 @@
 apiVersion: networking.gke.io/v1
 kind: HealthCheckPolicy
 metadata:
+  name: default-backend-healthcheck
+  namespace: kube-system
+spec:
+  default:
+    checkIntervalSec: 15
+    timeoutSec: 15
+    healthyThreshold: 1
+    unhealthyThreshold: 2
+    logConfig:
+      enabled: true
+    config:
+      type: HTTP
+      httpHealthCheck:
+        portSpecification: USE_SERVING_PORT
+        requestPath: /healthz
+  targetRef:
+    group: ""
+    kind: Service
+    name: default-http-backend
+---
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
   name: argocd-healthcheck
   namespace: argocd
 spec:
