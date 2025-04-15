@@ -13,6 +13,15 @@ class EmailVerificationStatus(str, Enum):
     none = 'none'
 
 
+class FileProcessingStatus(str, Enum):
+    pending = 'pending'
+    processing = 'processing'
+    success = 'success'
+    failed = 'failed'
+    cancelled = 'cancelled'
+    unknown = 'unknown'
+
+
 class User(SQLModel, table=True):
     __tablename__ = 'users'
     __table_args__ = (
@@ -32,6 +41,7 @@ class User(SQLModel, table=True):
 
     auth_sessions: list['AuthSession'] = Relationship(back_populates='user')
     media_histories: list['MediaHistory'] = Relationship(back_populates='user')
+    files: list['File'] = Relationship(back_populates='user')
 
 
 class AuthSession(SQLModel, table=True):
@@ -57,3 +67,37 @@ class MediaHistory(SQLModel, table=True):
 
     user_id: int | None = Field(default=None, foreign_key='users.id')
     user: User | None = Relationship(back_populates='media_histories')
+
+
+class File(SQLModel, table=True):
+    __tablename__ = 'files'
+    __table_args__ = ({'extend_existing': True},)
+
+    id: int | None = Field(default=None, primary_key=True)
+    filename: str
+    status: FileProcessingStatus = FileProcessingStatus.unknown
+    size: int
+    type: str
+    url: str
+    created_at: datetime = Field(sa_column=sa.Column(sa.DateTime(timezone=True), nullable=False))
+    active_file_description_id: int | None = Field(default=None)
+    object_path: str
+
+    user_id: int | None = Field(default=None, foreign_key='users.id')
+    user: User | None = Relationship(back_populates='files')
+
+    file_descriptions: list['FileDescription'] = Relationship(
+        back_populates='file', cascade_delete=True
+    )
+
+
+class FileDescription(SQLModel, table=True):
+    __tablename__ = 'file_descriptions'
+    __table_args__ = ({'extend_existing': True},)
+
+    id: int | None = Field(default=None, primary_key=True)
+    description: str
+    created_at: datetime = Field(sa_column=sa.Column(sa.DateTime(timezone=True), nullable=False))
+
+    file_id: int | None = Field(default=None, foreign_key='files.id', ondelete='CASCADE')
+    file: File | None = Relationship(back_populates='file_descriptions')

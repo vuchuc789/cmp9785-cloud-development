@@ -1,7 +1,13 @@
+from enum import Enum
 from functools import lru_cache
 
 from pydantic import AliasChoices, EmailStr, Field, HttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class ServerMode(str, Enum):
+    api_server = 'api-server'
+    file_worker = 'file-worker'
 
 
 class Settings(BaseSettings):
@@ -9,6 +15,8 @@ class Settings(BaseSettings):
     server_host: str
     server_port: int
     log_level: str = 'info'
+
+    server_mode: ServerMode = ServerMode.api_server
 
     db_host: str = Field(validation_alias=AliasChoices('db_host', 'azure_postgresql_host'))
     db_port: int = Field(validation_alias=AliasChoices('db_port', 'azure_postgresql_port'))
@@ -38,6 +46,13 @@ class Settings(BaseSettings):
     openverse_url: HttpUrl
     openverse_client_id: str
     openverse_client_secret: str
+
+    cdn_url: HttpUrl
+    bucket_name: str
+
+    kafka_servers: list[str]
+
+    gemini_api_key: str
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 

@@ -1,4 +1,4 @@
 import logging
 
 # reuse the logger from uvcorn
-logger = logging.getLogger('uvicorn.error')
+logger = logging.getLogger('uvicorn')
