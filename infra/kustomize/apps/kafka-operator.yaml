@@ -1,26 +1,26 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: loki
+  name: kafka-operator
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: cmp9785
   sources:
-    - repoURL: https://grafana.github.io/helm-charts
-      chart: loki
-      targetRevision: 6.29.0
+    - repoURL: quay.io/strimzi-helm
+      chart: strimzi-kafka-operator
+      targetRevision: 0.45.0
       helm:
         valueFiles:
-          - $values/infra/helm/values/loki-logs.yaml
+          - $values/infra/helm/values/kafka-operator.yaml
         ignoreMissingValueFiles: true
     - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
       targetRevision: main
       ref: values
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring
+    namespace: kafka
   syncPolicy:
     automated:
       selfHeal: true

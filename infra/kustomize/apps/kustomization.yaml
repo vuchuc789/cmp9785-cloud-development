@@ -8,3 +8,5 @@ resources:
   - prometheus-stack.yaml
   - loki-logs.yaml
   - fluentbit-logs.yaml
+  - kafka-operator.yaml
+  - kafka.yaml

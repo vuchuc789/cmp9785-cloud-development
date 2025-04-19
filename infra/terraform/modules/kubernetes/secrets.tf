@@ -22,6 +22,7 @@ resource "kubernetes_secret" "web_api" {
     DB_PASSWORD           = var.postgres_password
     AUTH_TOKEN_SECRET_KEY = var.auth_token_secret
     SENDGRID_API_KEY      = var.sendgrid_api_key
+    GEMINI_API_KEY        = var.gemini_api_key
   }
 
   depends_on = [kubernetes_namespace.web_api]

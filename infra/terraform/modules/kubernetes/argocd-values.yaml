@@ -5,3 +5,21 @@ notifications:
 configs:
   params:
     server.insecure: true
+  cm:
+    create: true
+    annotations: {}
+    application.instanceLabelKey: argocd.argoproj.io/instance
+    application.sync.impersonation.enabled: false
+    server.rbac.log.enforce.enable: false
+    exec.enabled: false
+    admin.enabled: true
+    timeout.reconciliation: 180s
+    timeout.hard.reconciliation: 0s
+    statusbadge.enabled: false
+    resource.exclusions: |
+      - apiGroups:
+          - cilium.io
+        kinds:
+          - CiliumIdentity
+        clusters:
+          - "*"
