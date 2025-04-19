@@ -27,3 +27,8 @@ variable "sendgrid_api_key" {
   type      = string
   sensitive = true
 }
+
+variable "gemini_api_key" {
+  type      = string
+  sensitive = true
+}

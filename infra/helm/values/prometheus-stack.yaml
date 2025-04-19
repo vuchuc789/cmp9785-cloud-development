@@ -16,7 +16,7 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 20Gi
+              storage: 5Gi
 prometheusOperator:
   tls:
     enabled: false

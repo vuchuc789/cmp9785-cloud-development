@@ -12,6 +12,6 @@ EXPOSE 8000
 ENV ENV=prod
 ENV SERVER_HOST=0.0.0.0
 ENV SERVER_PORT=8000
-ENV LOG_LEVEL=info
+# ENV LOG_LEVEL=info
 
 CMD ["python", "-m", "app.main"]

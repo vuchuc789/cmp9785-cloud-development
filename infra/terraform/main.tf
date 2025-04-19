@@ -33,5 +33,6 @@ module "kubernetes" {
   postgres_password = var.postgres_password
   auth_token_secret = var.auth_token_secret
   sendgrid_api_key  = var.sendgrid_api_key
+  gemini_api_key    = var.gemini_api_key
 }
 

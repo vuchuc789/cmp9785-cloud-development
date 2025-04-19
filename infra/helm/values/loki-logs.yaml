@@ -19,9 +19,13 @@ loki:
     enable_api: true
 minio:
   enabled: true
+  persistence:
+    size: 2Gi
 deploymentMode: SingleBinary
 singleBinary:
   replicas: 1
+  persistence:
+    size: 2Gi
 # Zero out replica counts of other deployment modes
 backend:
   replicas: 0
