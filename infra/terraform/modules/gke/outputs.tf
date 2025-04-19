@@ -7,7 +7,7 @@ output "google_token" {
   sensitive = true
 }
 
-output "cluster_ca" {
-  value     = google_container_cluster.cmp9785.master_auth[0].cluster_ca_certificate
-  sensitive = true
-}
+# output "cluster_ca" {
+#   value     = google_container_cluster.cmp9785.master_auth[0].cluster_ca_certificate
+#   sensitive = true
+# }

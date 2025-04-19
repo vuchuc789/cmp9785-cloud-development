@@ -21,4 +21,3 @@ output "kubernetes_host" {
 output "cdn_bucket" {
   value = module.cdn.cdn_bucket
 }
-

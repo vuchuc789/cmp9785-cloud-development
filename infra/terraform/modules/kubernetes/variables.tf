@@ -7,11 +7,11 @@ variable "google_token" {
   sensitive = true
 }
 
-variable "cluster_ca" {
-  type        = string
-  sensitive   = true
-  description = "It should be in base64 format"
-}
+# variable "cluster_ca" {
+#   type        = string
+#   sensitive   = true
+#   description = "It should be in base64 format"
+# }
 
 variable "postgres_password" {
   type      = string
