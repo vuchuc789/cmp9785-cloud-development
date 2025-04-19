@@ -19,7 +19,7 @@ gcloud projects add-iam-policy-binding cmp9785 \
 
 gcloud projects add-iam-policy-binding cmp9785 \
   --member="serviceAccount:gke-admin@cmp9785.iam.gserviceaccount.com" \
-  --role="roles/storage.objectAdmin"
+  --role="roles/storage.admin"
 
 gcloud projects add-iam-policy-binding cmp9785 \
   --member="serviceAccount:gke-admin@cmp9785.iam.gserviceaccount.com" \

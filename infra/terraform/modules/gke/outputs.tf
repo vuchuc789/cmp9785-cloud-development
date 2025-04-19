@@ -11,11 +11,3 @@ output "cluster_ca" {
   value     = google_container_cluster.cmp9785.master_auth[0].cluster_ca_certificate
   sensitive = true
 }
-
-output "cluster_ip" {
-  value = google_container_cluster.cmp9785.endpoint
-}
-
-output "dns_info" {
-  value = google_certificate_manager_dns_authorization.default.dns_resource_record[0]
-}

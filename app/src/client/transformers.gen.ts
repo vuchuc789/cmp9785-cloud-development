@@ -4,6 +4,8 @@
 import type {
   DeleteHistoryMediaHistoryDeleteResponse,
   GetHistoryMediaHistoryGetResponse,
+  UploadFileFilesUploadPostResponse,
+  ListFilesFilesGetResponse,
 } from './types.gen';
 
 const mediaHistoryResponseSchemaResponseTransformer = (data: any) => {
@@ -26,5 +28,39 @@ export const getHistoryMediaHistoryGetResponseTransformer = async (
   data = data.map((item: any) => {
     return mediaHistoryResponseSchemaResponseTransformer(item);
   });
+  return data;
+};
+
+const fileDescriptionResponseSchemaResponseTransformer = (data: any) => {
+  data.created_at = new Date(data.created_at);
+  return data;
+};
+
+const fileResponseSchemaResponseTransformer = (data: any) => {
+  data.created_at = new Date(data.created_at);
+  data.file_descriptions = data.file_descriptions.map((item: any) => {
+    return fileDescriptionResponseSchemaResponseTransformer(item);
+  });
+  return data;
+};
+
+export const uploadFileFilesUploadPostResponseTransformer = async (
+  data: any
+): Promise<UploadFileFilesUploadPostResponse> => {
+  data = fileResponseSchemaResponseTransformer(data);
+  return data;
+};
+
+const listFilesResponseSchemaResponseTransformer = (data: any) => {
+  data.results = data.results.map((item: any) => {
+    return fileResponseSchemaResponseTransformer(item);
+  });
+  return data;
+};
+
+export const listFilesFilesGetResponseTransformer = async (
+  data: any
+): Promise<ListFilesFilesGetResponse> => {
+  data = listFilesResponseSchemaResponseTransformer(data);
   return data;
 };

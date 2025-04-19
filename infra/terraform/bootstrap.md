@@ -1,7 +1,8 @@
 Bootstrap Terraform with the following commands:
 
 ```
-terraform apply -target=module.google
+terraform apply -target=module.addr -target=module.ssl -target=module.cdn
+terraform apply -target=module.gke
 terraform apply -target=module.kubernetes.helm_release.argocd
 terraform apply
 ```

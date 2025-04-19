@@ -5,6 +5,7 @@ import {
   type TDataShape,
   type Client,
   urlSearchParamsBodySerializer,
+  formDataBodySerializer,
 } from '@hey-api/client-next';
 import type {
   RootGetData,
@@ -44,6 +45,14 @@ import type {
   DeleteHistoryMediaHistoryDeleteError,
   GetHistoryMediaHistoryGetData,
   GetHistoryMediaHistoryGetResponse,
+  UploadFileFilesUploadPostData,
+  UploadFileFilesUploadPostResponse,
+  UploadFileFilesUploadPostError,
+  ListFilesFilesGetData,
+  ListFilesFilesGetResponse,
+  ListFilesFilesGetError,
+  DeleteFileFilesFileIdDeleteData,
+  DeleteFileFilesFileIdDeleteError,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
 import {
@@ -59,10 +68,14 @@ import {
   zMediaDetailMediaDetailGetResponse,
   zDeleteHistoryMediaHistoryDeleteResponse,
   zGetHistoryMediaHistoryGetResponse,
+  zUploadFileFilesUploadPostResponse,
+  zListFilesFilesGetResponse,
 } from './zod.gen';
 import {
   deleteHistoryMediaHistoryDeleteResponseTransformer,
   getHistoryMediaHistoryGetResponseTransformer,
+  uploadFileFilesUploadPostResponseTransformer,
+  listFilesFilesGetResponseTransformer,
 } from './transformers.gen';
 
 export type Options<
@@ -453,6 +466,87 @@ export const getHistoryMediaHistoryGet = <ThrowOnError extends boolean = false>(
       return await zGetHistoryMediaHistoryGetResponse.parseAsync(data);
     },
     url: '/media/history',
+    ...options,
+  });
+};
+
+/**
+ * Upload File
+ */
+export const uploadFileFilesUploadPost = <ThrowOnError extends boolean = false>(
+  options: Options<UploadFileFilesUploadPostData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).post<
+    UploadFileFilesUploadPostResponse,
+    UploadFileFilesUploadPostError,
+    ThrowOnError
+  >({
+    ...formDataBodySerializer,
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    responseTransformer: uploadFileFilesUploadPostResponseTransformer,
+    responseValidator: async (data) => {
+      return await zUploadFileFilesUploadPostResponse.parseAsync(data);
+    },
+    url: '/files/upload',
+    ...options,
+    headers: {
+      'Content-Type': null,
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * List Files
+ */
+export const listFilesFilesGet = <ThrowOnError extends boolean = false>(
+  options?: Options<ListFilesFilesGetData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    ListFilesFilesGetResponse,
+    ListFilesFilesGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    responseTransformer: listFilesFilesGetResponseTransformer,
+    responseValidator: async (data) => {
+      return await zListFilesFilesGetResponse.parseAsync(data);
+    },
+    url: '/files/',
+    ...options,
+  });
+};
+
+/**
+ * Delete File
+ */
+export const deleteFileFilesFileIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<DeleteFileFilesFileIdDeleteData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).delete<
+    unknown,
+    DeleteFileFilesFileIdDeleteError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/files/{file_id}',
     ...options,
   });
 };

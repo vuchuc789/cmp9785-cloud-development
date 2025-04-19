@@ -2,6 +2,7 @@ import uuid
 from typing import Annotated
 
 import jwt
+from confluent_kafka import Producer
 from fastapi import Cookie, Depends, HTTPException, status
 from jwt.exceptions import InvalidTokenError
 from sqlmodel import Session
@@ -9,6 +10,7 @@ from sqlmodel import Session
 from app.core.config import Settings, get_settings
 from app.core.database import get_session
 from app.core.security import oauth2_scheme
+from app.core.stream import get_producer
 from app.models.user import AuthSession, User
 from app.services.user_service import user_service
 
@@ -16,6 +18,9 @@ SettingsDep = Annotated[Settings, Depends(get_settings)]
 
 # dependency to get DB sessions
 SessionDep = Annotated[Session, Depends(get_session)]
+
+# dependency to get Kafka producers
+ProducerDep = Annotated[Producer, Depends(get_producer)]
 
 # this dependency only ensures that a token exists in the request
 TokenDep = Annotated[str, Depends(oauth2_scheme)]

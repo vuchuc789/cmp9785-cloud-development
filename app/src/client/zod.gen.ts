@@ -101,6 +101,10 @@ export const zBodyLoginForAccessTokenUsersLoginPost = z.object({
   client_secret: z.union([z.string(), z.null()]).optional(),
 });
 
+export const zBodyUploadFileFilesUploadPost = z.object({
+  file: z.string(),
+});
+
 export const zCreateUserForm = z.object({
   username: z.string().min(6).max(50),
   email: z.union([z.string().email(), z.null()]).optional(),
@@ -118,6 +122,33 @@ export const zEmailVerificationStatus = z.enum([
   'verifying',
   'none',
 ]);
+
+export const zFileDescriptionResponse = z.object({
+  id: z.number().int(),
+  description: z.string(),
+  created_at: z.string().datetime(),
+});
+
+export const zFileProcessingStatus = z.enum([
+  'pending',
+  'processing',
+  'success',
+  'failed',
+  'cancelled',
+  'unknown',
+]);
+
+export const zFileResponse = z.object({
+  id: z.number().int(),
+  filename: z.string(),
+  status: zFileProcessingStatus,
+  size: z.number().int(),
+  type: z.string(),
+  url: z.string(),
+  created_at: z.string().datetime(),
+  active_file_description_id: z.union([z.number().int(), z.null()]),
+  file_descriptions: z.array(zFileDescriptionResponse),
+});
 
 export const zHttpValidationError = z.object({
   detail: z
@@ -186,6 +217,14 @@ export const zImageSearchResponse = z.object({
 
 export const zImageSize = z.enum(['large', 'medium', 'small']);
 
+export const zListFilesResponse = z.object({
+  result_count: z.number().int(),
+  page_count: z.number().int(),
+  page_size: z.number().int(),
+  page: z.number().int(),
+  results: z.array(zFileResponse),
+});
+
 export const zMediaHistoryResponse = z.object({
   keyword: z.string(),
   timestamp: z.string().datetime(),
@@ -223,6 +262,10 @@ export const zPasswordResetForm = z.object({
   password: z.string().min(6).max(50),
   password_repeat: z.string().min(6).max(50),
 });
+
+export const zSortBy = z.enum(['created_at', 'name', 'status']);
+
+export const zSortOrder = z.enum(['asc', 'desc']);
 
 export const zToken = z.object({
   access_token: z.string(),
@@ -283,3 +326,7 @@ export const zDeleteHistoryMediaHistoryDeleteResponse = z.array(
 export const zGetHistoryMediaHistoryGetResponse = z.array(
   zMediaHistoryResponse
 );
+
+export const zUploadFileFilesUploadPostResponse = zFileResponse;
+
+export const zListFilesFilesGetResponse = zListFilesResponse;

@@ -96,6 +96,10 @@ export type BodyLoginForAccessTokenUsersLoginPost = {
   client_secret?: string | null;
 };
 
+export type BodyUploadFileFilesUploadPost = {
+  file: Blob | File;
+};
+
 export type CreateUserForm = {
   username: string;
   email?: string | null;
@@ -115,6 +119,41 @@ export const EmailVerificationStatus = {
   VERIFYING: 'verifying',
   NONE: 'none',
 } as const;
+
+export type FileDescriptionResponse = {
+  id: number;
+  description: string;
+  created_at: Date;
+};
+
+export type FileProcessingStatus =
+  | 'pending'
+  | 'processing'
+  | 'success'
+  | 'failed'
+  | 'cancelled'
+  | 'unknown';
+
+export const FileProcessingStatus = {
+  PENDING: 'pending',
+  PROCESSING: 'processing',
+  SUCCESS: 'success',
+  FAILED: 'failed',
+  CANCELLED: 'cancelled',
+  UNKNOWN: 'unknown',
+} as const;
+
+export type FileResponse = {
+  id: number;
+  filename: string;
+  status: FileProcessingStatus;
+  size: number;
+  type: string;
+  url: string;
+  created_at: Date;
+  active_file_description_id: number | null;
+  file_descriptions: Array<FileDescriptionResponse>;
+};
 
 export type HttpValidationError = {
   detail?: Array<ValidationError>;
@@ -182,6 +221,14 @@ export const ImageSize = {
   SMALL: 'small',
 } as const;
 
+export type ListFilesResponse = {
+  result_count: number;
+  page_count: number;
+  page_size: number;
+  page: number;
+  results: Array<FileResponse>;
+};
+
 export type MediaHistoryResponse = {
   keyword: string;
   timestamp: Date;
@@ -238,6 +285,21 @@ export type PasswordResetForm = {
   password: string;
   password_repeat: string;
 };
+
+export type SortBy = 'created_at' | 'name' | 'status';
+
+export const SortBy = {
+  CREATED_AT: 'created_at',
+  NAME: 'name',
+  STATUS: 'status',
+} as const;
+
+export type SortOrder = 'asc' | 'desc';
+
+export const SortOrder = {
+  ASC: 'asc',
+  DESC: 'desc',
+} as const;
 
 export type Token = {
   access_token: string;
@@ -630,6 +692,91 @@ export type GetHistoryMediaHistoryGetResponses = {
 
 export type GetHistoryMediaHistoryGetResponse =
   GetHistoryMediaHistoryGetResponses[keyof GetHistoryMediaHistoryGetResponses];
+
+export type UploadFileFilesUploadPostData = {
+  body: BodyUploadFileFilesUploadPost;
+  path?: never;
+  query?: never;
+  url: '/files/upload';
+};
+
+export type UploadFileFilesUploadPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UploadFileFilesUploadPostError =
+  UploadFileFilesUploadPostErrors[keyof UploadFileFilesUploadPostErrors];
+
+export type UploadFileFilesUploadPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: FileResponse;
+};
+
+export type UploadFileFilesUploadPostResponse =
+  UploadFileFilesUploadPostResponses[keyof UploadFileFilesUploadPostResponses];
+
+export type ListFilesFilesGetData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: number;
+    page_size?: number;
+    sort_by?: SortBy;
+    order?: SortOrder;
+  };
+  url: '/files/';
+};
+
+export type ListFilesFilesGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListFilesFilesGetError =
+  ListFilesFilesGetErrors[keyof ListFilesFilesGetErrors];
+
+export type ListFilesFilesGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ListFilesResponse;
+};
+
+export type ListFilesFilesGetResponse =
+  ListFilesFilesGetResponses[keyof ListFilesFilesGetResponses];
+
+export type DeleteFileFilesFileIdDeleteData = {
+  body?: never;
+  path: {
+    file_id: number;
+  };
+  query?: never;
+  url: '/files/{file_id}';
+};
+
+export type DeleteFileFilesFileIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeleteFileFilesFileIdDeleteError =
+  DeleteFileFilesFileIdDeleteErrors[keyof DeleteFileFilesFileIdDeleteErrors];
+
+export type DeleteFileFilesFileIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
 
 export type ClientOptions = {
   baseUrl: `${string}://${string}/api/v1` | (string & {});
