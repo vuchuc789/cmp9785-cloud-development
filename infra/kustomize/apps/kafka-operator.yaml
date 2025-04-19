@@ -16,7 +16,7 @@ spec:
           - $values/infra/helm/values/kafka-operator.yaml
         ignoreMissingValueFiles: true
     - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
-      targetRevision: main
+      targetRevision: feature
       ref: values
   destination:
     server: https://kubernetes.default.svc
