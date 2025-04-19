@@ -9,13 +9,13 @@ spec:
   project: cmp9785
   sources:
     - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
-      targetRevision: main
+      targetRevision: feature
       path: infra/helm/charts/generic-app
       helm:
         valueFiles:
           - $values/infra/helm/values/web-api.yaml
     - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
-      targetRevision: main
+      targetRevision: feature
       ref: values
   destination:
     server: https://kubernetes.default.svc

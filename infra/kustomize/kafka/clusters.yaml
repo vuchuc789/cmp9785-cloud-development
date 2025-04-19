@@ -1,9 +1,9 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaNodePool
 metadata:
-  name: cmp9758-dual-role
+  name: cmp9785-dual-role
   labels:
-    strimzi.io/cluster: cmp9758-cluster
+    strimzi.io/cluster: cmp9785-cluster
 spec:
   replicas: 3
   roles:
@@ -21,7 +21,7 @@ spec:
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: cmp9758-cluster
+  name: cmp9785-cluster
   annotations:
     strimzi.io/node-pools: enabled
     strimzi.io/kraft: enabled
