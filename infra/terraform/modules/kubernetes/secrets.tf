@@ -27,3 +27,16 @@ resource "kubernetes_secret" "web_api" {
 
   depends_on = [kubernetes_namespace.web_api]
 }
+
+resource "kubernetes_secret" "web_api_sa" {
+  metadata {
+    name      = "web-api-service-account-key"
+    namespace = "web-api"
+  }
+
+  data = {
+    "service-account-key.json" = var.service_account_key
+  }
+
+  depends_on = [kubernetes_namespace.web_api]
+}

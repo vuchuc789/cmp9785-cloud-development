@@ -29,10 +29,12 @@ module "kubernetes" {
 
   kubernetes_host = module.gke.kubernetes_host
   google_token    = module.gke.google_token
-  # cluster_ca        = module.gke.cluster_ca
-  postgres_password = var.postgres_password
-  auth_token_secret = var.auth_token_secret
-  sendgrid_api_key  = var.sendgrid_api_key
-  gemini_api_key    = var.gemini_api_key
+  # cluster_ca      = module.gke.cluster_ca
+
+  postgres_password   = var.postgres_password
+  auth_token_secret   = var.auth_token_secret
+  sendgrid_api_key    = var.sendgrid_api_key
+  gemini_api_key      = var.gemini_api_key
+  service_account_key = var.service_account_key
 }
 

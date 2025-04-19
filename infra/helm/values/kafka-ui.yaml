@@ -1,0 +1,23 @@
+yamlApplicationConfig:
+  kafka:
+    clusters:
+      - name: cmp9785-cluster
+        bootstrapServers: cmp9785-cluster-cmp9785-dual-role-0.cmp9785-cluster-kafka-brokers.kafka.svc.cluster.local:9092,cmp9785-cluster-cmp9785-dual-role-1.cmp9785-cluster-kafka-brokers.kafka.svc.cluster.local:9092,cmp9785-cluster-cmp9785-dual-role-2.cmp9785-cluster-kafka-brokers.kafka.svc.cluster.local:9092
+  auth:
+    type: disabled
+  management:
+    health:
+      ldap:
+        enabled: false
+resources:
+  limits:
+    cpu: 200m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+envs:
+  secret:
+    AUTH_TYPE: "LOGIN_FORM"
+    SPRING_SECURITY_USER_NAME: admin
+    SPRING_SECURITY_USER_PASSWORD: pass

@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pgadmin
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cmp9785
+  sources:
+    - repoURL: https://helm.runix.net
+      chart: pgadmin4
+      targetRevision: 1.37.0
+      helm:
+        valueFiles:
+          - $values/infra/helm/values/pgadmin.yaml
+        ignoreMissingValueFiles: true
+    - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: database
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
