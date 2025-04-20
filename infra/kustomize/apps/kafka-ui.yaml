@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kafka-ui
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: cmp9785
+  sources:
+    - repoURL: https://provectus.github.io/kafka-ui-charts
+      chart: kafka-ui
+      targetRevision: 0.7.6
+      helm:
+        valueFiles:
+          - $values/infra/helm/values/kafka-ui.yaml
+        ignoreMissingValueFiles: true
+    - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kafka
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true

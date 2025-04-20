@@ -66,3 +66,49 @@ spec:
     group: ""
     kind: Service
     name: prometheus-grafana
+---
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: pgadmin-healthcheck
+  namespace: database
+spec:
+  default:
+    checkIntervalSec: 15
+    timeoutSec: 15
+    healthyThreshold: 1
+    unhealthyThreshold: 2
+    logConfig:
+      enabled: true
+    config:
+      type: HTTP
+      httpHealthCheck:
+        portSpecification: USE_SERVING_PORT
+        requestPath: /misc/ping
+  targetRef:
+    group: ""
+    kind: Service
+    name: pgadmin-pgadmin4
+---
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: kafka-ui-healthcheck
+  namespace: kafka
+spec:
+  default:
+    checkIntervalSec: 15
+    timeoutSec: 15
+    healthyThreshold: 1
+    unhealthyThreshold: 2
+    logConfig:
+      enabled: true
+    config:
+      type: HTTP
+      httpHealthCheck:
+        portSpecification: USE_SERVING_PORT
+        requestPath: /actuator/health
+  targetRef:
+    group: ""
+    kind: Service
+    name: kafka-ui
