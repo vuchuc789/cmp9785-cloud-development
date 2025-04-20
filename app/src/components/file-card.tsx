@@ -73,6 +73,16 @@ export function StatusBadge({ status }: { status: FileProcessingStatus }) {
           <span>Pending</span>
         </Badge>
       );
+    case 'queuing':
+      return (
+        <Badge
+          variant="outline"
+          className="flex items-center gap-1 text-orange-600 border-orange-300 bg-orange-50 dark:text-orange-400 dark:border-orange-800 dark:bg-orange-950"
+        >
+          <Clock className="h-3 w-3" />
+          <span>Queuing</span>
+        </Badge>
+      );
     case 'processing':
       return (
         <Badge
@@ -173,6 +183,10 @@ export const FileCard: React.FC<FileCardProps> = ({
                 <span className="text-sm text-muted-foreground italic">
                   Processing cancelled
                 </span>
+              ) : file.status === 'queuing' ? (
+                <span className="text-sm text-muted-foreground italic">
+                  Waiting in queue...
+                </span>
               ) : (
                 <span className="text-sm text-muted-foreground italic">
                   Waiting to process
@@ -230,7 +244,9 @@ export const FileCard: React.FC<FileCardProps> = ({
           )}
 
           {/* Show cancel button for pending or processing files */}
-          {file.status === 'pending' || file.status === 'processing' ? (
+          {file.status === 'pending' ||
+          file.status === 'queuing' ||
+          file.status === 'processing' ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

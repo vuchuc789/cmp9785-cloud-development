@@ -590,7 +590,15 @@ export const FileDescriptionResponseSchema = {
 
 export const FileProcessingStatusSchema = {
   type: 'string',
-  enum: ['pending', 'processing', 'success', 'failed', 'cancelled', 'unknown'],
+  enum: [
+    'pending',
+    'queuing',
+    'processing',
+    'success',
+    'failed',
+    'cancelled',
+    'unknown',
+  ],
 } as const;
 
 export const FileResponseSchema = {

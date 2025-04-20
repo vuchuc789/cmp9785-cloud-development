@@ -8,6 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class ServerMode(str, Enum):
     api_server = 'api-server'
     file_worker = 'file-worker'
+    notification_worker = 'notification-worker'
 
 
 class Settings(BaseSettings):

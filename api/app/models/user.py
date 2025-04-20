@@ -15,6 +15,7 @@ class EmailVerificationStatus(str, Enum):
 
 class FileProcessingStatus(str, Enum):
     pending = 'pending'
+    queuing = 'queuing'
     processing = 'processing'
     success = 'success'
     failed = 'failed'

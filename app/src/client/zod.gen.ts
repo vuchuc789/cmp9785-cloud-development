@@ -131,6 +131,7 @@ export const zFileDescriptionResponse = z.object({
 
 export const zFileProcessingStatus = z.enum([
   'pending',
+  'queuing',
   'processing',
   'success',
   'failed',

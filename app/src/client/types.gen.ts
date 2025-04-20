@@ -128,6 +128,7 @@ export type FileDescriptionResponse = {
 
 export type FileProcessingStatus =
   | 'pending'
+  | 'queuing'
   | 'processing'
   | 'success'
   | 'failed'
@@ -136,6 +137,7 @@ export type FileProcessingStatus =
 
 export const FileProcessingStatus = {
   PENDING: 'pending',
+  QUEUING: 'queuing',
   PROCESSING: 'processing',
   SUCCESS: 'success',
   FAILED: 'failed',
@@ -772,6 +774,20 @@ export type DeleteFileFilesFileIdDeleteError =
   DeleteFileFilesFileIdDeleteErrors[keyof DeleteFileFilesFileIdDeleteErrors];
 
 export type DeleteFileFilesFileIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
+export type GetNotificationsHtmlGetData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/notifications/html';
+};
+
+export type GetNotificationsHtmlGetResponses = {
   /**
    * Successful Response
    */

@@ -53,6 +53,7 @@ import type {
   ListFilesFilesGetError,
   DeleteFileFilesFileIdDeleteData,
   DeleteFileFilesFileIdDeleteError,
+  GetNotificationsHtmlGetData,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
 import {
@@ -549,4 +550,18 @@ export const deleteFileFilesFileIdDelete = <
     url: '/files/{file_id}',
     ...options,
   });
+};
+
+/**
+ * Get
+ */
+export const getNotificationsHtmlGet = <ThrowOnError extends boolean = false>(
+  options?: Options<GetNotificationsHtmlGetData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).get<unknown, unknown, ThrowOnError>(
+    {
+      url: '/notifications/html',
+      ...options,
+    }
+  );
 };

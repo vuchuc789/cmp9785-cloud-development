@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, File, HTTPException, Path, Query, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, File, HTTPException, Path, Query, UploadFile, status
 
 from app.api.dependencies import CurrentUserDep, ProducerDep, SessionDep, SettingsDep
 from app.schemas.file import FileResponse, ListFilesQueries, ListFilesResponse
@@ -15,6 +15,7 @@ async def upload_file(
     settings: SettingsDep,
     session: SessionDep,
     producer: ProducerDep,
+    background_tasks: BackgroundTasks,
     file: Annotated[UploadFile, File()],
 ):
     if file.filename is None or file.filename == '':
@@ -41,11 +42,12 @@ async def upload_file(
             detail='File too large (Max 5MB)',
         )
 
-    new_file = file_service.upload_file(
+    new_file = await file_service.upload_file(
         user_id=current_user.id,
         settings=settings,
         db=session,
         producer=producer,
+        background_tasks=background_tasks,
         file=file,
     )
     return new_file
@@ -80,11 +82,16 @@ async def list_files(
 async def delete_file(
     session: SessionDep,
     settings: SettingsDep,
+    background_tasks: BackgroundTasks,
     current_user: CurrentUserDep,
     file_id: Annotated[int, Path(gt=0)],
 ):
     file_service.delete_file(
-        db=session, settings=settings, user_id=current_user.id, file_id=file_id
+        db=session,
+        settings=settings,
+        background_tasks=background_tasks,
+        user_id=current_user.id,
+        file_id=file_id,
     )
     return {
         'detail': 'Deleted successfully',

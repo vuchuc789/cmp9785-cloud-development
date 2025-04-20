@@ -22,10 +22,14 @@ consumer_conf = {
     'auto.offset.reset': 'earliest',
 }
 
-producer = Producer(producer_conf)
+producer = None
 
 
 def get_producer():
+    global producer
+    if producer is None:
+        producer = Producer(producer_conf)
+
     return producer
 
 

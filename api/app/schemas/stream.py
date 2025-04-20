@@ -3,18 +3,23 @@ from enum import Enum
 
 from pydantic import BaseModel
 
+from app.core.config import ServerMode
+from app.models.user import FileProcessingStatus
+
 
 class Topic(str, Enum):
     files = 'files'
+    notifications = 'notifications'
 
 
 class EventType(str, Enum):
     file_upload = 'file.uploaded'
+    status_update = 'status.updated'
 
 
 class Metadata(BaseModel):
     version: int
-    source: str
+    source: ServerMode
 
 
 class BaseEvent(BaseModel):
@@ -29,3 +34,13 @@ class FileUploadedPayload(BaseModel):
 
 class FileUploadedEvent(BaseEvent):
     payload: FileUploadedPayload
+
+
+class StatusUpdatedPayload(BaseModel):
+    user_id: int
+    status: FileProcessingStatus
+    message: str
+
+
+class StatusUpdatedEvent(BaseEvent):
+    payload: StatusUpdatedPayload
