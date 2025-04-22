@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import files, media, notifications, users
+from app.api.routes import files, notifications, users
 from app.core.cache import close_clients
 from app.core.config import ServerMode, get_settings
 from app.core.database import run_migrations
@@ -64,7 +64,6 @@ async def root():
 # Enable API endpoints only on api servers
 if settings.server_mode == ServerMode.api_server:
     app.include_router(users.router, prefix='/users', tags=['users'])
-    app.include_router(media.router, prefix='/media', tags=['media'])
     app.include_router(files.router, prefix='/files', tags=['files'])
     app.include_router(notifications.router, prefix='/notifications', tags=['notifications'])
 
