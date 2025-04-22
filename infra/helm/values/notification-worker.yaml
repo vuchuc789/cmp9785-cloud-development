@@ -1,0 +1,6 @@
+replicaCount: 1
+command:
+  - "sh"
+args:
+  - "-c"
+  - "SERVER_MODE=notification-worker python -m app.main"

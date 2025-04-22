@@ -76,12 +76,9 @@ export const NotificationProvider: React.FC<React.PropsWithChildren> = ({
       return;
     }
 
-    // Construct WebSocket URL
-    const apiUrl = new URL(
-      process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1'
-    );
+    // Create a WebSocket
     const ws = new WebSocket(
-      `ws://${apiUrl.host}/notifications/ws?token=${accessToken.access_token}`
+      `${process.env.NEXT_PUBLIC_WS_URL}/notifications/ws?token=${accessToken.access_token}`
     );
 
     // Message listener to handle incoming messages

@@ -27,6 +27,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_API_URL="http://localhost:8000/api/v1"
 ENV NEXT_PUBLIC_API_URL="${NEXT_PUBLIC_API_URL}"
 
+ARG NEXT_PUBLIC_WS_URL="ws://localhost:8000/api/v1"
+ENV NEXT_PUBLIC_WS_URL="${NEXT_PUBLIC_WS_URL}"
+
 RUN npm run build
 
 # Production image, copy all the files and run next

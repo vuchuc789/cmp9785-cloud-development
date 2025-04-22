@@ -1,6 +1,6 @@
 data "google_container_engine_versions" "europewest2b" {
   location       = "europe-west2-b"
-  version_prefix = "1.31."
+  version_prefix = "1.32."
 }
 
 resource "google_service_account" "default" {
@@ -46,15 +46,14 @@ resource "google_container_cluster" "cmp9785" {
 
   monitoring_service = "none"
   logging_service    = "none"
-  monitoring_config {
-    managed_prometheus {
-      enabled = false
-    }
-  }
 
   ip_allocation_policy {
     cluster_ipv4_cidr_block  = "172.17.0.0/16"
     services_ipv4_cidr_block = "172.18.0.0/16"
+  }
+
+  release_channel {
+    channel = "UNSPECIFIED"
   }
 }
 
@@ -78,6 +77,10 @@ resource "google_container_node_pool" "cmp9785_nodes" {
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
+  }
+
+  management {
+    auto_upgrade = false
   }
 }
 
