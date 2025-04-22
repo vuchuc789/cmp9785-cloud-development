@@ -26,12 +26,12 @@ export const HomepageButtons: React.FC = () => {
           if (!accessToken) {
             router.push('/login');
           } else {
-            router.push('/search');
+            router.push('/files');
           }
         }}
       >
         <Search />
-        Search now
+        Describe now
       </Button>
       <Button
         variant="outline"
@@ -50,7 +50,7 @@ export const HomepageButtons: React.FC = () => {
         }}
       >
         <LogIn />
-        Or login if you haven&apos;t...
+        Or login if your files are shy...
       </Button>
     </div>
   );

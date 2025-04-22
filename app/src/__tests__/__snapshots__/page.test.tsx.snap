@@ -806,12 +806,24 @@ exports[`Homepage renders unchanged 1`] = `
       <h1
         class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl"
       >
-        Explore millions of creative works
+        Let AI describe your files — no, not 
+        <i>
+          that
+        </i>
+         
+        <a
+          class="underline hover:text-blue-600 dark:hover:text-blue-400"
+          href="https://en.wikipedia.org/wiki/File_descriptor"
+          target="_blank"
+        >
+          file descriptor
+        </a>
+        .
       </h1>
       <p
         class="leading-7 [&:not(:first-child)]:mt-6"
       >
-        An extensive library of free stock photos, images, and audio, available for free use.
+        Upload mysterious media and let our AI reveal its secrets — whether it's a cat, a concert, or a chaotic selfie.
       </p>
       <div
         class="flex gap-4 items-start flex-col sm:flex-row"
@@ -841,7 +853,7 @@ exports[`Homepage renders unchanged 1`] = `
               d="m21 21-4.3-4.3"
             />
           </svg>
-          Search now
+          Describe now
         </button>
         <button
           class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground h-10 px-6 has-[>svg]:px-4 rounded-full cursor-pointer"
@@ -872,7 +884,7 @@ exports[`Homepage renders unchanged 1`] = `
               y2="12"
             />
           </svg>
-          Or login if you haven't...
+          Or login if your files are shy...
         </button>
       </div>
     </main>
