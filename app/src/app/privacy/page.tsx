@@ -8,38 +8,45 @@ export default function PrivacyPage() {
               Privacy Policy
             </h1>
             <p className="text-muted-foreground mt-2">
-              Last updated: March 25, 2024
+              Last updated: April 22, 2024
             </p>
           </div>
 
           <div className="prose prose-gray dark:prose-invert max-w-none">
             <p className="text-lg">
-              Your privacy is important to us! Here&apos;s the deal:
+              At <b>FileDescriptor?</b>, your privacy is as important to us as
+              correctly identifying whether that blurry image is a dog or a loaf
+              of bread.
+              <br />
+              Here’s how we (responsibly) handle your stuff:
             </p>
 
             <ul className="list-disc pl-6 space-y-2 mt-4">
               <li>
-                We collect as little data as possible. No tracking what kind of
-                coffee you like or your deepest secrets.
+                <b>We don’t spy on your files.</b> Everything you upload is used
+                strictly for generating descriptions — no creepy AI training on
+                your selfies, we promise.
               </li>
               <li>
-                Some non-creepy cookies might be used to keep the site
-                functional. No chocolate chip cookies, unfortunately.
+                <b>Temporary brainpower.</b> Uploaded files might be processed
+                briefly, but we don’t keep them around for midnight snacks.
+                They’re deleted after processing, like a respectful digital
+                ghost.
               </li>
               <li>
-                We don&apos;t sell, trade, or give away your data, not even for
-                a lifetime supply of pizza (tempting, though).
+                <b>No selling your data.</b> Your personal info isn’t for sale,
+                trade, or used to summon targeted ads about socks you mentioned
+                once.
               </li>
               <li>
-                If you think we have some of your data and want it gone, just
-                let us know, and we&apos;ll make it disappear (legally, of
-                course).
+                <b>Cookies?</b> Only the digital kind (and only to keep the app
+                running smoothly). Unfortunately, no chocolate chips involved.
               </li>
             </ul>
 
             <p className="mt-6">
-              If any of this concerns you, consider wearing a tinfoil hat… or
-              just reach out, and we&apos;ll happily clarify!
+              If you have questions or want your data gone like your 2012
+              Facebook photos — just contact us!
             </p>
           </div>
         </div>

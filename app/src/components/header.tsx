@@ -38,7 +38,7 @@ export function Header() {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="font-bold sm:inline-block">MediaSearch</span>
+            <span className="font-bold sm:inline-block">FileDescriptor?</span>
           </Link>
         </div>
         <div className="flex items-center gap-4">
@@ -84,7 +84,7 @@ export function Header() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Ready to log out?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Your media search adventure will pause here. Feel free to
+                    Your file description quest will pause here. Feel free to
                     come back anytime!
                   </AlertDialogDescription>
                 </AlertDialogHeader>

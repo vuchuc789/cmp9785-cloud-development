@@ -15,11 +15,12 @@ export default function ContactPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Got questions, feedback, or just want to say hi?
+            Want to say hi, report a bug, or tell us your file looked at the AI
+            funny?
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <p className="text-lg">We&apos;d love to hear from you!</p>
+          <p className="text-lg">We’re here for all of it:</p>
 
           <div className="space-y-6 mt-4">
             <div className="flex items-start gap-3">
@@ -28,10 +29,10 @@ export default function ContactPage() {
                 <h3 className="font-medium">Email</h3>
                 <p className="text-muted-foreground">
                   <a
-                    href="mailto:totally.real.support@mediasearch.com"
+                    href="mailto:support@filedescriptor.wtf"
                     className="hover:underline"
                   >
-                    totally.real.support@mediasearch.com
+                    support@filedescriptor.wtf
                   </a>
                 </p>
               </div>
@@ -43,29 +44,25 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-medium">Carrier Pigeon</h3>
-                <p className="text-muted-foreground">
-                  If you can train one, we&apos;ll be impressed.
-                </p>
+                <p className="text-muted-foreground">Not currently supported</p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
               <div className="h-5 w-5 text-primary mt-1 flex items-center justify-center">
-                🧠
+                🛸
               </div>
               <div>
-                <h3 className="font-medium">Telepathy</h3>
-                <p className="text-muted-foreground">
-                  We&apos;re working on it, but results may vary.
-                </p>
+                <h3 className="font-medium">Alien contact frequency</h3>
+                <p className="text-muted-foreground">Still working on it</p>
               </div>
             </div>
           </div>
 
           <p className="text-muted-foreground mt-6">
-            If we don&apos;t respond right away, we&apos;re probably busy
-            improving the site (or making memes). We&apos;ll get back to you as
-            soon as we can!
+            We read every message (yes, even the weird ones), so feel free to
+            reach out. Whether it’s feedback, feature requests, or digital hugs,
+            we’d love to hear from you!
           </p>
         </CardContent>
       </Card>

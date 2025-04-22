@@ -8,41 +8,48 @@ export default function TermsPage() {
               Terms of Use
             </h1>
             <p className="text-muted-foreground mt-2">
-              Last updated: March 25, 2024
+              Last updated: April 22, 2024
             </p>
           </div>
 
           <div className="prose prose-gray dark:prose-invert max-w-none">
             <p className="text-lg">
-              Welcome to our open-license media search website! By using this
-              site, you agree to the following totally reasonable and not-at-all
-              overcomplicated terms:
+              Welcome to <b>FileDescriptor?</b> — the AI-powered file content
+              description app that has nothing to do with Linux file descriptors
+              (seriously, we get that a lot).
+              <br />
+              By using this app, you agree to the following incredibly sensible
+              and only mildly sarcastic terms:
             </p>
 
             <ul className="list-disc pl-6 space-y-2 mt-4">
               <li>
-                You can search for and use open-license media however you like
-                (yay freedom!), but we don&apos;t own the content, so don&apos;t
-                blame us if you use a cat picture and the cat gets mad.
+                You can upload your media files to get snazzy AI-generated
+                descriptions. Just know: we don&apos;t own your files, and we
+                don&apos;t take credit for your cat photos unless the AI writes
+                an award-winning caption.
               </li>
               <li>
-                No hacking, breaking, or summoning digital ghosts through our
-                platform. Seriously, just be nice.
+                No hacking, poking around, or trying to make the AI become
+                sentient. It’s chill and prefers describing memes to plotting
+                world domination.
               </li>
               <li>
-                We do our best to keep things running, but if the website
-                suddenly decides to take a nap, well… technology, right?
+                We do our best to keep the app awake and responsive, but if it
+                falls asleep mid-description, blame the cloud (or the AI&apos;s
+                coffee shortage).
               </li>
               <li>
-                If you find a bug, you&apos;re legally (just kidding, but
-                morally) obligated to tell us so we can fix it instead of
-                blaming aliens.
+                Found a bug? You&apos;re not legally bound, but you&apos;re
+                morally heroic if you tell us instead of blaming quantum
+                fluctuations.
               </li>
             </ul>
 
             <p className="mt-6">
-              By staying here, you accept these terms. If you don&apos;t, well,
-              we&apos;re not stopping you from leaving—but we&apos;ll miss you!
+              By continuing to use <b>FileDescriptor?</b>, you&apos;re agreeing
+              to all this. If not, feel free to leave—but just know the AI was
+              starting to warm up to you.
             </p>
           </div>
         </div>

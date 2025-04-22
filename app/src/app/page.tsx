@@ -15,11 +15,19 @@ export default function Home() {
           ))}
         </div>
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-          Explore millions of creative works
+          Let AI describe your files — no, not <i>that</i>{' '}
+          <a
+            className="underline hover:text-blue-600 dark:hover:text-blue-400"
+            href="https://en.wikipedia.org/wiki/File_descriptor"
+            target="_blank"
+          >
+            file descriptor
+          </a>
+          .
         </h1>
         <p className="leading-7 [&:not(:first-child)]:mt-6">
-          An extensive library of free stock photos, images, and audio,
-          available for free use.
+          Upload mysterious media and let our AI reveal its secrets — whether
+          it&apos;s a cat, a concert, or a chaotic selfie.
         </p>
 
         <HomepageButtons />
