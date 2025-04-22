@@ -53,6 +53,12 @@ import type {
   ListFilesFilesGetError,
   DeleteFileFilesFileIdDeleteData,
   DeleteFileFilesFileIdDeleteError,
+  RetryFileFilesFileIdRetryPatchData,
+  RetryFileFilesFileIdRetryPatchResponse,
+  RetryFileFilesFileIdRetryPatchError,
+  CancelFileFilesFileIdCancelPatchData,
+  CancelFileFilesFileIdCancelPatchResponse,
+  CancelFileFilesFileIdCancelPatchError,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
 import {
@@ -70,12 +76,16 @@ import {
   zGetHistoryMediaHistoryGetResponse,
   zUploadFileFilesUploadPostResponse,
   zListFilesFilesGetResponse,
+  zRetryFileFilesFileIdRetryPatchResponse,
+  zCancelFileFilesFileIdCancelPatchResponse,
 } from './zod.gen';
 import {
   deleteHistoryMediaHistoryDeleteResponseTransformer,
   getHistoryMediaHistoryGetResponseTransformer,
   uploadFileFilesUploadPostResponseTransformer,
   listFilesFilesGetResponseTransformer,
+  retryFileFilesFileIdRetryPatchResponseTransformer,
+  cancelFileFilesFileIdCancelPatchResponseTransformer,
 } from './transformers.gen';
 
 export type Options<
@@ -547,6 +557,62 @@ export const deleteFileFilesFileIdDelete = <
       },
     ],
     url: '/files/{file_id}',
+    ...options,
+  });
+};
+
+/**
+ * Retry File
+ */
+export const retryFileFilesFileIdRetryPatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<RetryFileFilesFileIdRetryPatchData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).patch<
+    RetryFileFilesFileIdRetryPatchResponse,
+    RetryFileFilesFileIdRetryPatchError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    responseTransformer: retryFileFilesFileIdRetryPatchResponseTransformer,
+    responseValidator: async (data) => {
+      return await zRetryFileFilesFileIdRetryPatchResponse.parseAsync(data);
+    },
+    url: '/files/{file_id}/retry',
+    ...options,
+  });
+};
+
+/**
+ * Cancel File
+ */
+export const cancelFileFilesFileIdCancelPatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CancelFileFilesFileIdCancelPatchData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).patch<
+    CancelFileFilesFileIdCancelPatchResponse,
+    CancelFileFilesFileIdCancelPatchError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    responseTransformer: cancelFileFilesFileIdCancelPatchResponseTransformer,
+    responseValidator: async (data) => {
+      return await zCancelFileFilesFileIdCancelPatchResponse.parseAsync(data);
+    },
+    url: '/files/{file_id}/cancel',
     ...options,
   });
 };

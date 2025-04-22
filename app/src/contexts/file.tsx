@@ -1,15 +1,18 @@
 'use client';
 
 import {
+  cancelFileFilesFileIdCancelPatch,
   deleteFileFilesFileIdDelete,
   listFilesFilesGet,
   ListFilesResponse,
+  retryFileFilesFileIdRetryPatch,
   SortBy,
   SortOrder,
   uploadFileFilesUploadPost,
 } from '@/client';
 import { zSortBy, zSortOrder } from '@/client/zod.gen';
 import { useAuthRequired } from '@/hooks/auth';
+import { debounce } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -17,11 +20,13 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
 } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { useNotification } from './notification';
 
 export enum FileActionType {
   UpdateResult,
@@ -46,9 +51,11 @@ const FileContext = createContext<
       listFilesForm: ReturnType<
         typeof useForm<z.infer<typeof zListFilesParams>>
       >;
-      listFiles: () => Promise<void>;
+      listFiles: () => void;
       uploadFile: (file: File) => Promise<void>;
       deleteFile: (fileId: number) => Promise<void>;
+      retryFile: (fileId: number) => Promise<void>;
+      cancelFile: (fileId: number) => Promise<void>;
     }
   | undefined
 >(undefined);
@@ -93,22 +100,30 @@ export const FileProvider = ({ children }: FileProviderProps) => {
   const searchParams = useSearchParams();
   const isAuthLoading = useAuthRequired();
 
-  const listFiles = useCallback(async () => {
-    // reset to page 1 when proceeding search
-    listFilesForm.setValue('page', 1);
+  const { fileHook } = useNotification();
 
-    const query = listFilesForm.getValues();
-    const flatQuery = Object.entries(query).map((record) => [
-      record[0],
-      record[1].toString(),
-    ]);
+  const listFiles = useMemo(
+    () =>
+      debounce(() => {
+        // reset to page 1 when proceeding search
+        listFilesForm.setValue('page', 1);
 
-    // force refresh
-    flatQuery.push(['nounce', crypto.randomUUID()]);
+        const query = listFilesForm.getValues();
+        const flatQuery = Object.entries(query).map((record) => [
+          record[0],
+          record[1].toString(),
+        ]);
 
-    const urlSearchParams = new URLSearchParams(flatQuery);
-    router.push(`${pathname}?${urlSearchParams.toString()}`, { scroll: false });
-  }, [listFilesForm, router, pathname]);
+        // force refresh
+        flatQuery.push(['nounce', crypto.randomUUID()]);
+
+        const urlSearchParams = new URLSearchParams(flatQuery);
+        router.push(`${pathname}?${urlSearchParams.toString()}`, {
+          scroll: false,
+        });
+      }, 500),
+    [listFilesForm, router, pathname]
+  );
 
   const uploadFile = useCallback(
     async (file: File) => {
@@ -125,7 +140,7 @@ export const FileProvider = ({ children }: FileProviderProps) => {
       listFilesForm.setValue('sort_by', SortBy.CREATED_AT);
       listFilesForm.setValue('order', SortOrder.DESC);
 
-      await listFiles();
+      listFiles();
     },
     [listFilesForm, listFiles]
   );
@@ -144,7 +159,45 @@ export const FileProvider = ({ children }: FileProviderProps) => {
         return;
       }
 
-      await listFiles();
+      listFiles();
+    },
+    [listFiles]
+  );
+
+  const retryFile = useCallback(
+    async (fileId: number) => {
+      const result = await retryFileFilesFileIdRetryPatch({
+        path: { file_id: fileId },
+      });
+      if (typeof result.error?.detail === 'string') {
+        toast.error(result.error.detail);
+        return;
+      }
+      if (result.error) {
+        toast.error('Failed to retry file');
+        return;
+      }
+
+      listFiles();
+    },
+    [listFiles]
+  );
+
+  const cancelFile = useCallback(
+    async (fileId: number) => {
+      const result = await cancelFileFilesFileIdCancelPatch({
+        path: { file_id: fileId },
+      });
+      if (typeof result.error?.detail === 'string') {
+        toast.error(result.error.detail);
+        return;
+      }
+      if (result.error) {
+        toast.error('Failed to cancel file');
+        return;
+      }
+
+      listFiles();
     },
     [listFiles]
   );
@@ -188,6 +241,12 @@ export const FileProvider = ({ children }: FileProviderProps) => {
     })();
   }, [listFilesForm, isAuthLoading, searchParams]);
 
+  useEffect(() => {
+    if (fileHook > 0) {
+      listFiles();
+    }
+  }, [fileHook, listFiles]);
+
   return (
     <FileContext.Provider
       value={{
@@ -197,6 +256,8 @@ export const FileProvider = ({ children }: FileProviderProps) => {
         listFiles,
         uploadFile,
         deleteFile,
+        retryFile,
+        cancelFile,
       }}
     >
       {children}

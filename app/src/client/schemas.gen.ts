@@ -571,26 +571,17 @@ export const EmailVerificationStatusSchema = {
   enum: ['verified', 'verifying', 'none'],
 } as const;
 
-export const FileDescriptionResponseSchema = {
-  properties: {
-    id: {
-      type: 'integer',
-    },
-    description: {
-      type: 'string',
-    },
-    created_at: {
-      type: 'string',
-      format: 'date-time',
-    },
-  },
-  type: 'object',
-  required: ['id', 'description', 'created_at'],
-} as const;
-
 export const FileProcessingStatusSchema = {
   type: 'string',
-  enum: ['pending', 'processing', 'success', 'failed', 'cancelled', 'unknown'],
+  enum: [
+    'pending',
+    'queuing',
+    'processing',
+    'success',
+    'failed',
+    'cancelled',
+    'unknown',
+  ],
 } as const;
 
 export const FileResponseSchema = {
@@ -617,21 +608,15 @@ export const FileResponseSchema = {
       type: 'string',
       format: 'date-time',
     },
-    active_file_description_id: {
+    description: {
       anyOf: [
         {
-          type: 'integer',
+          type: 'string',
         },
         {
           type: 'null',
         },
       ],
-    },
-    file_descriptions: {
-      items: {
-        $ref: '#/components/schemas/FileDescriptionResponse',
-      },
-      type: 'array',
     },
   },
   type: 'object',
@@ -643,8 +628,7 @@ export const FileResponseSchema = {
     'type',
     'url',
     'created_at',
-    'active_file_description_id',
-    'file_descriptions',
+    'description',
   ],
 } as const;
 
@@ -957,6 +941,23 @@ export const ListFilesResponseSchema = {
     page: {
       type: 'integer',
     },
+    credit: {
+      type: 'integer',
+    },
+    credit_count: {
+      type: 'integer',
+    },
+    credit_timestamp: {
+      anyOf: [
+        {
+          type: 'string',
+          format: 'date-time',
+        },
+        {
+          type: 'null',
+        },
+      ],
+    },
     results: {
       items: {
         $ref: '#/components/schemas/FileResponse',
@@ -965,7 +966,16 @@ export const ListFilesResponseSchema = {
     },
   },
   type: 'object',
-  required: ['result_count', 'page_count', 'page_size', 'page', 'results'],
+  required: [
+    'result_count',
+    'page_count',
+    'page_size',
+    'page',
+    'credit',
+    'credit_count',
+    'credit_timestamp',
+    'results',
+  ],
 } as const;
 
 export const MediaHistoryResponseSchema = {

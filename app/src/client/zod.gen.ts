@@ -123,14 +123,9 @@ export const zEmailVerificationStatus = z.enum([
   'none',
 ]);
 
-export const zFileDescriptionResponse = z.object({
-  id: z.number().int(),
-  description: z.string(),
-  created_at: z.string().datetime(),
-});
-
 export const zFileProcessingStatus = z.enum([
   'pending',
+  'queuing',
   'processing',
   'success',
   'failed',
@@ -146,8 +141,7 @@ export const zFileResponse = z.object({
   type: z.string(),
   url: z.string(),
   created_at: z.string().datetime(),
-  active_file_description_id: z.union([z.number().int(), z.null()]),
-  file_descriptions: z.array(zFileDescriptionResponse),
+  description: z.union([z.string(), z.null()]),
 });
 
 export const zHttpValidationError = z.object({
@@ -222,6 +216,9 @@ export const zListFilesResponse = z.object({
   page_count: z.number().int(),
   page_size: z.number().int(),
   page: z.number().int(),
+  credit: z.number().int(),
+  credit_count: z.number().int(),
+  credit_timestamp: z.union([z.string().datetime(), z.null()]),
   results: z.array(zFileResponse),
 });
 
@@ -330,3 +327,7 @@ export const zGetHistoryMediaHistoryGetResponse = z.array(
 export const zUploadFileFilesUploadPostResponse = zFileResponse;
 
 export const zListFilesFilesGetResponse = zListFilesResponse;
+
+export const zRetryFileFilesFileIdRetryPatchResponse = zFileResponse;
+
+export const zCancelFileFilesFileIdCancelPatchResponse = zFileResponse;

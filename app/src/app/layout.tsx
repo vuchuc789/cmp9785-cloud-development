@@ -9,6 +9,7 @@ import React from 'react';
 
 import './globals.css';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { NotificationProvider } from '@/contexts/notification';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -46,12 +47,14 @@ export default function RootLayout({
         >
           <TooltipProvider>
             <AuthProvider>
-              <div className="min-h-screen flex flex-col">
-                <Header />
-                {children}
-                <Footer />
-              </div>
-              <Toaster />
+              <NotificationProvider>
+                <div className="min-h-screen flex flex-col">
+                  <Header />
+                  {children}
+                  <Footer />
+                </div>
+                <Toaster />
+              </NotificationProvider>
             </AuthProvider>
           </TooltipProvider>
         </ThemeProvider>

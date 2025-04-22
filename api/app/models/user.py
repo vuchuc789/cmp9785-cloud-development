@@ -15,6 +15,7 @@ class EmailVerificationStatus(str, Enum):
 
 class FileProcessingStatus(str, Enum):
     pending = 'pending'
+    queuing = 'queuing'
     processing = 'processing'
     success = 'success'
     failed = 'failed'
@@ -80,24 +81,9 @@ class File(SQLModel, table=True):
     type: str
     url: str
     created_at: datetime = Field(sa_column=sa.Column(sa.DateTime(timezone=True), nullable=False))
-    active_file_description_id: int | None = Field(default=None)
     object_path: str
+
+    description: str | None = None
 
     user_id: int | None = Field(default=None, foreign_key='users.id')
     user: User | None = Relationship(back_populates='files')
-
-    file_descriptions: list['FileDescription'] = Relationship(
-        back_populates='file', cascade_delete=True
-    )
-
-
-class FileDescription(SQLModel, table=True):
-    __tablename__ = 'file_descriptions'
-    __table_args__ = ({'extend_existing': True},)
-
-    id: int | None = Field(default=None, primary_key=True)
-    description: str
-    created_at: datetime = Field(sa_column=sa.Column(sa.DateTime(timezone=True), nullable=False))
-
-    file_id: int | None = Field(default=None, foreign_key='files.id', ondelete='CASCADE')
-    file: File | None = Relationship(back_populates='file_descriptions')

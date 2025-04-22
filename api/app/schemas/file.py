@@ -19,12 +19,6 @@ class SortOrder(str, Enum):
     desc = 'desc'
 
 
-class FileDescriptionResponse(BaseModel):
-    id: int
-    description: str
-    created_at: datetime
-
-
 class FileResponse(BaseModel):
     id: int
     filename: str
@@ -33,9 +27,7 @@ class FileResponse(BaseModel):
     type: str
     url: str
     created_at: datetime
-    active_file_description_id: int | None
-
-    file_descriptions: list[FileDescriptionResponse]
+    description: str | None
 
 
 class ListFilesQueries(BaseModel):
@@ -50,4 +42,7 @@ class ListFilesResponse(BaseModel):
     page_count: int
     page_size: int
     page: int
+    credit: int
+    credit_count: int
+    credit_timestamp: datetime | None
     results: list[FileResponse]

@@ -3,7 +3,7 @@ from typing import Annotated
 
 import jwt
 from confluent_kafka import Producer
-from fastapi import Cookie, Depends, HTTPException, status
+from fastapi import Cookie, Depends, HTTPException, Query, WebSocketException, status
 from jwt.exceptions import InvalidTokenError
 from sqlmodel import Session
 
@@ -105,3 +105,23 @@ async def get_current_user_from_refresh_token(
 
 
 CurrentRefreshTokenUserDep = Annotated[User, Depends(get_current_user_from_refresh_token)]
+
+
+async def get_current_user_from_web_socket(
+    token: Annotated[str, Query()],
+    session: SessionDep,
+    settings: SettingsDep,
+):
+    credentials_exception = WebSocketException(
+        code=status.WS_1008_POLICY_VIOLATION,
+        reason='Could not validate credentials',
+    )
+    try:
+        user, _ = await get_current_user(token, session, settings)
+    except Exception as e:
+        raise credentials_exception from e
+
+    return user
+
+
+CurrentWebSocketUserDep = Annotated[User, Depends(get_current_user_from_web_socket)]
