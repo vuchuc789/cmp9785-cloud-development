@@ -3,5 +3,12 @@ auth:
   existingSecret: postgres-password
   database: cmp9785
 primary:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 2
+      memory: 2Gi
   persistence:
     size: 3Gi
