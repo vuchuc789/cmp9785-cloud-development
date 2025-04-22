@@ -12,7 +12,7 @@ metadata:
   # `RI_APP_PORT`
   namespace: redis
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - port: 80
       targetPort: 5540
