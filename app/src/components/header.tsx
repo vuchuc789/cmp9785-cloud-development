@@ -48,7 +48,7 @@ export function Header() {
           ) : !!userInfo?.username ? (
             <AlertDialog>
               <DropdownMenu>
-                <DropdownMenuTrigger className="rounded-full cursor-pointer">
+                <DropdownMenuTrigger className="rounded-full">
                   <Avatar name={userInfo.username} variant="beam" size={36} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -60,7 +60,6 @@ export function Header() {
                     onClick={() => {
                       router.push('/settings/profile');
                     }}
-                    className="cursor-pointer"
                   >
                     Profile
                   </DropdownMenuItem>
@@ -68,15 +67,12 @@ export function Header() {
                     onClick={() => {
                       router.push('/settings/security');
                     }}
-                    className="cursor-pointer"
                   >
                     Security
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <AlertDialogTrigger asChild>
-                    <DropdownMenuItem className="cursor-pointer">
-                      Logout
-                    </DropdownMenuItem>
+                    <DropdownMenuItem>Logout</DropdownMenuItem>
                   </AlertDialogTrigger>
                 </DropdownMenuContent>
               </DropdownMenu>
