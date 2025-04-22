@@ -5,6 +5,8 @@ import type {
   GetHistoryMediaHistoryGetResponse,
   UploadFileFilesUploadPostResponse,
   ListFilesFilesGetResponse,
+  RetryFileFilesFileIdRetryPatchResponse,
+  CancelFileFilesFileIdCancelPatchResponse,
 } from './types.gen';
 
 const mediaHistoryResponseSchemaResponseTransformer = (data: any) => {
@@ -30,16 +32,8 @@ export const getHistoryMediaHistoryGetResponseTransformer = async (
   return data;
 };
 
-const fileDescriptionResponseSchemaResponseTransformer = (data: any) => {
-  data.created_at = new Date(data.created_at);
-  return data;
-};
-
 const fileResponseSchemaResponseTransformer = (data: any) => {
   data.created_at = new Date(data.created_at);
-  data.file_descriptions = data.file_descriptions.map((item: any) => {
-    return fileDescriptionResponseSchemaResponseTransformer(item);
-  });
   return data;
 };
 
@@ -51,6 +45,7 @@ export const uploadFileFilesUploadPostResponseTransformer = async (
 };
 
 const listFilesResponseSchemaResponseTransformer = (data: any) => {
+  data.credit_timestamp = new Date(data.credit_timestamp);
   data.results = data.results.map((item: any) => {
     return fileResponseSchemaResponseTransformer(item);
   });
@@ -61,5 +56,19 @@ export const listFilesFilesGetResponseTransformer = async (
   data: any
 ): Promise<ListFilesFilesGetResponse> => {
   data = listFilesResponseSchemaResponseTransformer(data);
+  return data;
+};
+
+export const retryFileFilesFileIdRetryPatchResponseTransformer = async (
+  data: any
+): Promise<RetryFileFilesFileIdRetryPatchResponse> => {
+  data = fileResponseSchemaResponseTransformer(data);
+  return data;
+};
+
+export const cancelFileFilesFileIdCancelPatchResponseTransformer = async (
+  data: any
+): Promise<CancelFileFilesFileIdCancelPatchResponse> => {
+  data = fileResponseSchemaResponseTransformer(data);
   return data;
 };

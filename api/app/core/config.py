@@ -52,8 +52,13 @@ class Settings(BaseSettings):
     bucket_name: str
 
     kafka_servers: list[str]
+    redis_host: str
+    redis_port: int = 6379
 
     gemini_api_key: str
+
+    credit_limit: int = 5
+    credit_period: int = 3600
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 

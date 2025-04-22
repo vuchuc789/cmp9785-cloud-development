@@ -40,6 +40,7 @@ class StatusUpdatedPayload(BaseModel):
     user_id: int
     status: FileProcessingStatus
     message: str
+    email: str | None
 
 
 class StatusUpdatedEvent(BaseEvent):

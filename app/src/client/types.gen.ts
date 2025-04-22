@@ -120,12 +120,6 @@ export const EmailVerificationStatus = {
   NONE: 'none',
 } as const;
 
-export type FileDescriptionResponse = {
-  id: number;
-  description: string;
-  created_at: Date;
-};
-
 export type FileProcessingStatus =
   | 'pending'
   | 'queuing'
@@ -153,8 +147,7 @@ export type FileResponse = {
   type: string;
   url: string;
   created_at: Date;
-  active_file_description_id: number | null;
-  file_descriptions: Array<FileDescriptionResponse>;
+  description: string | null;
 };
 
 export type HttpValidationError = {
@@ -228,6 +221,9 @@ export type ListFilesResponse = {
   page_count: number;
   page_size: number;
   page: number;
+  credit: number;
+  credit_count: number;
+  credit_timestamp: Date | null;
   results: Array<FileResponse>;
 };
 
@@ -780,19 +776,63 @@ export type DeleteFileFilesFileIdDeleteResponses = {
   200: unknown;
 };
 
-export type GetNotificationsHtmlGetData = {
+export type RetryFileFilesFileIdRetryPatchData = {
   body?: never;
-  path?: never;
+  path: {
+    file_id: number;
+  };
   query?: never;
-  url: '/notifications/html';
+  url: '/files/{file_id}/retry';
 };
 
-export type GetNotificationsHtmlGetResponses = {
+export type RetryFileFilesFileIdRetryPatchErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type RetryFileFilesFileIdRetryPatchError =
+  RetryFileFilesFileIdRetryPatchErrors[keyof RetryFileFilesFileIdRetryPatchErrors];
+
+export type RetryFileFilesFileIdRetryPatchResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  200: FileResponse;
 };
+
+export type RetryFileFilesFileIdRetryPatchResponse =
+  RetryFileFilesFileIdRetryPatchResponses[keyof RetryFileFilesFileIdRetryPatchResponses];
+
+export type CancelFileFilesFileIdCancelPatchData = {
+  body?: never;
+  path: {
+    file_id: number;
+  };
+  query?: never;
+  url: '/files/{file_id}/cancel';
+};
+
+export type CancelFileFilesFileIdCancelPatchErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CancelFileFilesFileIdCancelPatchError =
+  CancelFileFilesFileIdCancelPatchErrors[keyof CancelFileFilesFileIdCancelPatchErrors];
+
+export type CancelFileFilesFileIdCancelPatchResponses = {
+  /**
+   * Successful Response
+   */
+  200: FileResponse;
+};
+
+export type CancelFileFilesFileIdCancelPatchResponse =
+  CancelFileFilesFileIdCancelPatchResponses[keyof CancelFileFilesFileIdCancelPatchResponses];
 
 export type ClientOptions = {
   baseUrl: `${string}://${string}/api/v1` | (string & {});

@@ -68,7 +68,6 @@ export default function FilesPage() {
     uploadFile,
     deleteFile,
     retryFile,
-    cancelFile,
   } = useFile();
 
   const { sort_by: sortBy, order: sortOrder } = listFilesForm.getValues();
@@ -106,12 +105,10 @@ export default function FilesPage() {
 
   // Handle cancel
   const handleCancel = () => {
-    setShowCancelDialog(false);
+    if (!fileToCancel) return;
 
-    if (fileToCancel) {
-      cancelFile(fileToCancel.id);
-      setFileToCancel(null);
-    }
+    setFileToCancel(null);
+    setShowCancelDialog(false);
   };
 
   // Handle delete
@@ -237,20 +234,30 @@ export default function FilesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-3xl font-bold">Your Files</h1>
         <div className="flex items-center gap-3">
-          {fileResult && (
-            <CreditDisplay
-              availableCredits={fileResult.credit}
-              maxCredits={fileResult.credit_count}
-              nextRefillTime={fileResult.credit_timestamp ?? new Date()}
-              refillCredit={listFiles}
-            />
-          )}
+          <CreditDisplay availableCredits={20} maxCredits={20} />
           <Button
             className="cursor-pointer"
             onClick={() => setShowUploadDialog(true)}
           >
             Upload New File
           </Button>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="h-4 w-4 flex-shrink-0" />
+            <span>
+              You've reached your credit limit for processing files. You can try
+              again on{' '}
+              {nextRefillTime.toLocaleString('en-US', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                timeZoneName: 'short',
+              })}
+              .
+            </span>
+          </div>
         </div>
       </div>
 

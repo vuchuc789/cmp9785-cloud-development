@@ -166,10 +166,7 @@ export const FileCard: React.FC<FileCardProps> = ({
             <div className="mt-3">
               {file.status === 'success' ? (
                 <p className="text-sm text-muted-foreground">
-                  {truncateText(
-                    file.file_descriptions[0]?.description ?? '',
-                    120
-                  )}
+                  {truncateText(file.description ?? '', 120)}
                 </p>
               ) : file.status === 'failed' ? (
                 <span className="text-sm text-muted-foreground italic">

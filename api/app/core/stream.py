@@ -22,7 +22,7 @@ consumer_conf = {
     'auto.offset.reset': 'earliest',
 }
 
-producer = None
+producer: Producer | None = None
 
 
 def get_producer():
@@ -31,6 +31,12 @@ def get_producer():
         producer = Producer(producer_conf)
 
     return producer
+
+
+def flush_producer():
+    global producer
+    if producer is not None:
+        producer.flush()
 
 
 def get_consume_thread(topics: list[str], process_message: Callable[[str], None]):

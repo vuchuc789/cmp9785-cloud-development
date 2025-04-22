@@ -1,6 +1,6 @@
 import contextlib
 import urllib
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import requests
@@ -8,15 +8,14 @@ from confluent_kafka import Producer
 from fastapi import BackgroundTasks, HTTPException, UploadFile, status
 from google import genai
 from google.genai import types
-from sqlalchemy.orm import selectinload
 from sqlmodel import Session, asc, desc, func, select
 
+from app.core.cache import get_sync_client
 from app.core.config import Settings, get_settings
 from app.core.database import get_session
 from app.core.logging import logger
 from app.core.stream import get_producer
 from app.models.user import File as UserFile
-from app.models.user import FileDescription as UserFileDescription
 from app.models.user import FileProcessingStatus
 from app.schemas.file import SortBy, SortOrder
 from app.schemas.stream import EventType, FileUploadedEvent, StatusUpdatedEvent, Topic
@@ -48,6 +47,7 @@ class FileService:
                 'user_id': file_data.user_id,
                 'status': file_data.status.value,
                 'message': message,
+                'email': file_data.user.email,
             },
         )
         producer.produce(
@@ -80,6 +80,11 @@ class FileService:
             )
             producer.produce(Topic.files.value, key=str(file_data.id), value=file_event.json())
 
+            db.refresh(file_data)
+            # If the file processing was cancelled, exit
+            if file_data.status == FileProcessingStatus.cancelled:
+                return
+
             self._update_status(
                 db=db,
                 producer=producer,
@@ -103,6 +108,38 @@ class FileService:
                 )
             logger.debug(e)
 
+    def _check_credit(self, settings: Settings, user_id: int):
+        r = get_sync_client()
+        count_key = f'credit:file:{user_id}'
+
+        lua_script = """
+        local count = redis.call('GET', KEYS[1])
+        if not count then
+            redis.call('SET', KEYS[1], 0)
+            redis.call('EXPIRE', KEYS[1], tonumber(ARGV[2]))
+            count = "0"
+        end
+
+        if tonumber(count) < tonumber(ARGV[1]) then
+            redis.call('INCR', KEYS[1])
+            return 1
+        else
+            return 0
+        end
+        """
+
+        increment_script = r.register_script(lua_script)
+        result = increment_script(
+            keys=[count_key],
+            args=[settings.credit_limit, settings.credit_period],
+        )
+
+        if result == 0:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail='You’ve reached your credit limit for processing files.',
+            )
+
     async def upload_file(
         self,
         user_id: int,
@@ -113,6 +150,8 @@ class FileService:
         file: UploadFile,
     ) -> UserFile:
         try:
+            self._check_credit(settings=settings, user_id=user_id)
+
             now = datetime.now(UTC)
             rand_str = str(uuid4())
             object_path = f'{user_id}/{rand_str}/{file.filename}'
@@ -153,6 +192,8 @@ class FileService:
                 settings=settings,
             )
 
+        except HTTPException as e:
+            raise e
         except Exception as e:
             with contextlib.suppress(Exception):
                 self._update_status(
@@ -179,7 +220,7 @@ class FileService:
         page_size: int = 20,
         sort_by: SortBy = SortBy.created_at,
         sort_order: SortOrder = SortOrder.asc,
-    ) -> tuple[UserFile, int]:
+    ) -> tuple[UserFile, int, int, datetime | None]:
         try:
             file_statement = select(UserFile).where(UserFile.user_id == user_id)
 
@@ -195,11 +236,7 @@ class FileService:
                 sort = desc(sort) if sort_order == SortOrder.desc else asc(sort)
                 file_statement = file_statement.order_by(sort)
 
-            file_statement = (
-                file_statement.offset((page - 1) * page_size)
-                .limit(page_size)
-                .options(selectinload(UserFile.file_descriptions))  # fix n + 1 queries
-            )
+            file_statement = file_statement.offset((page - 1) * page_size).limit(page_size)
 
             file_results = db.exec(file_statement)
             files = file_results.all()
@@ -207,6 +244,13 @@ class FileService:
             count_statement = select(func.count(UserFile.id)).where(UserFile.user_id == user_id)
             count_result = db.exec(count_statement)
             count = count_result.one()
+
+            r = get_sync_client()
+            count_key = f'credit:file:{user_id}'
+            used_credit = int(r.get(count_key) or 0)
+            credit_timestamp = None
+            if used_credit > 0:
+                credit_timestamp = datetime.now(UTC) + timedelta(seconds=int(r.ttl(count_key)))
         except Exception as e:
             logger.debug(e)
             raise HTTPException(
@@ -214,7 +258,7 @@ class FileService:
                 detail='Error occured while listing files',
             ) from e
 
-        return files, count
+        return files, count, used_credit, credit_timestamp
 
     def delete_file(
         self,
@@ -228,34 +272,30 @@ class FileService:
             statement = select(UserFile).where(UserFile.user_id == user_id, UserFile.id == file_id)
             result = db.exec(statement)
             file = result.first()
-        except Exception as e:
-            logger.debug(e)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Error occured while deleting file',
-            ) from e
 
-        if file is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="File doesn't exist",
-            )
+            if file is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="File doesn't exist",
+                )
 
-        if file.status in [
-            FileProcessingStatus.pending,
-            FileProcessingStatus.processing,
-        ]:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Unable to delete processing files',
-            )
+            if file.status in [
+                FileProcessingStatus.pending,
+                FileProcessingStatus.queuing,
+                FileProcessingStatus.processing,
+            ]:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail='Unable to delete processing files',
+                )
 
-        try:
             db.delete(file)
             db.commit()
 
             background_tasks.add_task(delete_blob, settings.bucket_name, file.object_path)
 
+        except HTTPException as e:
+            raise e
         except Exception as e:
             logger.debug(e)
             raise HTTPException(
@@ -313,10 +353,13 @@ class FileService:
                 ],
             )
 
+            db.refresh(file_data)
+            # If the file processing was cancelled, exit
+            if file_data.status == FileProcessingStatus.cancelled:
+                return
+
             # Create a new file description and associate it with the file
-            now = datetime.now(UTC)
-            file_description_data = UserFileDescription(description=res.text, created_at=now)
-            file_data.file_descriptions.append(file_description_data)
+            file_data.description = res.text
 
             # Update the file status to success
             self._update_status(
@@ -342,6 +385,107 @@ class FileService:
                     settings=settings,
                 )
             raise e
+
+    def retry_file(
+        self,
+        settings: Settings,
+        db: Session,
+        producer: Producer,
+        file_id: int,
+        user_id: int,
+    ) -> UserFile:
+        try:
+            self._check_credit(settings=settings, user_id=user_id)
+
+            statement = select(UserFile).where(UserFile.id == file_id, UserFile.user_id == user_id)
+            result = db.exec(statement)
+            file_data = result.first()
+            if file_data is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='File not found')
+
+            if file_data.status not in [
+                FileProcessingStatus.success,
+                FileProcessingStatus.failed,
+                FileProcessingStatus.cancelled,
+            ]:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, detail='File is being proccessed'
+                )
+
+            file_event = FileUploadedEvent(
+                event_type=EventType.file_upload,
+                timestamp=file_data.created_at,
+                metadata={'version': 1, 'source': settings.server_mode},
+                payload={'file_id': file_data.id},
+            )
+            producer.produce(Topic.files.value, key=str(file_data.id), value=file_event.json())
+
+            self._update_status(
+                db=db,
+                producer=producer,
+                file_data=file_data,
+                message=f'File "{file_data.filename}" is queuing',
+                status=FileProcessingStatus.queuing,
+                settings=settings,
+            )
+
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            with contextlib.suppress(Exception):
+                self._update_status(
+                    db=db,
+                    producer=producer,
+                    file_data=file_data,
+                    message=f'File "{file_data.filename}" was failed to handle',
+                    status=FileProcessingStatus.failed,
+                    settings=settings,
+                )
+            logger.debug(e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Error occured while retrying to process file',
+            ) from e
+
+        return file_data
+
+    def cancel_file(
+        self,
+        db: Session,
+        file_id: int,
+        user_id: int,
+    ) -> UserFile:
+        try:
+            statement = select(UserFile).where(UserFile.id == file_id, UserFile.user_id == user_id)
+            result = db.exec(statement)
+            file_data = result.first()
+            if file_data is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='File not found')
+
+            if file_data.status not in [
+                FileProcessingStatus.pending,
+                FileProcessingStatus.queuing,
+                FileProcessingStatus.processing,
+            ]:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, detail='File is not being proccessed'
+                )
+
+            file_data.status = FileProcessingStatus.cancelled
+            db.add(file_data)
+            db.commit()
+            db.refresh(file_data)
+
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            logger.debug(e)
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Error occured while cancelling file',
+            ) from e
+
+        return file_data
 
 
 file_service = FileService()

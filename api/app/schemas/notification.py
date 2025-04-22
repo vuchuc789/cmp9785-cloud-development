@@ -8,6 +8,11 @@ class NotificationType(str, Enum):
     error = 'error'
 
 
+class NotificationCategory(str, Enum):
+    file = 'file'
+
+
 class Notification(BaseModel):
     type: NotificationType
+    category: NotificationCategory
     message: str

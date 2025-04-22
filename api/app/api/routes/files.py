@@ -56,10 +56,11 @@ async def upload_file(
 @router.get('/', response_model=ListFilesResponse)
 async def list_files(
     session: SessionDep,
+    settings: SettingsDep,
     current_user: CurrentUserDep,
     queries: Annotated[ListFilesQueries, Query()],
 ):
-    files, count = file_service.list_files(
+    files, count, used_credit, credit_timestamp = file_service.list_files(
         db=session,
         user_id=current_user.id,
         page=queries.page,
@@ -74,6 +75,9 @@ async def list_files(
         'page_count': page_count,
         'page_size': queries.page_size,
         'page': queries.page,
+        'credit': settings.credit_limit - used_credit,
+        'credit_count': settings.credit_limit,
+        'credit_timestamp': credit_timestamp,
         'results': files,
     }
 
@@ -96,3 +100,35 @@ async def delete_file(
     return {
         'detail': 'Deleted successfully',
     }
+
+
+@router.patch('/{file_id}/retry', response_model=FileResponse)
+async def retry_file(
+    session: SessionDep,
+    settings: SettingsDep,
+    producer: ProducerDep,
+    current_user: CurrentUserDep,
+    file_id: Annotated[int, Path(gt=0)],
+):
+    file = file_service.retry_file(
+        db=session,
+        settings=settings,
+        producer=producer,
+        file_id=file_id,
+        user_id=current_user.id,
+    )
+    return file
+
+
+@router.patch('/{file_id}/cancel', response_model=FileResponse)
+async def cancel_file(
+    session: SessionDep,
+    current_user: CurrentUserDep,
+    file_id: Annotated[int, Path(gt=0)],
+):
+    file = file_service.cancel_file(
+        db=session,
+        file_id=file_id,
+        user_id=current_user.id,
+    )
+    return file

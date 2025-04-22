@@ -8,9 +8,9 @@ metadata:
 spec:
   project: cmp9785
   sources:
-    - repoURL: https://provectus.github.io/kafka-ui-charts
+    - repoURL: https://kafbat.github.io/helm-charts
       chart: kafka-ui
-      targetRevision: 0.7.6
+      targetRevision: 1.5.0
       helm:
         valueFiles:
           - $values/infra/helm/values/kafka-ui.yaml

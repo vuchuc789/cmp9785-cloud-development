@@ -19,5 +19,6 @@ def send_email_with_sendgrid(
         sg.send(message)
 
         logger.info(f'Email to {", ".join(to_emails)} has been sent successfully')
-    except Exception:
+    except Exception as e:
+        logger.error(e)
         logger.warn(f'Email to {", ".join(to_emails)} was unable to send')
