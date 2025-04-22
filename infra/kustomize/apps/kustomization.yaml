@@ -6,6 +6,7 @@ resources:
   - web-api.yaml
   - web-front.yaml
   - file-worker.yaml
+  - notification-worker.yaml
   - gateway.yaml
   - prometheus-stack.yaml
   - loki-logs.yaml
@@ -13,3 +14,4 @@ resources:
   - kafka-operator.yaml
   - kafka.yaml
   - kafka-ui.yaml
+  - redis.yaml
