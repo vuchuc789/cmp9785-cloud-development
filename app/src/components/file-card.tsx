@@ -203,7 +203,7 @@ export const FileCard: React.FC<FileCardProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-primary cursor-pointer rounded-full"
+                  className="h-8 w-8 text-muted-foreground hover:text-primary rounded-full"
                   onClick={() => {
                     viewDescription(file);
                   }}
@@ -226,7 +226,7 @@ export const FileCard: React.FC<FileCardProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-primary cursor-pointer rounded-full"
+                  className="h-8 w-8 text-muted-foreground hover:text-primary rounded-full"
                   onClick={() => {
                     retryProccessing(file);
                   }}
@@ -249,7 +249,7 @@ export const FileCard: React.FC<FileCardProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive cursor-pointer rounded-full"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive rounded-full"
                   onClick={() => {
                     cancelProccessing(file);
                   }}
@@ -267,7 +267,7 @@ export const FileCard: React.FC<FileCardProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive cursor-pointer rounded-full"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive rounded-full"
                   onClick={() => {
                     deleteFile(file);
                   }}

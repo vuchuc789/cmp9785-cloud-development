@@ -245,10 +245,7 @@ export default function FilesPage() {
               refillCredit={listFiles}
             />
           )}
-          <Button
-            className="cursor-pointer"
-            onClick={() => setShowUploadDialog(true)}
-          >
+          <Button onClick={() => setShowUploadDialog(true)}>
             Upload New File
           </Button>
         </div>
@@ -261,7 +258,7 @@ export default function FilesPage() {
           <Button
             variant="ghost"
             size="sm"
-            className={`px-2 h-8 cursor-pointer ${sortBy === SortBy.CREATED_AT ? 'bg-muted' : ''}`}
+            className={`px-2 h-8 ${sortBy === SortBy.CREATED_AT ? 'bg-muted' : ''}`}
             onClick={() => handleSort(SortBy.CREATED_AT)}
           >
             <Calendar className="h-4 w-4 mr-1" />
@@ -279,7 +276,7 @@ export default function FilesPage() {
           <Button
             variant="ghost"
             size="sm"
-            className={`px-2 h-8 cursor-pointer ${sortBy === SortBy.NAME ? 'bg-muted' : ''}`}
+            className={`px-2 h-8 ${sortBy === SortBy.NAME ? 'bg-muted' : ''}`}
             onClick={() => handleSort(SortBy.NAME)}
           >
             <File className="h-4 w-4 mr-1" />
@@ -297,7 +294,7 @@ export default function FilesPage() {
           <Button
             variant="ghost"
             size="sm"
-            className={`px-2 h-8 cursor-pointer ${sortBy === SortBy.STATUS ? 'bg-muted' : ''}`}
+            className={`px-2 h-8 ${sortBy === SortBy.STATUS ? 'bg-muted' : ''}`}
             onClick={() => handleSort(SortBy.STATUS)}
           >
             <CheckCircle2 className="h-4 w-4 mr-1" />
@@ -408,15 +405,12 @@ export default function FilesPage() {
           </DialogHeader>
           <DialogFooter>
             <Button
-              className="cursor-pointer"
               variant="outline"
               onClick={() => setShowCancelDialog(false)}
             >
               No, Continue
             </Button>
-            <Button className="cursor-pointer" onClick={handleCancel}>
-              Yes, Cancel
-            </Button>
+            <Button onClick={handleCancel}>Yes, Cancel</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -433,15 +427,12 @@ export default function FilesPage() {
           </DialogHeader>
           <DialogFooter>
             <Button
-              className="cursor-pointer"
               variant="outline"
               onClick={() => setShowDeleteDialog(false)}
             >
               Cancel
             </Button>
-            <Button className="cursor-pointer" onClick={handleDelete}>
-              Delete
-            </Button>
+            <Button onClick={handleDelete}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -473,7 +464,7 @@ export default function FilesPage() {
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="h-8 w-8 shadow-sm cursor-pointer"
+                        className="h-8 w-8 shadow-sm"
                         onClick={handleCopyDescription}
                         aria-label="Copy description"
                       >
@@ -497,11 +488,7 @@ export default function FilesPage() {
           )}
 
           <DialogFooter>
-            <Button
-              className="cursor-pointer"
-              onClick={() => setShowDescriptionDialog(false)}
-              size="sm"
-            >
+            <Button onClick={() => setShowDescriptionDialog(false)} size="sm">
               Close
             </Button>
           </DialogFooter>
@@ -569,7 +556,7 @@ export default function FilesPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 ml-2 cursor-pointer"
+                        className="h-8 w-8 ml-2"
                         onClick={() => setFileToUpload(null)}
                       >
                         <X className="h-4 w-4" />
@@ -586,7 +573,7 @@ export default function FilesPage() {
           )}
 
           <DialogFooter>
-            <Button className="cursor-pointer" onClick={handleUpload} size="sm">
+            <Button onClick={handleUpload} size="sm">
               Done
             </Button>
           </DialogFooter>

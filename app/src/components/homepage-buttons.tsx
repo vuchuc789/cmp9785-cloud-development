@@ -17,7 +17,7 @@ export const HomepageButtons: React.FC = () => {
     <div className="flex gap-4 items-start flex-col sm:flex-row">
       <Button
         size="lg"
-        className="rounded-full cursor-pointer"
+        className="rounded-full"
         onClick={() => {
           if (isLoading) {
             return;
@@ -36,7 +36,7 @@ export const HomepageButtons: React.FC = () => {
       <Button
         variant="outline"
         size="lg"
-        className="rounded-full cursor-pointer"
+        className="rounded-full"
         onClick={() => {
           if (isLoading) {
             return;
