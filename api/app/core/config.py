@@ -44,10 +44,6 @@ class Settings(BaseSettings):
     source_email: EmailStr
     frontend_url: HttpUrl
 
-    openverse_url: HttpUrl
-    openverse_client_id: str
-    openverse_client_secret: str
-
     cdn_url: HttpUrl
     bucket_name: str
 

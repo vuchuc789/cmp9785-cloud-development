@@ -54,12 +54,6 @@ env:
     value: "noreply@vuchuc789.co.uk"
   - name: FRONTEND_URL
     value: "https://cmp9785.vuchuc789.co.uk"
-  - name: OPENVERSE_URL
-    value: https://api.openverse.org
-  - name: OPENVERSE_CLIENT_ID
-    value: "3CH0Q11hWkc30y5GYz3Pre20NohyIv20K0tpf0Ok"
-  - name: OPENVERSE_CLIENT_SECRET
-    value: "rGHihC7flAYMDgQ3ntBy1pNoAnSQXavBHy7GRFoSdrCbcfDa7O0lSdNHbmn7l8oDVL3cxz4kRN6SRFetvhCx6RLqUC56AuxrHETzpWe222ammxJAjX7gQ9O7XmRJlZwH"
   - name: CDN_URL
     value: https://cdn.cmp9785.vuchuc789.co.uk
   - name: BUCKET_NAME

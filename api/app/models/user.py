@@ -41,7 +41,6 @@ class User(SQLModel, table=True):
     password_reset_token: str | None = None
 
     auth_sessions: list['AuthSession'] = Relationship(back_populates='user')
-    media_histories: list['MediaHistory'] = Relationship(back_populates='user')
     files: list['File'] = Relationship(back_populates='user')
 
 
@@ -56,18 +55,6 @@ class AuthSession(SQLModel, table=True):
 
     user_id: int | None = Field(default=None, foreign_key='users.id')
     user: User | None = Relationship(back_populates='auth_sessions')
-
-
-class MediaHistory(SQLModel, table=True):
-    __tablename__ = 'media_histories'
-    __table_args__ = {'extend_existing': True}
-
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    keyword: str
-    timestamp: datetime = Field(sa_column=sa.Column(sa.DateTime(timezone=True), nullable=False))
-
-    user_id: int | None = Field(default=None, foreign_key='users.id')
-    user: User | None = Relationship(back_populates='media_histories')
 
 
 class File(SQLModel, table=True):

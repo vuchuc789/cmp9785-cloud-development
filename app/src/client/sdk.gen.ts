@@ -34,17 +34,6 @@ import type {
   ResetPasswosdUsersResetPasswordPatchError,
   SendResetPasswordEmailUsersResetPasswordPostData,
   SendResetPasswordEmailUsersResetPasswordPostError,
-  SearchMediaMediaSearchGetData,
-  SearchMediaMediaSearchGetResponse,
-  SearchMediaMediaSearchGetError,
-  MediaDetailMediaDetailGetData,
-  MediaDetailMediaDetailGetResponse,
-  MediaDetailMediaDetailGetError,
-  DeleteHistoryMediaHistoryDeleteData,
-  DeleteHistoryMediaHistoryDeleteResponse,
-  DeleteHistoryMediaHistoryDeleteError,
-  GetHistoryMediaHistoryGetData,
-  GetHistoryMediaHistoryGetResponse,
   UploadFileFilesUploadPostData,
   UploadFileFilesUploadPostResponse,
   UploadFileFilesUploadPostError,
@@ -70,18 +59,12 @@ import {
   zVerifyEmailUsersVerifyEmailGetResponse,
   zSendVerificationEmailUsersVerifyEmailPostResponse,
   zResetPasswosdUsersResetPasswordPatchResponse,
-  zSearchMediaMediaSearchGetResponse,
-  zMediaDetailMediaDetailGetResponse,
-  zDeleteHistoryMediaHistoryDeleteResponse,
-  zGetHistoryMediaHistoryGetResponse,
   zUploadFileFilesUploadPostResponse,
   zListFilesFilesGetResponse,
   zRetryFileFilesFileIdRetryPatchResponse,
   zCancelFileFilesFileIdCancelPatchResponse,
 } from './zod.gen';
 import {
-  deleteHistoryMediaHistoryDeleteResponseTransformer,
-  getHistoryMediaHistoryGetResponseTransformer,
   uploadFileFilesUploadPostResponseTransformer,
   listFilesFilesGetResponseTransformer,
   retryFileFilesFileIdRetryPatchResponseTransformer,
@@ -373,110 +356,6 @@ export const sendResetPasswordEmailUsersResetPasswordPost = <
       'Content-Type': 'application/json',
       ...options?.headers,
     },
-  });
-};
-
-/**
- * Search Media
- */
-export const searchMediaMediaSearchGet = <ThrowOnError extends boolean = false>(
-  options: Options<SearchMediaMediaSearchGetData, ThrowOnError>
-) => {
-  return (options.client ?? _heyApiClient).get<
-    SearchMediaMediaSearchGetResponse,
-    SearchMediaMediaSearchGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    responseValidator: async (data) => {
-      return await zSearchMediaMediaSearchGetResponse.parseAsync(data);
-    },
-    url: '/media/search',
-    ...options,
-  });
-};
-
-/**
- * Media Detail
- */
-export const mediaDetailMediaDetailGet = <ThrowOnError extends boolean = false>(
-  options: Options<MediaDetailMediaDetailGetData, ThrowOnError>
-) => {
-  return (options.client ?? _heyApiClient).get<
-    MediaDetailMediaDetailGetResponse,
-    MediaDetailMediaDetailGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    responseValidator: async (data) => {
-      return await zMediaDetailMediaDetailGetResponse.parseAsync(data);
-    },
-    url: '/media/detail',
-    ...options,
-  });
-};
-
-/**
- * Delete History
- */
-export const deleteHistoryMediaHistoryDelete = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<DeleteHistoryMediaHistoryDeleteData, ThrowOnError>
-) => {
-  return (options?.client ?? _heyApiClient).delete<
-    DeleteHistoryMediaHistoryDeleteResponse,
-    DeleteHistoryMediaHistoryDeleteError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    responseTransformer: deleteHistoryMediaHistoryDeleteResponseTransformer,
-    responseValidator: async (data) => {
-      return await zDeleteHistoryMediaHistoryDeleteResponse.parseAsync(data);
-    },
-    url: '/media/history',
-    ...options,
-  });
-};
-
-/**
- * Get History
- */
-export const getHistoryMediaHistoryGet = <ThrowOnError extends boolean = false>(
-  options?: Options<GetHistoryMediaHistoryGetData, ThrowOnError>
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    GetHistoryMediaHistoryGetResponse,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    responseTransformer: getHistoryMediaHistoryGetResponseTransformer,
-    responseValidator: async (data) => {
-      return await zGetHistoryMediaHistoryGetResponse.parseAsync(data);
-    },
-    url: '/media/history',
-    ...options,
   });
 };
 
