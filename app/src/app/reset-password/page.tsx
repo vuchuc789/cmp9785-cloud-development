@@ -1,5 +1,10 @@
 import { EmailForm } from './email-form';
 import { ResetPasswordForm } from './reset-password-form';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Policy',
+};
 
 export default async function ResetPasswordPage({
   searchParams,

@@ -2,7 +2,7 @@ import { SignupForm } from '@/app/signup/signup-form';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Sign up',
+  title: 'SignUp',
 };
 
 export default function SignupPage() {

@@ -1,5 +1,10 @@
 import { verifyEmailUsersVerifyEmailGet } from '@/client';
 import { CircleCheck, CircleX } from 'lucide-react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Terms',
+};
 
 export default async function VerifyPasswordPage({
   searchParams,
