@@ -80,9 +80,11 @@ class FileService:
             )
             producer.produce(Topic.files.value, key=str(file_data.id), value=file_event.json())
 
-            db.refresh(file_data)
+            statement = select(UserFile).where(UserFile.id == file_data.id)
+            result = db.exec(statement)
+            file = result.one()
             # If the file processing was cancelled, exit
-            if file_data.status == FileProcessingStatus.cancelled:
+            if file.status == FileProcessingStatus.cancelled:
                 return
 
             self._update_status(
