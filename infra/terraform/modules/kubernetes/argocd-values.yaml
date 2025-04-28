@@ -5,6 +5,8 @@ notifications:
 configs:
   params:
     server.insecure: true
+  secret:
+    argocdServerAdminPassword: "$2a$10$V3ohEzZHI.clQF9peoeuH.HTOgJ/l6jpGKms/CQpbSayv2GWO/bUS" # NE7tqYxM6PWRG-wV
   cm:
     create: true
     annotations: {}
