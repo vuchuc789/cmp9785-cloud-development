@@ -58,13 +58,18 @@ class FileService:
 
     def _upload_file(
         self,
-        settings: Settings,
-        db: Session,
-        producer: Producer,
+        file_id: int,
         file_bytes: bytes,
-        file_data: UserFile,
     ):
         try:
+            db = next(get_session())
+            producer = get_producer()
+            settings = get_settings()
+
+            statement = select(UserFile).where(UserFile.id == file_id)
+            result = db.exec(statement)
+            file_data = result.one()
+
             upload_blob_from_memory(
                 settings.bucket_name,
                 file_bytes,
@@ -80,11 +85,10 @@ class FileService:
             )
             producer.produce(Topic.files.value, key=str(file_data.id), value=file_event.json())
 
-            statement = select(UserFile).where(UserFile.id == file_data.id)
-            result = db.exec(statement)
-            file = result.one()
+            db.refresh(file_data)
+
             # If the file processing was cancelled, exit
-            if file.status == FileProcessingStatus.cancelled:
+            if file_data.status == FileProcessingStatus.cancelled:
                 return
 
             self._update_status(
@@ -178,11 +182,8 @@ class FileService:
             file_bytes = await file.read()
             background_tasks.add_task(
                 self._upload_file,
-                settings,
-                db,
-                producer,
+                file_data.id,
                 file_bytes,
-                file_data,
             )
 
             self._update_status(
