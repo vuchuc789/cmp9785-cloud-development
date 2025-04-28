@@ -1,3 +1,9 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Policy',
+};
+
 export default function PrivacyPage() {
   return (
     <div className="grow flex flex-col">

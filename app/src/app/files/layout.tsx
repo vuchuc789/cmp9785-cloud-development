@@ -1,6 +1,11 @@
 import React, { Suspense } from 'react';
 
 import { FileProvider } from '@/contexts/file';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Files',
+};
 
 export default function Layout({
   children,
