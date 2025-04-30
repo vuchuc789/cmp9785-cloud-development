@@ -1,4 +1,6 @@
+import asyncio
 import contextlib
+import time
 import urllib
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
@@ -56,12 +58,15 @@ class FileService:
             value=noti_event.json(),
         )
 
-    def _upload_file(
+    async def _upload_file(
         self,
         file_id: int,
         file_bytes: bytes,
     ):
         try:
+            # Simulate delay like a real system
+            await asyncio.sleep(5)
+
             db = next(get_session())
             producer = get_producer()
             settings = get_settings()
@@ -309,6 +314,9 @@ class FileService:
     # Method for processing files in the file worker
     def process_file(self, msg: str):
         try:
+            # Simulate delay like a real system
+            time.sleep(5)
+
             # Parse the FileUploadedEvent from the message
             fileUploadedEvent = FileUploadedEvent.parse_raw(msg)
 
@@ -340,6 +348,9 @@ class FileService:
                 settings=settings,
             )
 
+            # Simulate delay like a real system
+            time.sleep(5)
+
             # Download the file from the URL
             file = requests.get(file_data.url)
 
@@ -363,6 +374,9 @@ class FileService:
 
             # Create a new file description and associate it with the file
             file_data.description = res.text
+
+            # Simulate delay like a real system
+            time.sleep(5)
 
             # Update the file status to success
             self._update_status(
