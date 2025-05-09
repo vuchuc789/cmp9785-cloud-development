@@ -24,6 +24,13 @@ minio:
 deploymentMode: SingleBinary
 singleBinary:
   replicas: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 400Mi
+    limits:
+      cpu: 1
+      memory: 2Gi
   persistence:
     size: 2Gi
 # Zero out replica counts of other deployment modes

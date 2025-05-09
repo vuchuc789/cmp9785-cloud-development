@@ -31,6 +31,7 @@ resource "google_compute_router_nat" "router_nat" {
   router = google_compute_router.router.name
 
   nat_ip_allocate_option             = "AUTO_ONLY"
+  auto_network_tier                  = "STANDARD"
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
   subnetwork {
