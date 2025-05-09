@@ -17,9 +17,6 @@ loki:
     volume_enabled: true
   ruler:
     enable_api: true
-  memcached:
-    results_cache:
-      enabled: false
 minio:
   enabled: true
   persistence:
@@ -62,4 +59,6 @@ bloomCompactor:
 bloomGateway:
   replicas: 0
 chunksCache:
+  enabled: false
+resultsCache:
   enabled: false

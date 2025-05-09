@@ -16,7 +16,7 @@ spec:
           - $values/infra/helm/values/loki-logs.yaml
         ignoreMissingValueFiles: true
     - repoURL: https://github.com/vuchuc789/cmp9785-cloud-development
-      targetRevision: main
+      targetRevision: optimize
       ref: values
   destination:
     server: https://kubernetes.default.svc
