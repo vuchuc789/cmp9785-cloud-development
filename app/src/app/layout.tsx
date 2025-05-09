@@ -23,8 +23,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Media Search',
-    default: 'Media Search',
+    template: '%s | FileDescriptor',
+    default: 'FileDescriptor',
   },
   description: 'Website for searching open-licence media',
 };
