@@ -10,5 +10,5 @@ terraform apply
 Get the new cluster credentials for accessing:
 
 ```
-gcloud container clusters get-credentials cmp9785-cluster --zone=europe-west2-b
+gcloud container clusters get-credentials cmp9785-cluster --zone=us-central1-b
 ```

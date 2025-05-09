@@ -7,14 +7,20 @@ terraform {
 
 module "addr" {
   source = "./modules/addr"
+
+  gcp_region = var.gcp_region
 }
 
 module "ssl" {
   source = "./modules/cert"
+
+  gcp_region = var.gcp_region
 }
 
 module "cdn" {
   source = "./modules/cdn"
+
+  gcp_region = var.gcp_region
 
   ip_id       = module.addr.cdn_ip_id
   cert_map_id = module.ssl.global_cert_map_id
@@ -22,6 +28,9 @@ module "cdn" {
 
 module "gke" {
   source = "./modules/gke"
+
+  gcp_region = var.gcp_region
+  gcp_zones  = var.gcp_zones
 }
 
 module "kubernetes" {

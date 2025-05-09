@@ -1,3 +1,17 @@
+variable "gcp_region" {
+  type    = string
+  default = "us-central1"
+}
+
+variable "gcp_zones" {
+  type = list(string)
+  default = [
+    "us-central1-a",
+    "us-central1-b",
+    "us-central1-c",
+  ]
+}
+
 variable "postgres_password" {
   type      = string
   sensitive = true

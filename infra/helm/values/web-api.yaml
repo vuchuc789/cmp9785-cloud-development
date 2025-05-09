@@ -57,7 +57,7 @@ env:
   - name: CDN_URL
     value: https://cdn.cmp9785.vuchuc789.co.uk
   - name: BUCKET_NAME
-    value: 13c21c572008135e-cmp9785-cdn-bucket
+    value: 6dfebdd7f47a32b1-cmp9785-cdn-bucket
   - name: KAFKA_SERVERS
     value: '["cmp9785-cluster-cmp9785-dual-role-0.cmp9785-cluster-kafka-brokers.kafka.svc.cluster.local:9092","cmp9785-cluster-cmp9785-dual-role-1.cmp9785-cluster-kafka-brokers.kafka.svc.cluster.local:9092","cmp9785-cluster-cmp9785-dual-role-2.cmp9785-cluster-kafka-brokers.kafka.svc.cluster.local:9092"]'
   - name: REDIS_HOST

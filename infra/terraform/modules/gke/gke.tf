@@ -1,5 +1,5 @@
 data "google_container_engine_versions" "cmp9785_k8s_version" {
-  location       = "europe-north2"
+  location       = var.gcp_region
   version_prefix = "1.32."
 }
 
@@ -14,7 +14,7 @@ resource "google_container_cluster" "cmp9785" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  location = "europe-north2"
+  location = var.gcp_region
 
   deletion_protection = false
 
@@ -60,8 +60,10 @@ resource "google_container_cluster" "cmp9785" {
 resource "google_container_node_pool" "cmp9785_nodes" {
   name    = "cmp9785-node-pool"
   cluster = google_container_cluster.cmp9785.name
+  # node_count = 6
 
-  location = "europe-north2"
+  location       = var.gcp_region
+  node_locations = var.gcp_zones
 
   version = data.google_container_engine_versions.cmp9785_k8s_version.release_channel_latest_version["STABLE"]
 
