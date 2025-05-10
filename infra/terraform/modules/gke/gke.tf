@@ -1,5 +1,5 @@
-data "google_container_engine_versions" "europewest2b" {
-  location       = "europe-west2-b"
+data "google_container_engine_versions" "cmp9785_k8s_version" {
+  location       = "europe-north2"
   version_prefix = "1.32."
 }
 
@@ -14,7 +14,7 @@ resource "google_container_cluster" "cmp9785" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  location = "europe-west2-b"
+  location = "europe-north2"
 
   deletion_protection = false
 
@@ -58,13 +58,12 @@ resource "google_container_cluster" "cmp9785" {
 }
 
 resource "google_container_node_pool" "cmp9785_nodes" {
-  name       = "cmp9785-node-pool"
-  cluster    = google_container_cluster.cmp9785.name
-  node_count = 6
+  name    = "cmp9785-node-pool"
+  cluster = google_container_cluster.cmp9785.name
 
-  location = "europe-west2-b"
+  location = "europe-north2"
 
-  version = data.google_container_engine_versions.europewest2b.release_channel_latest_version["STABLE"]
+  version = data.google_container_engine_versions.cmp9785_k8s_version.release_channel_latest_version["STABLE"]
 
   node_config {
     preemptible  = true
@@ -80,7 +79,14 @@ resource "google_container_node_pool" "cmp9785_nodes" {
   }
 
   management {
+    auto_repair  = true
     auto_upgrade = false
+  }
+
+  autoscaling {
+    total_min_node_count = 1
+    total_max_node_count = 6
+    location_policy      = "ANY"
   }
 }
 

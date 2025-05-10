@@ -11,7 +11,7 @@ terraform {
 
 provider "google" {
   project = "cmp9785"
-  region  = "europe-west2"
+  region  = "europe-north2"
 }
 
 data "google_client_config" "provider" {}
