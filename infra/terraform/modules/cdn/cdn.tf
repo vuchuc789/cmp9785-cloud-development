@@ -5,7 +5,7 @@ resource "random_id" "bucket_prefix" {
 
 resource "google_storage_bucket" "cdn" {
   name                        = "${random_id.bucket_prefix.hex}-cmp9785-cdn-bucket"
-  location                    = "europe-north2"
+  location                    = var.gcp_region
   uniform_bucket_level_access = true
   storage_class               = "STANDARD"
   // delete bucket and contents on destroy.

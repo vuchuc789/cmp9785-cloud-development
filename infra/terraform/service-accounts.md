@@ -46,7 +46,7 @@ export GOOGLE_CREDENTIALS="$(pwd)/sa-private-key.json"
 Create a new gcs bucket to store terraform state (replace `cmp-9785-terraform-state` with your own bucket name, and pick a location that is near you):
 
 ```
-gcloud storage buckets create gs://cmp-9785-terraform-state --location=europe-west2
+gcloud storage buckets create gs://cmp-9785-terraform-state --location=us-central1
 ```
 
 Update `providers.tf` with your bucket you have created. (It can be done by setting variables or using backend config, but I'm just lazy.)
