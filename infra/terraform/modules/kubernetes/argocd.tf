@@ -65,7 +65,7 @@ resource "kubernetes_manifest" "argocd_apps" {
       "project" = "cmp9785"
       "source" = {
         "repoURL"        = "https://github.com/vuchuc789/cmp9785-cloud-development"
-        "targetRevision" = "optimize"
+        "targetRevision" = "main"
         "path"           = "infra/kustomize/apps"
       }
       "destination" = {
